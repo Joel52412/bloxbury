@@ -3,6 +3,9 @@
 # The instrumental was split from backgorund music/Numbers.mp3 with UVR-MDX-NET-Inst_HQ_3 (vocals removed) and
 # Joel (22 Nov 12:14): loop after ~25 s. The loop is the song's first 10 bars (0.07-25.59 s, ~94 BPM), cut so the
 # attack of bar 11 lines up with the attack of bar 1 (sample-exact, 15 ms pre-roll where the old note's decay fades out).
+# Joel (12:18): the volume dipped at ~0:08-0:14 (bars 4-6 were a breakdown carried by the vocals, so the instrumental
+# went quiet). Bars 4-6 are replaced by the full bars 7-9 (bar order 1,2,3,7,8,9,7,8,9,10), spliced on the beat with
+# 15 ms crossfades. Every 0.25 s stays within about -17 to -25 dB, with no drop.
 # Stored as FLAC (Numbers_instrumental_loop.flac, 25.52 s) because MP3 padding would put tiny gaps between repeats.
 #
 # Usage inside a prep_pN.py, after voice + SFX are put into `mix` and BEFORE the peak normalise:
