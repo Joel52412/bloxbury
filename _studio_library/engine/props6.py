@@ -370,7 +370,7 @@ def p6_rae_door_set(RO, name="RaeDoor"):
     # porch lamp: the one practical light
     rb(name + "LampBox", (0.7, 0.6, 1.1), RO + _V6((-4.0, -0.3, 8.2)), dmat("lampBlack", (30, 30, 32), metal=0.4, rough=0.5), None, r=0.08)
     rb(name + "LampGlow", (0.5, 0.05, 0.8), RO + _V6((-4.0, -0.62, 8.2)), glow("lampWarm", (255, 200, 130), 8.0), None, r=0.04)
-    lp = bpy.data.lights.new(name + "Lamp", "POINT"); lp.energy = 220; lp.color = (1.0, 0.78, 0.52); lp.shadow_soft_size = 0.4
+    lp = bpy.data.lights.new(name + "Lamp", "POINT"); lp.energy = 260; lp.color = (1.0, 0.74, 0.46); lp.shadow_soft_size = 0.12   # small = crisp top-light shadows
     lo = bpy.data.objects.new(name + "Lamp", lp); COL_PROPS.objects.link(lo); lo.location = RO + _V6((-4.0, -1.4, 8.0))
     # door swung in 70 deg, hinge on the left (x=-2.5), chain from door edge to the frame
     hinge = root_of(name + "Hinge", RO + _V6((-2.45, 0.7, 0.5))); hinge.rotation_euler = (0, 0, math.radians(-68))
@@ -381,16 +381,14 @@ def p6_rae_door_set(RO, name="RaeDoor"):
     rcyl(name + "Peep", 0.1, 0.1, _V6((2.45, -0.22, 7.2)), brass, hinge, axis="Y", seg=14)
     rb(name + "Letter", (1.4, 0.08, 0.36), _V6((2.45, -0.22, 3.4)), brass, hinge, r=0.04)
     rcyl(name + "Knob", 0.2, 0.3, _V6((4.3, -0.32, 4.3)), brass, hinge, axis="Y", seg=18, bevel=0.08)
-    # chain: track on the frame (right casing), links reaching to the door's edge (pulled taut - the door won't open further)
-    hinge_m = hinge.matrix_basis.copy()
-    edge = hinge.location + _V6((math.cos(math.radians(-68)) * 4.6, math.sin(math.radians(-68)) * 4.6 + 0.3, 5.6))
-    track = RO + _V6((2.2, 0.9, 5.6))
-    rb(name + "Track", (0.18, 0.5, 0.9), track, brass, None, r=0.03)
-    n_l = 9; chm = dmat("chain", (190, 190, 185), metal=0.9, rough=0.3)
-    for k in range(n_l):
-        p = track.lerp(edge, (k + 0.5) / n_l); p.z -= 0.25 * math.sin(math.pi * (k + 0.5) / n_l)
-        d = (edge - track); ang = math.atan2(d.y, d.x)
-        rb(name + "Link", (0.26, 0.05, 0.12), p, chm, None, r=0.03, rot=(math.radians(90 * (k % 2)), 0, ang))
+    # security chain: track on the inside of the frame, chain UNHOOKED and hanging straight down (she just undid it)
+    track = RO + _V6((2.15, 0.95, 5.8))
+    rb(name + "Track", (0.16, 0.12, 0.9), track, brass, None, r=0.03)
+    chm = dmat("chain", (190, 190, 185), metal=0.9, rough=0.3)
+    for k in range(7):
+        rb(name + "Link", (0.11, 0.05, 0.2), track + _V6((0.0, -0.08, -0.25 - k * 0.17)), chm, None, r=0.03,
+           rot=(0, 0, math.radians(90 * (k % 2))))
+    rb(name + "ChainKnob", (0.16, 0.16, 0.16), track + _V6((0, -0.08, -1.5)), brass, None, r=0.07)
     # doormat
     plane(name + "Mat", 4.0, 2.4, RO + _V6((0, -2.2, 0.52)), imgmat(name + "MatM", mat_img("/tmp/p6_mat.png"), rough=1.0), None, rot=(math.radians(90), 0, math.pi))
     # hall behind (y 0.8 .. 16)
@@ -414,3 +412,28 @@ def p6_rae_door_set(RO, name="RaeDoor"):
     hf = bpy.data.lights.new(name + "HallFill", "AREA"); hf.energy = 260; hf.size = 6; hf.color = (1.0, 0.8, 0.58)
     ho = bpy.data.objects.new(name + "HallFill", hf); COL_PROPS.objects.link(ho); ho.location = RO + _V6((0, 9, 13.5))
     return r, hinge
+
+
+def p6_branches(name="Branches", loc=(15.2, -33.0, 9.0), seed=4):
+    """A bare-ish tree limb outside Milo's side window: a few tapering twigs + small leaf clusters. Cheap boxes, but
+    it's the room's COOKIE: the moon spot casts its moving shadow across Milo, the wall, the notes. Sway it with
+    rotation keys on the root (scene). Returns root."""
+    rnd = random.Random(seed); r = root_of(name, _V6(loc))
+    bark = dmat("bark", (60, 48, 40), rough=0.9); leaf = dmat("leafNight", (40, 60, 40), rough=0.9)
+
+    def limb(p, d, L, w, depth):
+        if depth == 0 or L < 0.6: return
+        q = p + d * L; mid = (p + q) / 2
+        rot = d.to_track_quat("Z", "Y").to_euler()
+        rb(name + "Twig", (w, w, L), mid, bark, r, r=min(0.05, w * 0.4), rot=tuple(rot))
+        if depth <= 2:
+            for k in range(2):
+                c = q + _V6((rnd.uniform(-0.5, 0.5), rnd.uniform(-0.5, 0.5), rnd.uniform(-0.3, 0.4)))
+                rb(name + "Leaf", (rnd.uniform(0.5, 0.9), rnd.uniform(0.5, 0.9), 0.12), c, leaf, r, r=0.05,
+                   rot=(rnd.uniform(-0.6, 0.6), rnd.uniform(-0.6, 0.6), rnd.uniform(0, 3)))
+        for k in range(2 if depth > 1 else 1):
+            nd = (d + _V6((rnd.uniform(-0.7, 0.7), rnd.uniform(-0.7, 0.7), rnd.uniform(-0.4, 0.5)))).normalized()
+            limb(q, nd, L * rnd.uniform(0.55, 0.75), w * 0.65, depth - 1)
+    limb(_V6((0, 0, -4.0)), _V6((-0.35, -0.25, 1)).normalized(), 3.2, 0.32, 4)
+    limb(_V6((0, 0, -1.0)), _V6((-0.4, 0.6, 0.6)).normalized(), 2.6, 0.22, 3)
+    return r

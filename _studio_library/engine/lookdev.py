@@ -5,7 +5,7 @@
 import bpy
 
 
-def cinematic_look(scene=None, exposure=0.0, bloom=0.5, vignette=0.32, split=True, look="AgX - Medium High Contrast"):
+def cinematic_look(scene=None, exposure=0.0, bloom=0.5, vignette=0.32, split=True, look="AgX - Medium High Contrast", fringe=0.012):
     s = scene or bpy.context.scene
     s.view_settings.view_transform = "AgX"
     try: s.view_settings.look = look
@@ -24,6 +24,12 @@ def cinematic_look(scene=None, exposure=0.0, bloom=0.5, vignette=0.32, split=Tru
             try: g.inputs[k].default_value = v
             except Exception: pass
         L.new(cur, g.inputs["Image"]); cur = g.outputs[0]
+    if fringe:                                                   # a hair of lens colour fringing at the frame edges (glass, not CG)
+        ld = N.new("CompositorNodeLensdist")
+        for k, v in (("Distortion", 0.0), ("Dispersion", fringe)):
+            try: ld.inputs[k].default_value = v
+            except Exception: pass
+        L.new(cur, ld.inputs["Image"]); cur = ld.outputs[0]
     if split:
         cb = N.new("CompositorNodeColorBalance")
         try:

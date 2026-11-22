@@ -295,7 +295,16 @@ NIGHT_LIGHTS = (MOON_SPOT, MOON_IN, DOOR_PRAC, ROOM_FILL, MILO_RIM, RAE_MOON, RA
 
 MOON_FACE = area("MoonFace", (8.0, -36.0, 8.0), (-6.2, -39.6, 4.6), 0, 3.0, (0.62, 0.74, 1.0))   # window-side soft key on faces
 FAIRY = area("FairyGlow", (-6.8, -47.6, 10.2), (-7.0, -49.0, 6.5), 0, 2.0, (1.0, 0.78, 0.5))       # motivated by the fairy lights
-NIGHT_LIGHTS = NIGHT_LIGHTS + (MOON_FACE, FAIRY)
+FAIRY_RIM = area("FairyRim", (-6.6, -47.8, 10.0), (-6.2, -39.6, 5.0), 0, 1.5, (1.0, 0.72, 0.42))  # warm edge on hair from the fairy lights
+SODIUM = area("Sodium", (31.0, -30.0, 11.0), (24.2, -37.0, 4.6), 0, 2.0, (1.0, 0.55, 0.22))         # street lamp: orange key
+YARD_RIM = area("YardRim", (15.0, -39.0, 12.0), (24.2, -37.0, 4.8), 0, 2.5, (0.62, 0.74, 1.0))      # moon edge from behind
+NIGHT_LIGHTS = NIGHT_LIGHTS + (MOON_FACE, FAIRY, FAIRY_RIM, SODIUM, YARD_RIM)
+BRANCH = p6_branches("Branches")
+
+
+def cookie_on(a, b, x=15.6):
+    """Put the branch cookie on the moon's line a->b, just outside the window (x), so its shadow lands in shot."""
+    a, b = V(a), V(b); t = (a.x - x) / (a.x - b.x); BRANCH.location = a.lerp(b, t) + V((0, 0.9, 0.7))   # offset: branches dapple the subject, never black it out
 
 
 def aim(L, tgt):
@@ -305,9 +314,11 @@ def aim(L, tgt):
 
 def night(**en):
     set_night(0.0); house_lights(0.0, False)
+    M_RED_TEXT.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = en.pop("clock", 1.2)   # red 3AM clock: an accent, not a red wash
     mo = [o for o in bpy.data.objects if o.data == MOON_SPOT][0]
     mo.location = V(en.pop("moon_from", (24.0, -34.0, 13.0)))         # always a line that passes through the side window
     aim(MOON_SPOT, en.pop("moon_at", (-2.0, -39.0, 1.5)))
+    cookie_on(mo.location, en.pop("cookie_at", (-2.0, -39.0, 1.5))) if en.pop("cookie", True) else None
     key(MILO_LIGHT, "energy", 0.0, en.pop("room", 0))                    # Part 1's warm room bulb: off unless asked
     for L in NIGHT_LIGHTS: L.energy = en.get(L.name, 0)
 
@@ -322,53 +333,54 @@ def stand(P):
 
 
 def sh_hook():
-    night(MoonSpot=6000, MoonFace=380, DoorPrac=110, RoomFillA=18, MiloRimA=420, moon_at=(-7.5, -42.0, 5.0)); only(milo); stand(milo)
+    night(MoonSpot=45000, DoorPrac=30, RoomFillA=8, FairyRim=140, moon_from=(24.0, -32.8, 9.7), moon_at=(-6.2, -39.6, 4.9),
+          cookie_at=(-6.2, -39.6, 4.8), cookie=os.environ.get('COOK', '1') == '1'); only(milo); stand(milo)
     sit(milo, (-6.2, -39.6, 0.55), -34)
     arm(milo, "Right", 1, target=tuple(float(v) for v in os.environ.get("HAND", "-1.3,1.6,5.4").split(","))); arm(milo, "Left", 1, target=(-0.6, 1.4, 2.6))
     setface(fm, "scared", "rest_frown")
-    look((-2.9, -34.9, 6.2), (-6.1, -39.5, 4.7), 46, fstop=2.8)
+    look((-5.3, -34.7, 6.0), (-6.1, -39.5, 4.75), 46, fstop=2.4)
 
 
 def sh_door_feet():
-    night(MoonSpot=6000, RoomFillA=25, moon_at=(-1.5, -31.0, 2.0)); only()
+    night(MoonSpot=6000, RoomFillA=25, moon_at=(-1.5, -31.0, 2.0), cookie=False); only()
     look((1.6, -37.4, 1.25), (0.0, -30.8, 0.9), 32, fstop=3.5)
 
 
 def sh_door():
-    night(MoonSpot=9000, RoomFillA=50, moon_at=(-1.2, -31.0, 4.5)); only()
+    night(MoonSpot=9000, RoomFillA=50, moon_at=(-1.2, -31.0, 4.5), cookie=False); only()
     look((0.6, -41.5, 5.2), (0.0, -30.7, 5.0), 30)
 
 
 def sh_drawing():
-    night(FairyGlow=55, RoomFillA=10, MoonSpot=2000, moon_at=(-4.0, -44.0, 1.0)); only(); s.view_settings.exposure = -0.2   # white paper: no lift
+    night(FairyGlow=70, RoomFillA=8, cookie=False); only(); s.view_settings.exposure = -0.2   # white paper: no lift
     look((-5.6, -43.8, 6.4), (-7.0, -49.0, 7.0), 45, fstop=4.0)
 
 
 def sh_note_front():
-    night(MoonSpot=5200, RoomFillA=80, DoorPrac=80, moon_from=(24.0, -22.0, 18.0), moon_at=(4.5, -43.3, 0.4)); only()
+    night(MoonSpot=5200, RoomFillA=80, DoorPrac=80, moon_from=(24.0, -22.0, 18.0), moon_at=(4.5, -43.3, 0.4), cookie_at=(4.5, -43.3, 0.4)); only()
     look((4.6, -41.3, 2.6), (4.4, -43.4, 0.45), 40, fstop=4.0)
 
 
 def sh_note_back():
-    night(MoonSpot=5200, RoomFillA=80, DoorPrac=80, moon_from=(24.0, -22.0, 18.0), moon_at=(4.5, -43.3, 0.4)); only()
+    night(MoonSpot=5200, RoomFillA=80, DoorPrac=80, moon_from=(24.0, -22.0, 18.0), moon_at=(4.5, -43.3, 0.4), cookie_at=(4.5, -43.3, 0.4)); only()
     NOTE.rotation_euler = (0, DEG(180), DEG(-18)); NOTE.location.z = 0.43
     look((4.6, -41.3, 2.6), (4.4, -43.4, 0.45), 40, fstop=4.0)
 
 
 def sh_window_in():
-    night(MoonSpot=9000, RoomFillA=25, MoonIn=200); only(); SW_LOWER.location.z = 4.4 + 1.0 + 0.7 * 1.8
+    night(MoonSpot=9000, RoomFillA=25, MoonIn=200, moon_from=(24.0, -32.8, 9.0), moon_at=(2.0, -38.0, 3.0), cookie_at=(2.0, -38.0, 3.0)); only(); SW_LOWER.location.z = 4.4 + 1.0 + 0.7 * 1.8
     look((3.0, -39.8, 5.4), (11.0, -35.5, 6.2), 28)
 
 
 def sh_yard():
-    night(YardMoon=2600, WinGlow=260, room=300, RaeRim=0); only(milo); stand(milo); aim(YARD_MOON, (24.2, -37.0, 3.0))
+    night(YardMoon=700, WinGlow=180, room=300, Sodium=2600, YardRim=700, cookie=False); only(milo); stand(milo); aim(YARD_MOON, (24.2, -37.0, 3.0))
     pose(milo, (24.2, -37.0, 0.0), -90); arm(milo, "Right", 1, euler=(25, 8)); arm(milo, "Left", 1, euler=(-20, -8))
     setface(fm, "scared", "rest_frown")
     look((33.5, -42.5, 4.6), (22.0, -36.5, 3.0), 28)
 
 
 def sh_rae_door():
-    night(RaeMoon=260, RaeRim=420); only(rae, milo); stand(milo); stand(rae)
+    night(RaeMoon=140, RaeRim=520, cookie=False); only(rae, milo); stand(milo); stand(rae)
     pose(rae, RO + V((0.5, -0.2, 0.5)), 190); arm(rae, "Right", 1, target=(0.6, 1.6, 3.4)); arm(rae, "Left", 1, euler=(4, -6))
     pose(milo, RO + V((-1.6, -6.2, 0.5)), 8)
     setface(frae, "nervous", "rest_flat"); setface(fm, "scared", "rest_frown")
@@ -376,7 +388,7 @@ def sh_rae_door():
 
 
 def sh_phone():
-    night(RaeMoon=160); only(rae); stand(rae)
+    night(RaeMoon=120, cookie=False); only(rae); stand(rae)
     pose(rae, RO + V((0.5, -0.2, 0.5)), 180); arm(rae, "Left", 1, target=(-0.3, 1.9, 4.3)); arm(rae, "Right", 1, euler=(4, 6))
     PHONE.rotation_euler = (0, 0, DEG(180))                     # she turns the screen to Milo: "Milo" is calling
     TORCH_BEAM.data.energy = 0; setface(frae, "scared", "rest_frown")
