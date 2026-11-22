@@ -397,7 +397,7 @@ kf(milo["root"], "location", FT(47.4), (-6.6, -31.9, 0.4))
 expr(fm, FT(45.8), "nervous"); expr(fm, FT(46.9), "curious"); expr(fm, FT(47.4), "curious")
 chest(milo, FT(46.9), 0); chest(milo, FT(47.2), -8); neck(milo, FT(46.9), 0, 0, 0); neck(milo, FT(47.3), -4, 0, -10)
 # ---- V 48.8-52.1 "Then it went quiet." Push in on his face. Silence.
-place(milo, FT(48.8), (-6.6, -32.6, 0.4), 180)
+place(milo, FT(48.8), (-7.6, -32.6, 0.4), 180)
 idle(milo, FT(48.8), FT(55.4), base_z=0.4, amp=0.008)
 arms_down(milo, FT(48.8)); chest(milo, FT(48.8)); neck(milo, FT(48.8), 0, 0, 0)
 expr(fm, FT(48.8), "nervous"); expr(fm, FT(50.4), "sad"); expr(fm, FT(51.6), "nervous"); blink(fm, FT(49.9)); blink(fm, FT(51.3))
@@ -414,7 +414,7 @@ for t in (53.69, 53.99, 54.26, 54.53):
     f = FT(t); kf(HINGE, "rotation_euler", f - 1, (0, 0, 0)); kf(HINGE, "rotation_euler", f, (0, 0, DEG(-1.2)), interp="LINEAR")
     kf(HINGE, "rotation_euler", f + 3, (0, 0, 0))
 # ---- X 55.4-57.5 "From INSIDE my closet." His face, shake.
-place(milo, FT(55.4), (-6.6, -32.6, 0.4), -160)
+place(milo, FT(55.4), (-7.6, -32.6, 0.4), -160)
 neck(milo, FT(55.4), 0, 0, 0); chest(milo, FT(55.4), 0, 0, 0)
 expr(fm, FT(55.4), "shocked"); expr(fm, FT(57.4), "scared")
 chest(milo, FT(55.5), 0); chest(milo, FT(55.7), -8); chest(milo, FT(57.4), -6)
@@ -545,7 +545,7 @@ kro.location = (6.4, -48.6, 9.5); kro.rotation_euler = (V((5.2, -45.2, 4.8)) - k
 for fr_k, e_k in ((1, 0), (FT(59.7), 0), (FT(59.75), 650), (FT(62.35), 0)):
     kf(krim, "energy", fr_k, e_k, interp="CONSTANT")
 # "Then it went quiet." - behind Milo, through the window: his silhouette and eyes, gone by the next beat
-WIN_HEAD = V((-8.0, -28.0, 5.7))
+WIN_HEAD = V((-5.95, -28.0, 5.6))
 for o in KOBJ:
     kf(o, "hide_render", FT(49.7), False, interp="CONSTANT"); kf(o, "hide_render", FT(51.7), True, interp="CONSTANT")
 k_place(FT(49.7), WIN_HEAD, 182, interp="BEZIER"); k_place(FT(51.6), WIN_HEAD + V((0.1, 0.15, -0.05)), 186, interp="CONSTANT")
@@ -616,9 +616,10 @@ shot("F fence wide", 11.9, 14.75, [(0, (25.0, -15.0, 5.4), (25.0, -27, 3.6), 26)
 RH = V((26.7, -27, 4.6)); MH = V((23.3, -27, 4.6))
 shot("G Rae close", 14.75, 18.85, [(0, RH + V((-4.8, -3.4, 0.3)), RH, 46), (0.45, RH + V((-4.4, -3.1, 0.25)), RH + V((0, 0, 0.05)), 50), (1, RH + V((-3.8, -2.6, 0.2)), RH, 56)])
 shot("H Milo listens", 18.85, 20.2, [(0, MH + V((4.6, -3.2, 0.3)), MH, 50), (1, MH + V((4.2, -2.9, 0.25)), MH, 54)])
-shot("I ECU EVER", 20.2, 21.4, [(0, RH + V((-3.6, -2.2, 0.15)), RH + V((0, 0, 0.05)), 58), (0.12, RH + V((-3.3, -2.0, 0.15)), RH + V((0, 0, 0.05)), 62),
-                                (0.25, RH + V((-3.38, -2.05, 0.2)), RH + V((0, 0, 0.08)), 62), (0.4, RH + V((-3.3, -2.0, 0.13)), RH + V((0, 0, 0.05)), 62),
-                                (1, RH + V((-3.2, -1.95, 0.15)), RH + V((0, 0, 0.05)), 64)])
+RF = RH + V((-0.45, 0, 0.0))
+shot("I ECU EVER", 20.2, 21.4, [(0, RH + V((-3.8, -1.6, 0.15)), RF, 48), (0.12, RH + V((-3.5, -1.45, 0.15)), RF, 52),
+                                (0.25, RH + V((-3.58, -1.5, 0.2)), RF + V((0, 0, 0.03)), 52), (0.4, RH + V((-3.5, -1.45, 0.13)), RF, 52),
+                                (1, RH + V((-3.4, -1.4, 0.15)), RF, 54)])
 shot("J two-shot", 21.4, 23.8, [(0, (25.0, -14.0, 5.0), (25.0, -27, 4.0), 28), (1, (25.0, -16.0, 4.9), (25.0, -27, 4.1), 32)])
 shot("K Rae lifts the list", 23.8, 25.0, [(0, RH + V((-5.0, -3.6, 0.0)), RH + V((-0.4, 0, -0.3)), 40), (1, RH + V((-4.6, -3.2, 0.0)), RH + V((-0.4, 0, -0.3)), 44)])
 NP_ = NOTE_POS + V((0, 0, 3.0))
@@ -636,7 +637,7 @@ shot("S lamps die", 41.6, 43.3, [(0, (14, -10, 9), (-160, 14, 10), 24), (1, (14,
 shot("T front door inside", 43.3, 45.8, [(0, (2.0, -43.5, 4.6), (0.4, -31.0, 4.0), 28), (1, (1.8, -42.0, 4.6), (0.5, -31, 4.2), 32)])
 shot("U to the window", 45.8, 47.4, [(0, (-1.0, -38.5, 5.0), (-6.0, -32.3, 4.4), 32), (1, (-2.2, -37.4, 5.0), (-6.6, -32.0, 4.5), 36)])
 shot("U2 nobody", 47.4, 48.8, [(0, (-7.25, -30.75, 5.9), (-1.5, -22.0, 1.6), 26), (1, (-7.25, -30.7, 5.9), (-1.2, -21.0, 1.4), 28)], fstop=8)
-FACE = V((-6.6, -32.6, 5.0))
+FACE = V((-7.6, -32.6, 5.0))
 shot("V it went quiet", 48.8, 52.1, [(0, FACE + V((0.4, -5.8, 0)), FACE, 42), (1, FACE + V((0.3, -4.6, 0.05)), FACE, 46)])
 shot("W knocking again", 52.1, 53.95, [(0, FACE + V((0.3, -4.4, 0.05)), FACE, 50), (1, FACE + V((0.25, -4.0, 0.05)), FACE, 52)])
 CLD = V((CL_X, CL_Y, 3.0))
