@@ -4,7 +4,9 @@
 # Only what is listed here is approved for episodes. Anything else in the engine files is lab/test material.
 
 STUDIO = {
-    "version": "2026-11-21b",
+    "version": "2026-11-22",
+    "recurring": ["MILO (rig2.make_milo)", "RAE (recurring.make_rae)", "MAYOR (recurring.make_mayor)"],
+    "monsters": ["KNOCKER (monster.make_knocker): keep him in the dark, eyes pop, cool rim for silhouette, faint red underglow"],
     "face_style": "M2",   # midway Classic/Minimal, bright eye shine at 70% opacity
     "face_emotions": ["happy", "laugh", "angry", "sad", "shocked", "smug", "scared", "determined",
                       "crying", "evil", "sleepy", "wink"],

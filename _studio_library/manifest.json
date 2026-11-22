@@ -1,6 +1,6 @@
 {
   "studio": "Joel's Roblox shorts studio - approved asset library",
-  "version": "2026-11-21c",
+  "version": "2026-11-22",
   "approved_by": "Joel",
   "face_style": {
     "M2": "midway between Classic and Minimal; thin expressive brows; bright eye shine at 70% opacity",
@@ -148,5 +148,13 @@
     "house plant",
     "wall clock",
     "wheelie bin"
-  ]
+  ],
+  "recurring_cards": {
+    "MILO": "mustard keyhole hoodie, M4 brown hair, key necklace, white/red trainers (rig2.make_milo, approved Test 2)",
+    "RAE": "purple hoodie, black X5 two braids, dark jeans, lilac trainers (recurring.make_rae, approved 22 Nov)",
+    "MAYOR": "dark suit, red tie, grey X1 crop, glasses (recurring.make_mayor, approved 22 Nov)"
+  },
+  "monsters": {
+    "KNOCKER": "10.5-12 studs, starved/hunched, smooth spline limbs, arms past knees, pale claws, tilted skull, black sockets + pinpoint white eyes, red cheek-to-cheek grin of thin teeth (monster.make_knocker, approved 22 Nov). Light him dark: eyes pop, cool rim silhouette, faint red underglow."
+  }
 }

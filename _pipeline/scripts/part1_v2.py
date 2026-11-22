@@ -25,7 +25,7 @@ for f in ("charlib", "stylelab", "hair2", "hair3", "faces2", "garments", "garmen
 V = Vector
 ENV = json.load(open("/home/claude/talk/env_p1.json"))
 exec(open(SCR + "rig2.py").read())       # kf, apply_interp, upgrade_rig, arm, face v2, expr, lipsync ... (R = radians now)
-exec(open(SCR + "monster.py").read())    # THE KNOCKER (pending Joel's approval)
+exec(open(LIB + "monster.py").read())    # THE KNOCKER (studio library)
 DEG = math.radians
 OUT = os.environ.get("OUT", "/home/claude/talk/frames_p1")
 os.makedirs(OUT, exist_ok=True)
@@ -130,29 +130,7 @@ def strip_faces(P):
 
 
 # ------------------------------------------------------------------ cast (recurring = fixed cards)
-def make_rae():
-    """RAE (fixed card, new): purple hoodie, black two braids, dark jeans, lilac trainers, red notebook."""
-    S = new_set(); skin = (176, 122, 88); rng = RNG(311)
-    d_hoodie(S, (122, 84, 170), rng, skin)
-    b_trousers(S, (30, 30, 40), rng, kind="jeans")
-    for k in LEGS: shoes(S[k], (205, 170, 240), (70, 45, 100))
-    finish(S, rng)
-    P = build_body("Rae", skin, S)
-    add_hair4(P, "X5", random.Random(5), colour=(24, 20, 20))
-    return P
-
-
-def make_mayor():
-    """THE MAYOR (fixed card, new): dark suit, red tie, grey crop (older man), glasses."""
-    S = new_set(); skin = (234, 184, 146); rng = RNG(512)
-    d_suit(S, rng, skin, col=(30, 30, 36), tie=(160, 25, 40))
-    b_trousers(S, (30, 30, 36), rng, kind="tailored")
-    s_shoes(S, "loafers", (15, 15, 18), rng)
-    finish(S, rng)
-    P = build_body("Mayor", skin, S)
-    add_hair4(P, "X1", random.Random(9), colour=(150, 150, 155))
-    a_glasses(P)
-    return P
+exec(open(LIB + "recurring.py").read())   # RAE + MAYOR fixed cards (studio library)
 
 
 def make_neighbour():

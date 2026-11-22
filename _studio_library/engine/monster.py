@@ -1,4 +1,4 @@
-# monster.py - "THE KNOCKER" (Bloxbury's closet creature). NOT in the studio library until Joel approves it.
+# monster.py - "THE KNOCKER" (Bloxbury's closet creature). APPROVED by Joel 22 Nov 2026 - studio library monster.
 # Original design: ~12 studs tall (2.4x Milo), starved and stick-thin, hunched, smooth sinewy limbs (not blocky),
 # arms past the knees with long pale-clawed fingers, narrow skull pushed forward and tilted, deep black sockets with
 # tiny glowing white eyes, and a cheek-to-cheek grin of thin teeth glowing red-orange from inside.
