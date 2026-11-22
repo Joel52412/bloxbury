@@ -73,14 +73,8 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - Asset-sheet stills, test stills and quick generations (a handful of frames). Measured: about 6–7 min for a full 10-still sheet, free.
   - A new pod would take 12–15 min for the same job, because setup alone is 8–12 min.
 - **On RunPod GPUs (they're there to save time):**
-  - Anything long: the full low-res preview and the full-res final. In the workspace a preview took about 75 min on 2 CPUs and gets stopped when a reply ends; on a pod it's about 15–20 min including setup.
-  - Once a pod is already up for an episode, small stills go there too (seconds).
-- **One pod per episode:**
-  1. Low-res preview (216×384, 4 samples): contact sheets come back through `exec-pod` as base64 for Claude to review, then go to Joel.
-  2. Fixes.
-  3. Full-res render (1080×1920, 32 samples).
-  4. Frame check, then `make_partN.sh`.
-  - Keep the pod alive between these steps. The price rule below still applies before creating it.
+  - Only the full-res final (the low-res preview was retired 22 Nov 15:05; per-shot stills + `check_shots` here replace it).
+- **One pod per episode:** setup (under 1 min with the ready-made image) → full-res render (1080×1920, 32 samples) → the pod checks frames and assembles the video itself → the Render Monitor downloads it → the pod deletes itself. The price rule below still applies before creating it.
 
 ## RunPod
 - **Before you create:** state the price first, and Joel must OK pod creation (the auto-check can block it). When offering cards, give each option's **hourly price, total time and total cost**, and always include **multi-GPU options** (2×, 3×).
