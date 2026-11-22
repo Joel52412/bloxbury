@@ -340,7 +340,7 @@ def sh_door():
 
 
 def sh_drawing():
-    night(FairyGlow=55, RoomFillA=10, MoonSpot=2000, moon_at=(-4.0, -44.0, 1.0)); only()
+    night(FairyGlow=55, RoomFillA=10, MoonSpot=2000, moon_at=(-4.0, -44.0, 1.0)); only(); s.view_settings.exposure = -0.2   # white paper: no lift
     look((-5.6, -43.8, 6.4), (-7.0, -49.0, 7.0), 45, fstop=4.0)
 
 
@@ -386,7 +386,7 @@ def sh_phone():
 
 
 def sh_props():
-    set_day(0.0); only()
+    set_day(0.0); only(); s.view_settings.exposure = -0.6                 # bright studio cyc: the night lift would blow it out
     look(SO + V((0, -5.6, 4.6)), SO + V((0, -0.5, 0.3)), 36)
 
 
@@ -430,6 +430,7 @@ for name, (rx, ry), fn in SHOT_LIST:
         if o.animation_data and o.animation_data.action: o.animation_data_clear()
     _MEV.clear(); _CUTS.clear(); reset_arms(); stand(milo)
     NOTE.rotation_euler = (0, 0, DEG(-18)); SW_LOWER.location.z = 4.4 + 1.0; TORCH_BEAM.data.energy = 900; PHONE.rotation_euler = (0, 0, 0)
+    s.view_settings.exposure = 0.9 if os.environ.get("LOOK", "1") == "1" else 0.0
     fn()
     flush_mouths(); apply_interp(); apply_interpolation()
     s.render.resolution_x, s.render.resolution_y = int(rx * SCALE), int(ry * SCALE)
