@@ -94,13 +94,21 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - Clone: `git clone --depth 1 https://x-access-token:$T@github.com/Joel52412/bloxbury.git /workspace/bloxbury`.
   - Then `nohup sh /workspace/bloxbury/_pipeline/pod_setup.sh > setup.log &`. It installs apt packages and Blender 5.3 (note: no `-q` on `ensurepip`), and lays files out under `/home/claude`.
   - RunPod secret `GITHUB_RO` (id `we7rf4p3y8`) holds Joel's fine-grained token "robloxrepo" for this repo. It's currently over-scoped (read+write); a read-only one is a todo.
-- **Multi-GPU:** `sh /workspace/bloxbury/_pipeline/pod_render.sh test2.py <NF> /workspace/frames` runs one Blender per GPU (`CUDA_VISIBLE_DEVICES`, `FS`/`FE` split). Logs go to `render_gpuN.log`.
+- **Multi-GPU (22 Nov 14:30): one shared frame queue.** `sh /workspace/bloxbury/_pipeline/pod_render.sh partN.py <NF> /workspace/frames` starts one Blender per GPU, every one over the WHOLE range (FS=1, FE=N). Blender placeholders make each GPU claim the next free frame, so a slow GPU never holds the finish back.
+  - It also starts `pod_progress.py`, which writes the tiny `/workspace/render_progress.json` every 2 s: done/total, fps over the last 90 s, ETA, and per-GPU frames from the `render_gpuN*.log` "Saved:" lines.
+  - It also starts `pod_balance.sh`, which restarts a helper on any GPU that goes idle while unclaimed frames remain.
+  - Part 2 found the problem: with the old static split, GPU 0 (kitchen frames) ran at 0.27 fps against 0.40 on GPU 2.
 - **Download:** **always give Joel the full download link** with the token in it: `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. If Jupyter shows a login page, he pastes the token there. Delete the pod after he confirms.
 - **Long jobs:** use `nohup`; `exec-pod` calls max out at 25 s.
 - **Tracking (Joel, 22 Nov 14:18):** the moment a render starts, send Joel the tracking block without being asked:
   - pod id, Jupyter token, and the Jupyter frames-folder link (`https://<pod>-8888.proxy.runpod.net/tree/workspace/frames?token=<token>`)
   - cards and price per hour, frames done/total, estimated finish time and estimated total cost
   - a reminder that `_tools/Render Monitor.bat` shows it live
+- **Render Monitor (`_tools/render_monitor.py`, redesigned 22 Nov 14:30):**
+  - Polls laptop folders every 2 s and pods every 5 s. On a pod it reads only `render_progress.json`; the full folder listing is a fallback, at most every 30 s, for older pods.
+  - The ETA comes from the pod's live speed, so it updates when the render speeds up or slows down.
+  - Each job is a card: progress bar, frames, time left, finish clock, speed, running time, cost (spent / estimated total) and per-GPU lanes.
+  - Live window title, an "Open frames" button (Jupyter link), and a beep + bring-to-front when a render finishes.
 - **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`, `cost_per_hr`, `pod_started` = the pod's createdAt, which shows spend) and give Joel the pod id and Jupyter token.
 
 ## Engine

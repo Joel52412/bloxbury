@@ -31,9 +31,10 @@ CONFIG_PATH = os.path.join(HERE, "render_jobs.json")
 DEFAULT_CONFIG = {
     "watch_folders": [],          # e.g. ["C:/Users/frimp/Downloads/robloxshorts/series"]
     "jobs": [],                   # manual / RunPod jobs
-    "poll_seconds": 5,            # local folders
-    "remote_poll_seconds": 20,    # RunPod pods
+    "local_poll_s": 2,            # laptop folders (just counts files: costs nothing)
+    "remote_poll_s": 5,           # RunPod pods: reads the pod's tiny render_progress.json (a few hundred bytes)
 }
+# older settings files used poll_seconds / remote_poll_seconds (5 / 20); the new keys above replace them
 
 # ---------------------------------------------------------------- config ---
 def load_config(path=CONFIG_PATH):
@@ -99,6 +100,11 @@ def remote_job_info(pod_id, token):
     except Exception:
         return {}
 
+def remote_progress(pod_id, token):
+    """The pod's /workspace/render_progress.json, written every 2 s by _pipeline/pod_progress.py (tiny)."""
+    d = _jupyter_get(pod_id, token, "workspace/render_progress.json", timeout=8)
+    return json.loads(d.get("content") or "{}")
+
 def count_remote(pod_id, token, remote_dir, fs=None, fe=None):
     d = _jupyter_get(pod_id, token, remote_dir)
     n = 0
@@ -127,6 +133,9 @@ class Job:
         self.finished_at = None
         self.alerted = False
         self.next_poll = 0.0
+        self.pod = None                    # last render_progress.json from the pod
+        self.pod_rx = 0.0                  # when we received it (laptop clock)
+        self.next_listing = 0.0            # fallback folder listing, at most every 30 s
 
     # spec helpers
     @property
@@ -159,7 +168,7 @@ class Job:
         fs, fe = s.get("frame_start"), s.get("frame_end")
         try:
             if self.kind == "runpod":
-                self.next_poll = now + cfg.get("remote_poll_seconds", 20)
+                self.next_poll = now + cfg.get("remote_poll_s", 5)
                 if not s.get("_info_loaded"):
                     info = remote_job_info(s["pod_id"], s["token"])
                     for k, v in info.items():
@@ -168,9 +177,23 @@ class Job:
                     if info:                     # keep retrying until the pod's render_job.json is readable
                         s["_info_loaded"] = True
                     fs, fe = s.get("frame_start"), s.get("frame_end")
-                n = count_remote(s["pod_id"], s["token"], s.get("remote_dir", "workspace/frames"), fs, fe)
+                prog = None
+                try:
+                    prog = remote_progress(s["pod_id"], s["token"])
+                except Exception:
+                    prog = None
+                if prog and "done" in prog:
+                    self.pod, self.pod_rx = prog, now
+                    n = int(prog["done"])
+                    if prog.get("total") and not s.get("total"):
+                        s["total"] = int(prog["total"])
+                elif now >= self.next_listing:          # older pods without the progress file: list the folder, slowly
+                    self.next_listing = now + 30
+                    n = count_remote(s["pod_id"], s["token"], s.get("remote_dir", "workspace/frames"), fs, fe)
+                else:
+                    return
             else:
-                self.next_poll = now + cfg.get("poll_seconds", 5)
+                self.next_poll = now + cfg.get("local_poll_s", 2)
                 folder = s["path"]
                 if s.get("frames"):
                     folder = os.path.join(folder, s["frames"])
@@ -208,13 +231,15 @@ class Job:
             self.status = "stalled" if quiet > limit else "rendering"
 
     def sec_per_frame(self):
-        """Recent speed: frames over the last ~3 minutes (falls back to all samples)."""
+        """Recent speed. Pods report it themselves (all GPUs together); otherwise frames over the last ~90 s."""
+        if self.pod and self.pod.get("fps_60s") and time.time() - self.pod_rx < 60:
+            return 1.0 / self.pod["fps_60s"]
         if len(self.samples) < 2:
             return None
         t1, n1 = self.samples[-1]
         t0, n0 = self.samples[0]
         for t, n in self.samples:
-            if t1 - t <= 180:
+            if t1 - t <= 90:
                 t0, n0 = t, n
                 break
         if n1 - n0 <= 0:
@@ -228,6 +253,9 @@ class Job:
             return 0
         if self.status in ("stalled", "offline", "error"):
             return None                              # no honest countdown while it isn't moving
+        if self.pod and self.pod.get("eta_s") is not None and time.time() - self.pod_rx < 60:
+            # the pod knows each GPU's speed; the slowest GPU decides when it is really finished
+            return max(0.0, float(self.pod["eta_s"]) - (time.time() - self.pod_rx))
         spf = self.sec_per_frame()
         if not spf or not self.total:
             return None
@@ -443,126 +471,209 @@ def text_mode(mon, once=False):
                 print("  %-24s %s %s" % (j.name[:24], bar(j.fraction()), job_line(j)))
         if once:
             return
-        time.sleep(2)
+        time.sleep(1)
 
 # --------------------------------------------------------------- window ----
+def pod_link(j):
+    s = j.spec
+    if j.kind != "runpod" or not s.get("pod_id"):
+        return None
+    return "https://%s-8888.proxy.runpod.net/tree/%s?token=%s" % (s["pod_id"].strip(), s.get("remote_dir", "workspace/frames"), s["token"].strip())
+
 def gui_mode(mon):
     import tkinter as tk
-    from tkinter import ttk, filedialog, messagebox
+    from tkinter import filedialog, messagebox
+    import webbrowser
 
-    BG, FG, SUB = "#16181d", "#e8e8ea", "#9aa0aa"
+    BG, CARD, LINE, FG, SUB, DIM = "#101217", "#191c23", "#262a33", "#eceef2", "#a3a9b4", "#6b7280"
     COL = {"rendering": "#3b82f6", "done": "#22c55e", "stalled": "#f59e0b",
            "waiting": "#6b7280", "offline": "#6b7280", "error": "#ef4444"}
+    LABEL = {"rendering": "RENDERING", "done": "DONE", "stalled": "STALLED", "waiting": "WAITING",
+             "offline": "OFFLINE", "error": "ERROR"}
+    F = lambda size, w="normal": ("Segoe UI", size, w)
 
     root = tk.Tk()
     root.title("Bloxbury Render Monitor")
     root.configure(bg=BG)
-    root.geometry("820x480")
-    style = ttk.Style(root)
-    style.theme_use("clam")
-    for st, c in COL.items():
-        style.configure("%s.Horizontal.TProgressbar" % st, troughcolor="#2a2e36",
-                        background=c, bordercolor="#2a2e36", lightcolor=c, darkcolor=c)
+    root.geometry("980x560")
+    root.minsize(640, 300)
 
     top = tk.Frame(root, bg=BG)
-    top.pack(fill="x", padx=12, pady=(10, 4))
-    tk.Label(top, text="Renders", bg=BG, fg=FG, font=("Segoe UI", 15, "bold")).pack(side="left")
-    clock = tk.Label(top, text="", bg=BG, fg=SUB, font=("Segoe UI", 10))
-    clock.pack(side="left", padx=10)
+    top.pack(fill="x", padx=16, pady=(12, 6))
+    tk.Label(top, text="Renders", bg=BG, fg=FG, font=F(16, "bold")).pack(side="left")
+    clock = tk.Label(top, text="", bg=BG, fg=DIM, font=F(10))
+    clock.pack(side="left", padx=10, pady=(6, 0))
+
+    def btn(parent, text, cmd, fg=FG):
+        b = tk.Label(parent, text=text, bg=LINE, fg=fg, font=F(9, "bold"), padx=10, pady=4, cursor="hand2")
+        b.bind("<Button-1>", lambda e: cmd())
+        b.bind("<Enter>", lambda e: b.config(bg="#333846")); b.bind("<Leave>", lambda e: b.config(bg=LINE))
+        return b
 
     def add_folder():
         d = filedialog.askdirectory(title="Folder the frames are saved into")
-        if not d:
-            return
-        form(d)
+        if d:
+            form(d)
 
     def form(folder=None):
         w = tk.Toplevel(root, bg=BG)
-        w.title("Add RunPod pod" if not folder else "Watch local folder")
-        if folder:
-            fields = [("Name", "name", os.path.basename(folder)),
-                      ("Total frames", "total", "")]
-        else:   # pods describe themselves via /workspace/render_job.json
-            fields = [("Pod id", "pod_id", ""), ("Jupyter token", "token", "")]
+        w.title("Add RunPod pod" if not folder else "Watch laptop folder")
+        fields = [("Name", "name", os.path.basename(folder)), ("Total frames", "total", "")] if folder else \
+                 [("Pod id", "pod_id", ""), ("Jupyter token", "token", "")]
         ents = {}
         for i, (lab, key, val) in enumerate(fields):
-            tk.Label(w, text=lab, bg=BG, fg=FG).grid(row=i, column=0, sticky="w", padx=8, pady=3)
-            e = tk.Entry(w, width=36)
-            e.insert(0, val)
-            e.grid(row=i, column=1, padx=8, pady=3)
-            ents[key] = e
-        tk.Label(w, text=("Claude gives you both of these when a render starts." if not folder else
-                          "Total frames is optional (shows % and time left)."),
-                 bg=BG, fg=SUB).grid(row=len(fields), column=0, columnspan=2, padx=8)
+            tk.Label(w, text=lab, bg=BG, fg=FG, font=F(10)).grid(row=i, column=0, sticky="w", padx=10, pady=4)
+            e = tk.Entry(w, width=38, bg=CARD, fg=FG, insertbackground=FG, relief="flat")
+            e.insert(0, val); e.grid(row=i, column=1, padx=10, pady=4); ents[key] = e
+        tk.Label(w, text=("Claude sends both of these the moment a render starts." if not folder else
+                          "Total frames is optional (gives % and time left)."), bg=BG, fg=SUB,
+                 font=F(9)).grid(row=len(fields), column=0, columnspan=2, padx=10)
 
         def ok():
             spec = {k: e.get().strip() for k, e in ents.items() if e.get().strip()}
             if "total" in spec:
-                try:
-                    spec["total"] = int(spec["total"])
+                try: spec["total"] = int(spec["total"])
                 except ValueError:
-                    messagebox.showerror("Add render", "Total frames must be a number")
-                    return
+                    messagebox.showerror("Add render", "Total frames must be a number"); return
             if folder:
                 spec.update(kind="local", path=folder)
             else:
                 if not spec.get("pod_id") or not spec.get("token"):
-                    messagebox.showerror("Add render", "Pod id and token are needed")
-                    return
+                    messagebox.showerror("Add render", "Pod id and token are needed"); return
                 spec["kind"] = "runpod"
-            mon.add_job(spec)
-            w.destroy()
-        tk.Button(w, text="Add", command=ok).grid(row=len(fields) + 1, column=1, sticky="e", padx=8, pady=8)
+            mon.add_job(spec); w.destroy()
+        btn(w, "Add", ok).grid(row=len(fields) + 1, column=1, sticky="e", padx=10, pady=10)
 
     def open_cfg():
-        if os.name == "nt":
-            os.startfile(mon.cfg_path)
-        else:
-            messagebox.showinfo("Config", mon.cfg_path)
+        if os.name == "nt": os.startfile(mon.cfg_path)
+        else: messagebox.showinfo("Settings", mon.cfg_path)
 
-    for txt, cmd in (("Settings file", open_cfg), ("Add RunPod pod", lambda: form(None)),
-                     ("Watch laptop folder", add_folder)):
-        tk.Button(top, text=txt, command=cmd).pack(side="right", padx=3)
+    for txt, cmd in (("Settings", open_cfg), ("+ RunPod pod", lambda: form(None)), ("+ Laptop folder", add_folder)):
+        btn(top, txt, cmd).pack(side="right", padx=4)
 
     canvas = tk.Canvas(root, bg=BG, highlightthickness=0)
     sb = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
     body = tk.Frame(canvas, bg=BG)
     body.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-    canvas.create_window((0, 0), window=body, anchor="nw")
+    win = canvas.create_window((0, 0), window=body, anchor="nw")
+    canvas.bind("<Configure>", lambda e: canvas.itemconfigure(win, width=e.width))
     canvas.configure(yscrollcommand=sb.set)
-    canvas.pack(side="left", fill="both", expand=True, padx=(12, 0))
+    canvas.pack(side="left", fill="both", expand=True, padx=(16, 0), pady=(0, 12))
     sb.pack(side="right", fill="y")
 
-    widgets = {}   # row key -> (frame, title, bar, info)
+    cards = {}
 
-    def make_row(key, title_font):
-        f = tk.Frame(body, bg=BG)
-        hdr = tk.Frame(f, bg=BG)
-        hdr.pack(fill="x")
-        t = tk.Label(hdr, text="", bg=BG, fg=FG, font=title_font, anchor="w")
-        t.pack(side="left", fill="x", expand=True)
-        if key.startswith("j:"):
-            def remove(k=key[2:]):
-                name = t.cget("text").strip()
-                if messagebox.askyesno("Remove", "Stop watching \"%s\"?\n(This doesn't touch the render itself.)" % name):
+    class Card:
+        def __init__(self, key, j):
+            self.key = key
+            self.f = tk.Frame(body, bg=CARD, highlightthickness=1, highlightbackground=LINE)
+            hdr = tk.Frame(self.f, bg=CARD); hdr.pack(fill="x", padx=14, pady=(12, 4))
+            self.title = tk.Label(hdr, text="", bg=CARD, fg=FG, font=F(13, "bold"), anchor="w")
+            self.title.pack(side="left")
+            self.pill = tk.Label(hdr, text="", bg=CARD, fg="white", font=F(8, "bold"), padx=8, pady=1)
+            self.pill.pack(side="left", padx=10)
+            def remove(k=key):
+                if messagebox.askyesno("Remove", "Stop watching \"%s\"?\n(This doesn't touch the render itself.)" % self.title.cget("text")):
                     mon.remove_job(k)
-            tk.Button(hdr, text="✕", command=remove, bg=BG, fg=SUB, bd=0, activebackground="#2a2e36",
-                      activeforeground=FG, cursor="hand2").pack(side="right", padx=(0, 12))
-        b = ttk.Progressbar(f, orient="horizontal", length=760, mode="determinate", maximum=1000)
-        b.pack(fill="x", pady=2)
-        i = tk.Label(f, text="", bg=BG, fg=SUB, font=("Segoe UI", 9), anchor="w")
-        i.pack(fill="x")
-        widgets[key] = (f, t, b, i)
-        return widgets[key]
+            btn(hdr, "✕", remove, fg=SUB).pack(side="right", padx=(6, 0))
+            self.open_b = btn(hdr, "Open frames", lambda: webbrowser.open(pod_link(self.j)) if pod_link(self.j) else None)
+            self.open_b.pack(side="right")
+            self.bar = tk.Canvas(self.f, height=26, bg=CARD, highlightthickness=0)
+            self.bar.pack(fill="x", padx=14, pady=(4, 8))
+            stats = tk.Frame(self.f, bg=CARD); stats.pack(fill="x", padx=14, pady=(0, 8))
+            self.tiles = {}
+            for k_, cap in (("done", "FRAMES"), ("left", "TIME LEFT"), ("finish", "FINISH"), ("speed", "SPEED"),
+                            ("running", "RUNNING"), ("cost", "COST")):
+                t = tk.Frame(stats, bg=CARD); t.pack(side="left", expand=True, fill="x")
+                tk.Label(t, text=cap, bg=CARD, fg=DIM, font=F(8, "bold"), anchor="w").pack(fill="x")
+                v = tk.Label(t, text="--", bg=CARD, fg=FG, font=F(14, "bold"), anchor="w"); v.pack(fill="x")
+                sub = tk.Label(t, text="", bg=CARD, fg=SUB, font=F(8), anchor="w"); sub.pack(fill="x")
+                self.tiles[k_] = (v, sub)
+            self.gpu = tk.Frame(self.f, bg=CARD); self.gpu.pack(fill="x", padx=14, pady=(0, 12))
+            self.gpu_rows = []
+            self.note = tk.Label(self.f, text="", bg=CARD, fg="#f59e0b", font=F(9), anchor="w")
+            self.j = j
+
+        def draw_bar(self, frac, col):
+            c = self.bar; c.delete("all"); w = max(c.winfo_width(), 50); h = 26
+            c.create_rectangle(0, 0, w, h, fill=LINE, width=0)
+            c.create_rectangle(0, 0, int(w * frac), h, fill=col, width=0)
+            c.create_text(w / 2, h / 2, text="%.1f%%" % (frac * 100), fill="white", font=F(10, "bold"))
+
+        def update(self, j):
+            self.j = j
+            st = j.status; col = COL.get(st, "#6b7280")
+            self.title.config(text=j.name)
+            self.pill.config(text=LABEL.get(st, st.upper()), bg=col)
+            if pod_link(j): self.open_b.pack(side="right")
+            else: self.open_b.pack_forget()
+            self.draw_bar(j.fraction(), col)
+            eta, spf = j.eta_seconds(), j.sec_per_frame()
+            T = self.tiles
+            T["done"][0].config(text="%s / %s" % (format(j.done, ","), format(j.total, ",") if j.total else "?"))
+            T["done"][1].config(text="%s to go" % format(max(j.total - j.done, 0), ",") if j.total else "")
+            if st == "done":
+                T["left"][0].config(text="finished", fg="#22c55e"); T["left"][1].config(text="")
+                T["finish"][0].config(text=datetime.datetime.fromtimestamp(j.finished_at or time.time()).strftime("%H:%M"))
+                T["finish"][1].config(text="done at")
+            else:
+                T["left"][0].config(text=fmt_dur(eta), fg=FG)
+                T["left"][1].config(text="updates live from the pod" if j.pod else "from recent speed")
+                T["finish"][0].config(text="~" + fmt_clock(eta)); T["finish"][1].config(text="estimated")
+            if spf:
+                T["speed"][0].config(text="%.2f fps" % (1 / spf)); T["speed"][1].config(text="%.2f s per frame" % spf)
+            else:
+                T["speed"][0].config(text="measuring"); T["speed"][1].config(text="")
+            T["running"][0].config(text=fmt_dur(job_elapsed(j))); T["running"][1].config(text="since pod start" if j.spec.get("pod_started") else "")
+            c = job_cost(j)
+            if c:
+                T["cost"][0].config(text=money(c[0]).split(" ")[0]); T["cost"][1].config(
+                    text=("est. total %s" % money(c[1])) if st != "done" else money(c[0]))
+            else:
+                T["cost"][0].config(text="free" if j.kind == "local" else "--"); T["cost"][1].config(text="")
+            # per-GPU lanes (from the pod's progress file)
+            lanes = (j.pod or {}).get("per_gpu") or []
+            shared = bool((j.pod or {}).get("shared_queue"))      # all GPUs pull from one frame queue (no slowest lane)
+            slowest = None
+            etas = [g.get("eta_s") for g in lanes]
+            if not shared and lanes and all(e is not None for e in etas) and len(lanes) > 1:
+                slowest = etas.index(max(etas))
+            while len(self.gpu_rows) < len(lanes):
+                r = tk.Frame(self.gpu, bg=CARD); r.pack(fill="x", pady=1)
+                lab = tk.Label(r, text="", bg=CARD, fg=SUB, font=F(9), width=7, anchor="w"); lab.pack(side="left")
+                cv = tk.Canvas(r, height=8, bg=CARD, highlightthickness=0); cv.pack(side="left", fill="x", expand=True, padx=6)
+                txt = tk.Label(r, text="", bg=CARD, fg=SUB, font=F(9), width=34, anchor="w"); txt.pack(side="left")
+                self.gpu_rows.append((r, lab, cv, txt))
+            for i, (r, lab, cv, txt) in enumerate(self.gpu_rows):
+                if i >= len(lanes):
+                    r.pack_forget(); continue
+                g = lanes[i]
+                share = (j.total / len(lanes)) if j.total else 0     # shared queue: bar = this GPU's frames vs an even share
+                fr = g["done"] / g["total"] if g.get("total") else (min(g["done"] / share, 1.0) if share else 0)
+                gc = "#22c55e" if j.status == "done" else ("#f59e0b" if i == slowest else col)
+                lab.config(text="GPU %d" % g["gpu"])
+                cv.delete("all"); w = max(cv.winfo_width(), 40)
+                cv.create_rectangle(0, 0, w, 8, fill=LINE, width=0); cv.create_rectangle(0, 0, int(w * fr), 8, fill=gc, width=0)
+                parts = ["%d/%d" % (g["done"], g["total"]) if g.get("total") else "%d frames" % g["done"]]
+                if g.get("fps"): parts[-1] += " (%.1f s each)" % (1 / g["fps"])
+                if not shared and fr < 1 and g.get("eta_s") is not None: parts.append(fmt_dur(g["eta_s"]))
+                if i == slowest and fr < 1: parts.append("slowest")
+                txt.config(text="  ·  ".join(parts), fg="#f59e0b" if i == slowest and fr < 1 else SUB)
+            if j.error:
+                self.note.config(text=j.error); self.note.pack(fill="x", padx=14, pady=(0, 10))
+            else:
+                self.note.pack_forget()
 
     def poller():
+        last_refresh = 0
         while True:
             try:
-                mon.refresh_jobs()
-                mon.poll_all()
+                if time.time() - last_refresh > 10:          # re-scan watch folders / settings every 10 s, not every tick
+                    mon.refresh_jobs(); last_refresh = time.time()
+                mon.poll_all()                               # each job throttles itself (2 s local, 5 s pod)
             except Exception as e:
                 print("poll error:", e)
-            time.sleep(2)
+            time.sleep(1)
 
     threading.Thread(target=poller, daemon=True).start()
 
@@ -570,57 +681,50 @@ def gui_mode(mon):
         try:
             root.bell()
             if os.name == "nt":
-                import winsound
-                winsound.MessageBeep()
+                import winsound; winsound.MessageBeep()
+            root.deiconify(); root.lift(); root.attributes("-topmost", True); root.after(1500, lambda: root.attributes("-topmost", False))
         except Exception:
             pass
-        root.title("✔ %s finished - Bloxbury Render Monitor" % j.name)
 
     def tick():
         clock.config(text=datetime.datetime.now().strftime("%H:%M:%S"))
-        rows = mon.rows()
-        order = []
-        for r in rows:
-            if r[0] == "group":
-                key = "g:" + r[1]
-                total, done, eta, waiting = group_summary(r[2])
-                fr = done / total if total else 0
-                f, t, b, i = widgets.get(key) or make_row(key, ("Segoe UI", 12, "bold"))
-                st = "done" if not waiting else ("stalled" if any(j.status == "stalled" for j in r[2]) else "rendering")
-                b.configure(value=fr * 1000, style="%s.Horizontal.TProgressbar" % st)
-                t.config(text="%s   %.0f%%" % (r[1], fr * 100))
-                i.config(text=("All parts done" if not waiting else
-                               "%s/%s frames   ·   %s left   ·   finish ~%s   ·   waiting on: %s" % (
-                                   format(done, ","), format(total, ","), fmt_dur(eta), fmt_clock(eta), ", ".join(waiting))))
-            else:
-                j = r[1]
-                key = "j:" + j.key
-                f, t, b, i = widgets.get(key) or make_row(key, ("Segoe UI", 10, "bold"))
-                b.configure(value=j.fraction() * 1000, style="%s.Horizontal.TProgressbar" % j.status)
-                t.config(text="   " + j.name if j.group else j.name)
-                i.config(text=("   " if j.group else "") + job_line(j))
-                if j.status == "done" and not j.alerted:
-                    j.alerted = True
-                    if time.time() - j.first_seen > 10:     # don't beep for renders already done at start
-                        alert(j)
-            order.append(key)
-        for key in list(widgets):
-            if key not in order:
-                widgets.pop(key)[0].destroy()
-        for key in order:
-            widgets[key][0].pack_forget()
-        for key in order:
-            widgets[key][0].pack(fill="x", pady=(8 if key.startswith("g:") else 3, 3))
-        if not order:
-            if "empty" not in widgets:
-                f = tk.Frame(body, bg=BG)
-                tk.Label(f, text="No renders yet. Use 'Add RunPod pod' or 'Watch laptop folder',\n"
-                                 "or add watch folders in the settings file.", bg=BG, fg=SUB,
-                         justify="left").pack(anchor="w")
-                f.pack(fill="x", pady=20)
-                widgets["empty"] = (f, None, None, None)
-        elif "empty" in widgets:
-            widgets.pop("empty")[0].destroy()
+        with mon.lock:
+            jobs = sorted(mon.jobs.values(), key=lambda j: (j.status == "done", j.group, j.name))
+        seen = []
+        for j in jobs:
+            key = j.key
+            card = cards.get(key) or Card(key, j)
+            cards[key] = card
+            card.update(j)
+            seen.append(key)
+            if j.status == "done" and not j.alerted:
+                j.alerted = True
+                if time.time() - j.first_seen > 10:
+                    alert(j)
+        for k in list(cards):
+            if k not in seen:
+                cards.pop(k).f.destroy()
+        for k in seen:
+            cards[k].f.pack_forget()
+        for k in seen:
+            cards[k].f.pack(fill="x", pady=6, padx=(0, 12))
+        live = [j for j in jobs if j.status != "done"]
+        if live:
+            j = live[0]; eta = j.eta_seconds()
+            root.title("%s · %.0f%% · %s left · finish ~%s" % (j.name, j.fraction() * 100, fmt_dur(eta), fmt_clock(eta)))
+        elif jobs:
+            root.title("✔ %s done - Bloxbury Render Monitor" % jobs[0].name)
+        else:
+            root.title("Bloxbury Render Monitor")
+        if not jobs and "empty" not in cards:
+            f = tk.Label(body, text="No renders yet. Claude sends a pod id + token when a render starts:\n"
+                                    "click '+ RunPod pod' and paste them, or watch a laptop folder.",
+                         bg=BG, fg=SUB, font=F(10), justify="left")
+            f.pack(anchor="w", pady=20)
+            class _E: pass
+            e = _E(); e.f = f; cards["empty"] = e
+        elif jobs and "empty" in cards:
+            cards.pop("empty").f.destroy()
         root.after(1000, tick)
 
     tick()
