@@ -175,8 +175,8 @@ def park(P, fr):
 # ------------------------------------------------------------------ sets
 KO = V((520, 0, 400)); KIT = p3_kitchen_set(KO)
 HO = V((560, 0, 400)); HALL = p3_hallway_set(HO)
-if os.environ.get("DRESS", "1") == "1":            # set dressing (dressing.py; DRESS=0 = bare sets for cost tests)
-    exec(open(SCR + "dressing.py").read()); dress_kitchen(KO); dress_hallway(HO); dress_bedroom()
+if os.environ.get("DRESS", "1") == "1":            # set dressing (props4.py; DRESS=0 = bare sets for cost tests)
+    exec(open(LIB + "props4.py").read()); dress_kitchen(KO); dress_hallway(HO); dress_bedroom()
 p3_hollow_closet()
 LIST = p3_list_insert(V((700, 700, 0)), path="/tmp/p3_list.png")
 # pancakes: plate + three stacked discs + butter, on the table in front of Milo

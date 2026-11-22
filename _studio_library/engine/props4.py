@@ -1,5 +1,5 @@
-# dressing.py - cheap set dressing for Bloxbury sets (DRAFT: goes to the library as props4.py once Joel approves).
-# Load after props.py / props3.py:   exec(open(SCR + "dressing.py").read())
+# props4.py - SET DRESSING BATCH 4 (approved by Joel 22 Nov 2026 20:40). Cheap detail for any set.
+# Load after props.py / props3.py:   exec(open(LIB + "props4.py").read())
 # Render-cost rules: low-poly bevelled boxes, shared materials, no glass/volumes/transparency, glows are emission
 # (no extra lights) except ONE warm practical per room. Detail sits where the camera looks (walls behind faces).
 import math, random

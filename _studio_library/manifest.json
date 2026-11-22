@@ -1,6 +1,6 @@
 {
  "studio": "Joel's Roblox shorts studio - approved asset library",
- "version": "2026-11-22c",
+ "version": "2026-11-22d",
  "approved_by": "Joel",
  "face_style": {
   "M2": "midway between Classic and Minimal; thin expressive brows; bright eye shine at 70% opacity",
@@ -184,5 +184,32 @@
   "list_insert_p2": "p3_list_insert(pos): WHO'S LEFT with Milo's Mum crossed off first",
   "room": "p3_room(): open-front box room builder",
   "area": "p3_area(): aimed area light"
+ },
+ "props_batch4": {
+  "file": "engine/props4.py",
+  "approved": "Joel 22 Nov 2026 20:40",
+  "render_cost": "+~2% (boxes, shared materials, emission glows, one practical light per room)",
+  "wall_pieces": {
+   "picture": "framed photo/poster (colour or image)",
+   "switch": "light switch",
+   "outlet": "plug socket",
+   "shelf_books": "wall shelf + books (+toys)",
+   "coat_hooks": "rail with hanging coats",
+   "radiator": "radiator",
+   "sconce": "warm wall lamp (light=True = the room's one practical)",
+   "calendar": "month calendar, first N days crossed (rewatch bait)"
+  },
+  "room_pieces": {
+   "wainscot": "two-tone wall: lower panel + dado rail + skirting (+crown)",
+   "string_lights": "fairy lights (emission)",
+   "ceiling_stars": "glow-in-the-dark stars",
+   "floor_clutter": "backpack, hoodie, books",
+   "drawing_img": "kid's family drawing, Mum scribbled out"
+  },
+  "room_dressers": {
+   "dress_kitchen": "Mum's kitchen (KO)",
+   "dress_hallway": "upstairs hallway (HO)",
+   "dress_bedroom": "Milo's room"
+  }
  }
 }
