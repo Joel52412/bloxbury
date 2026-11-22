@@ -9,6 +9,11 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 3. **Laptop folder** is only needed for frames, .blend files or new audio Joel adds. Folders connect per chat: if Joel has said OK, `device_request_folder_access` on `C:\Users\frimp\Downloads\robloxshorts` works; otherwise ask him to use **+ → Add folder**. New audio Joel drops in the folder must be pushed to the repo.
 4. **New stories** go in `series/<story>/` beside `series/bloxbury/`, sharing the engine and library.
 
+## Episode workflow (Joel, 22 Nov), required for every new part or scene
+1. **Before any pod runs:** build everything the part needs and show Joel a **full asset sheet**: every character (new and recurring), monster, prop and set, rendered as stills. **No pod is created until Joel confirms the designs are good.**
+2. Then the usual steps: preview, Joel's OK on the price, GPU render, frame check, delivery.
+3. **When the scene/video is fully finished (and Joel has verified the designs):** audit every asset used and **push anything not already in the library** into `_studio_library` (recurring cards in `recurring.py`, monsters in `monster.py`, props in a `propsN.py` batch, sets noted in `studio.py`/`manifest.json`). Make the scene script load the library versions and re-check that it still builds (the face check plus a couple of stills).
+
 ## Hard rules
 - **Library:**
   - Save only assets Joel has verified.
