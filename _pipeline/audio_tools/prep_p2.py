@@ -145,10 +145,15 @@ put(mix, env_fade(load(sfx("low_horror_drone_#3"), 0, 0.85) * 0.45, 0.05, 0.12),
 # 1.25-7.0 s, ~8 dB quieter, softer top end, mostly crackle, faded out after "Morning, Milo!"
 # Joel 15:25: the synth crackle didn't read as sizzling. Use his ElevenLabs SFX "pan_sizzle" (variant SIZZLE_VAR);
 # until it's in "sound effects/" the kitchen opening has no sizzle at all (better silent than fake).
-SIZZLE_VAR = os.environ.get("SIZZLE_VAR", "1")
+SIZZLE_VAR = os.environ.get("SIZZLE_VAR", "1")     # Joel sent #1 and #4 (15:31); #1 is steadier and starts at once
+SIZZLE_DB = float(os.environ.get("SIZZLE_DB", -38))  # RMS before loudnorm: a bed under the voices, not "static"
 try:
-    f = next(SFXD + x for x in sorted(os.listdir(SFXD)) if x.lower().startswith("pan_sizzle") and "#" + SIZZLE_VAR + "-" in x)
-    put(mix, env_fade(load(f, 0, 5.75) * 0.30, 0.3, 1.4), 1.25)
+    import re as _re
+    f = next(SFXD + x for x in sorted(os.listdir(SFXD))
+             if x.lower().startswith("pan_sizzle") and _re.search(r"[_#]%s-\d+\." % SIZZLE_VAR, x))
+    sz = load(f, 0.5, 6.25)                                   # variant 1 hisses from the first frame; skip the attack
+    sz *= 10 ** (SIZZLE_DB / 20) / (np.sqrt((sz ** 2).mean()) + 1e-9)   # ElevenLabs files arrive ~-48 dB: set a fixed level
+    put(mix, env_fade(sz, 0.3, 1.4), 1.25)
 except StopIteration:
     print("NO SIZZLE SFX: ask Joel for pan_sizzle (prompt in VOICE_DESIGN.md -> SFX requests)")
 # hallway at night: clock ticking, which stops dead with the music at 44.30

@@ -30,4 +30,6 @@ Joel drops the files in `sound effects/` (laptop folder), Claude pushes them and
 
 | Key | Used in | Prompt | Duration | Influence |
 |---|---|---|---|---|
-| `pan_sizzle` | Part 2 kitchen 1.25–7.0 s (under "Morning, Milo!"), level 0.30 | Pan sizzle, butter and pancake batter frying gently in a hot pan, close-up in a quiet home kitchen, steady soft hiss with small fat pops, morning, no music, no voices | 6 s | 0.65 |
+| `pan_sizzle` ✅ received 15:31 (#1 used, #4 spare; files arrive ~−48 dB, the cue sheet sets the level) | Part 2 kitchen 1.25–7.0 s (under "Morning, Milo!"), level 0.30 | Pan sizzle, butter and pancake batter frying gently in a hot pan, close-up in a quiet home kitchen, steady soft hiss with small fat pops, morning, no music, no voices | 6 s | 0.65 |
+
+ElevenLabs names downloads like `Pan_sizzle_butter_a_1-<id>.mp3` (no `#`): cue sheets match the key prefix + `[_#]<variant>-`.
