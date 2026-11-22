@@ -175,6 +175,8 @@ def park(P, fr):
 # ------------------------------------------------------------------ sets
 KO = V((520, 0, 400)); KIT = p3_kitchen_set(KO)
 HO = V((560, 0, 400)); HALL = p3_hallway_set(HO)
+if os.environ.get("DRESS", "1") == "1":            # set dressing (dressing.py; DRESS=0 = bare sets for cost tests)
+    exec(open(SCR + "dressing.py").read()); dress_kitchen(KO); dress_hallway(HO); dress_bedroom()
 p3_hollow_closet()
 LIST = p3_list_insert(V((700, 700, 0)), path="/tmp/p3_list.png")
 # pancakes: plate + three stacked discs + butter, on the table in front of Milo
@@ -285,6 +287,7 @@ def H(P, dz=0.0):
 def at(P, fr, loc, yaw):
     place(P, fr, V(loc), yaw); P["root"].location = V(loc); P["root"].rotation_euler = (0, 0, DEG(yaw))
 
+exec(open(SCR + "cinema.py").read())          # camera grammar: cine() / insert() / check_framing()
 
 # ================================================================== 0  BRIDGE 0.00-1.25: Part 1's last image, then black
 set_night(0.0); house_lights(0.0, False)
@@ -328,14 +331,13 @@ arm(mum, "Left", FT(1.25), euler=(4, -6))
 idle_here(milo, FT(1.25), FT(18.4))
 expr(fm, FT(1.25), "nervous"); expr(fm, FT(5.6), "friendly"); expr(fm, FT(6.8), "nervous")
 MH = H(milo); MUH = H(mum)
-shot("K1 match cut: her smile", 1.25, 4.1, [(0, MUH + V((0.55, -2.4, 0.05)), MUH + V((0, 0, -0.05)), 62),
-                                             (1, MUH + V((1.6, -7.2, 0.6)), MUH + V((-0.4, 0, -0.6)), 34)])
-shot("K2 Milo at the table", 4.1, 5.5, [(0, MH + V((1.8, 4.6, 0.2)), MH, 52), (1, MH + V((1.6, 4.1, 0.2)), MH, 56)])
+cine("K1 match cut: her smile", 1.25, 4.1, MUH, u=V((0.22, -1, 0)), size="MCU", move="pull", amt=2.4, lens=30, sy=0.14, land=0.75)   # Knocker-size CU -> reveals the kitchen
+cine("K2 Milo at the table", 4.1, 5.5, milo, u=V((0.36, 1, 0)), size="MCU", move="hold", lens=50, sx=0.1)
 say(line(5.60), fmum, "rest_smile", "excited")                               # "Morning, Milo!" bright
 expr(fmum, FT(5.6), "excited"); expr(fmum, FT(6.9), "content")
-shot("K3 Morning, Milo!", 5.5, 7.0, [(0, MUH + V((-1.6, -4.4, 0.2)), MUH, 44), (1, MUH + V((-1.4, -3.9, 0.15)), MUH, 48)])
+cine("K3 Morning, Milo!", 5.5, 7.0, MUH, u=V((-0.34, -1, 0)), size="MCU", move="drift", amt=6, lens=26, sx=-0.08, tilt=4)   # slightly below her: too bright, too big
 # pancakes: her hand slides the plate in (plate rides on her hand, then stays)
-shot("K4 pancakes", 7.0, 9.0, [(0, PLATE + V((-1.4, -3.2, 2.4)), PLATE + V((0, 0, 0.2)), 40), (1, PLATE + V((-1.2, -2.8, 2.0)), PLATE + V((0, 0, 0.2)), 44)], fstop=3.2)
+cine("K4 pancakes", 7.0, 9.0, PLATE + V((0, 0, 0.3)), u=V((-0.42, -1, 0)), size=0.42, span=1.4, move="push", amt=1.15, lens=40, sy=-0.12, tilt=32, fstop=3.2, extra=[(mum["head"], V((0, 0, 0)))])   # plate low, her face in the top of frame
 at(mum, FT(7.0), KO + V((-4.4, 0.9, 0)), 200)
 arm(mum, "Right", FT(7.0), euler=(70, 12)); arm(mum, "Right", FT(8.2), euler=(70, 12)); arm(mum, "Right", FT(8.6), euler=(6, 6))
 # toaster + humming at the hob; the Knocker ghost shows in the chrome for 4 frames (rewatch bait)
@@ -343,7 +345,7 @@ at(mum, FT(9.0), HOB, 175)
 for t, z in ((9.0, 0), (9.7, 6), (10.4, -6), (11.0, 0)): neck(mum, FT(t), 0, 0, z)
 arm(mum, "Right", FT(9.0), euler=(55, 20)); arm(mum, "Left", FT(9.0), euler=(4, -6))
 TST = KO + V((-6.6, 6.6, 4.7))
-shot("K5 toaster + humming", 9.0, 11.0, [(0, TST + V((-2.6, -3.6, 0.5)), TST + V((1.4, 0, -0.1)), 34), (1, TST + V((-2.4, -3.3, 0.45)), TST + V((1.5, 0, -0.1)), 36)])
+cine("K5 toaster + humming", 9.0, 11.0, TST + V((0.3, 0, -0.1)), u=V((-0.6, -1, 0)), size=0.34, span=1.5, move="drift", amt=10, lens=40, sy=0.0, tilt=6, fstop=2.8)   # parallax across the chrome (ghost at 9.95)
 KG["root"].location = FAR
 kf(KG["root"], "location", FT(9.95), TST + V((1.2, -4.4, -4.7)), interp="CONSTANT"); kf(KG["root"], "rotation_euler", FT(9.95), (0, 0, DEG(160)), interp="CONSTANT")
 kf(KG["root"], "location", FT(9.95) + 4, FAR, interp="CONSTANT"); kf(KG["root"], "location", 1, FAR, interp="CONSTANT")
@@ -357,9 +359,9 @@ expr(fm, FT(11.0), "nervous"); expr(fm, FT(14.2), "notice"); expr(fm, FT(16.3), 
 neck(milo, FT(11.0), 0, 0, 0); neck(milo, FT(15.0), 0, 0, 0); neck(milo, FT(16.6), 0, 0, 12)      # his head slides toward her face
 MH2 = H(milo); MUH2 = HUG + V((0, 0, 4.6))
 TW = (MH2 + MUH2) / 2
-shot("K6 the long hug", 11.0, 14.15, [(0, TW + V((1.6, 6.4, 0.6)), TW, 40), (1, TW + V((1.4, 5.4, 0.5)), TW, 46)])
-shot("K7 she called me Milo", 14.15, 16.25, [(0, MH2 + V((1.6, 4.0, 0.3)), MH2 + V((-0.25, 0, 0)), 48), (1, MH2 + V((1.4, 3.6, 0.28)), MH2 + V((-0.25, 0, 0)), 52)])
-shot("K8 never calls me Milo", 16.25, SC["kitchen"][1], [(0, MH2 + V((1.0, 3.0, 0.15)), MH2 + V((0, 0, 0.05)), 64), (1, MH2 + V((0.85, 2.6, 0.12)), MH2 + V((0, 0, 0.05)), 72)])
+cine("K6 the long hug", 11.0, 14.15, TW, u=V((0.25, 1, 0)), size=0.2, move="hold", lens=32, sy=0.15, tilt=12, extra=[(milo["head"], V((0, 0, 0))), (mum["head"], V((0, 0, 0)))])   # hold: the hug goes on too long
+cine("K7 she called me Milo", 14.15, 16.25, milo, u=V((0.4, 1, 0)), size="MCU", move="push", amt=1.25, lens=55, sx=0.12, extra=[(mum["head"], V((0, 0, 0)))])
+cine("K8 never calls me Milo", 16.25, SC["kitchen"][1], milo, u=V((0.3, 1, 0)), size="CU", move="push", amt=1.15, lens=65, sx=0.05)
 blinks(fm, 1.25, 18.4)
 
 # ================================================================== 3-4  RAE'S PORCH 18.4-39.9 (day, town)
@@ -376,15 +378,15 @@ expr(fm, FT(P0), "scared"); expr(fm, FT(23.4), "nervous"); expr(fm, FT(29.0), "s
 for t in (18.80, 23.40, 35.10): say(line(t), fm, "rest_flat", "excited" if t < 19 else "calm", P=milo)
 for t in (21.50, 25.50, 28.60, 30.00, 33.30, 37.00, 38.20): say(line(t), frae, "rest_flat", "calm", nod=2.5, P=rae)
 RH = V((50.0, -28.4, 4.6)); MHP = MILP + V((0, 0, 4.6))
-shot("P1 he runs to Rae", P0, 21.45, [(0, (55.5, -17.0, 5.6), (49.0, -25.5, 4.0), 28), (1, (55.0, -18.2, 5.4), (48.8, -26.4, 4.1), 30)])
-shot("P2 Did she knock?", 21.45, 23.35, [(0, ots(rae, milo, 3.1, 1.3), RH, 46), (1, ots(rae, milo, 2.9, 1.25), RH, 50)])
-shot("P3 she had a key", 23.35, 25.45, [(0, ots(milo, rae, 3.1, -1.3), MHP, 46), (1, ots(milo, rae, 2.9, -1.25), MHP, 50)])
-shot("P4 doesn't need to knock", 25.45, 28.5, [(0, ots(rae, milo, 3.2, 1.35), RH, 46), (1, ots(rae, milo, 2.7, 1.2), RH, 56)])
-shot("P5 she opens the list", 28.5, 29.95, [(0, ots(rae, milo, 3.0, 1.6, -0.4), RH + V((-0.2, 0, -1.0)), 38), (1, ots(rae, milo, 2.9, 1.55, -0.4), RH + V((-0.2, 0, -1.0)), 40)])
-shot("P5b insert: Mum crossed off", 29.95, 33.2, [(0, LIST + V((0.1, 5.4, 0.4)), LIST + V((0, 0, 0.4)), 42), (1, LIST + V((-0.2, 3.6, 1.1)), LIST + V((-0.6, 0, 1.2)), 50)], fstop=5)
-shot("P6 Three weeks ago", 33.2, 35.0, [(0, ots(rae, milo, 2.6, 0.9, 0.1), RH, 58), (1, ots(rae, milo, 2.5, 0.85, 0.1), RH, 64)])
-shot("P7 who's in my kitchen", 35.0, 36.95, [(0, ots(milo, rae, 3.0, -1.25), MHP, 50), (1, ots(milo, rae, 2.7, -1.15), MHP, 56)])
-shot("P8 Mirrors don't lie", 36.95, SC["porch"][1], [(0, ots(rae, milo, 3.2, 1.4), RH, 44), (1, ots(rae, milo, 2.6, 1.15), RH, 56)])
+shot("P1 he runs to Rae", P0, 21.45, [(0, (55.5, -17.0, 5.6), (49.0, -25.5, 4.0), 28), (0.85, (54.9, -18.6, 5.4), (48.8, -26.4, 4.1), 28)])
+cine("P2 Did she knock?", 21.45, 23.35, rae, toward=milo, ang=30, size="MCU", move="drift", amt=6, lens=50, sx=-0.1)
+cine("P3 she had a key", 23.35, 25.45, milo, toward=rae, ang=-38, size="MCU", move="hold", lens=26, sx=0.1)
+cine("P4 doesn't need to knock", 25.45, 28.5, rae, toward=milo, ang=26, size="CU", move="push", amt=1.2, lens=55, sx=-0.08)
+cine("P5 she opens the list", 28.5, 29.95, rae, toward=milo, ang=34, size="MS", move="hold", lens=40, sy=0.22, sx=-0.06)   # chest-up: the notebook comes up into frame
+insert("P5b insert: Mum crossed off", 29.95, 33.2, LIST + V((0, 0, 0.2)), LIST + V((0.72, 0, 1.36)), (0, 1, 0), 3.4, 1.35, lens=50, land=0.7)   # whole page -> lands on Milo's Mum, crossed out
+cine("P6 Three weeks ago", 33.2, 35.0, rae, toward=milo, ang=40, size="CU", move="hold", lens=45, tilt=-4, sx=-0.06)   # low, still, ominous
+cine("P7 who's in my kitchen", 35.0, 36.95, milo, toward=rae, ang=-38, size="CU", move="push", amt=1.2, lens=36, sx=0.08)
+cine("P8 Mirrors don't lie", 36.95, SC["porch"][1], rae, toward=milo, ang=30, size="MCU", move="sink", amt=8, lens=50, sx=-0.1)   # camera lowers: she looms on the button line
 blinks(fm, P0, 39.9, ph=0.7); blinks(frae, P0, 39.9, every=4.2, ph=1.3)
 
 # ================================================================== 5  HALLWAY MIRROR 39.9-51.7 (night)
@@ -406,10 +408,10 @@ neck(refl, FT(M0), 0, 0, 0); neck(refl, FT(46.2), 0, 0, 0); neck(refl, FT(47.6),
 say(line(47.80), fmum, "rest_flat", "calm", P=mum); say(line(49.00), fmum, "rest_flat", "calm", P=mum)
 neck(mum, FT(47.6), 0, 0, 0); neck(mum, FT(49.0), 0, 0, 8)       # a slight, slow head tilt
 GL = HO + V((-4.49, 2.0, 5.0)); VIRT = V((2 * (HO.x - 4.49) - MUMH.x, MUMH.y, MUMH.z + 4.6))
-shot("M1 It looked like Mum", M0, 42.2, [(0, HO + V((3.18, -9.0, 5.0)), GL, 30), (1, HO + V((2.9, -7.9, 5.0)), GL, 34)])
-shot("M2 she stops smiling", 42.2, 44.5, [(0, HO + V((0.6, -2.0, 5.2)), H(mum), 46), (1, HO + V((0.7, -0.6, 5.1)), H(mum), 54)])
-shot("M3 her reflection didn't", 44.5, 47.75, [(0, HO + V((0.5, -6.0, 5.0)), VIRT, 70), (1, HO + V((0.35, -5.4, 5.0)), VIRT, 84)], fstop=3.0)
-shot("M4 who told you about the mirror", 47.75, SC["mirror"][1], [(0, HO + V((0.9, -1.0, 5.0)), H(mum), 50), (1, HO + V((1.0, 1.6, 5.0)), H(mum), 60)])
+shot("M1 It looked like Mum", M0, 42.2, [(0, HO + V((3.18, -9.0, 5.0)), GL, 32), (0.85, HO + V((2.95, -7.6, 5.0)), GL, 32)])
+cine("M2 she stops smiling", 42.2, 44.5, mum, u=V((0.15, -1, 0)), size="MS", move="push", amt=1.25, lens=30)
+cine("M3 her reflection didn't", 44.5, 47.75, VIRT, u=(HO + V((0.5, -6.0, 5.0)) - VIRT), size=0.13, move="push", amt=1.2, lens=80, sy=0.0, tilt=0, fstop=3.0)   # through the mirror: same sight line, dolly only
+cine("M4 who told you about the mirror", 47.75, SC["mirror"][1], mum, u=V((0.1, -1, 0)), size="MCU", move="push", amt=1.25, lens=50, tilt=-3)
 blinks(fm, M0, 51.7, every=2.6)
 park(refl, FT(SC["mirror"][1])); park(mum, FT(SC["mirror"][1]))
 
@@ -450,12 +452,12 @@ key(DOORLINE_EM, "default_value", SC["black"][0] - 0.01, 6.0); key(DOORLINE_EM, 
 for o in FEET: vis_obj(o, 1, False); vis_obj(o, FT(67.45), True); vis_obj(o, FT(SC["black"][0]), False)
 MHB = MB + V((0, 0, 4.6)); DOOR_IN = V((0, -30.6, 4.4)); CLOSET = V((5.6, -45.9, 4.2))
 shot("B1 I locked my door", B0, 53.35, [(0, (6.0, -44.0, 5.6), MB + V((0, 2.5, 4.0)), 28), (1, (5.6, -43.0, 5.4), MB + V((0, 2.0, 4.0)), 30)])
-shot("B2 Dinner's ready", 53.35, 56.55, [(0, MHB + V((1.3, 4.6, 0.3)), MHB, 46), (1, MHB + V((1.15, 4.0, 0.28)), MHB, 52)])
-shot("B3 a voice in my closet", 56.55, 59.5, [(0, MHB + V((-2.7, 2.6, 0.6)), CLOSET, 32), (1, MHB + V((-2.5, 1.9, 0.5)), CLOSET, 38)])     # shot checker: the old push-in ended in his hair
-shot("B4 the crack: her hand", 59.5, 64.2, [(0, (1.3, -39.2, 4.3), (4.6, -45.5, 3.4), 42), (1, (1.9, -40.4, 4.2), (4.6, -45.6, 3.4), 50)], fstop=2.4)
-shot("B5 Mum?", 64.2, 65.1, [(0, MHB + V((3.8, 1.2, 0.2)), MHB, 56), (1, MHB + V((3.5, 1.1, 0.2)), MHB, 60)])
-shot("B6 footsteps + knocks", 65.1, 69.45, [(0, (-7.2, -46.5, 7.0), (0.8, -34.0, 3.4), 24), (1, (-6.6, -45.5, 6.6), (0.6, -33.5, 3.4), 26)])
-shot("B7 Who are you talking to?", 69.45, SC["bedroom"][1], [(0, (4.6, -37.5, 1.7), (0, -30.6, 1.4), 34), (1, (4.2, -35.8, 1.8), (0, -30.6, 1.5), 44)], fstop=2.2)
+cine("B2 Dinner's ready", 53.35, 56.55, milo, u=V((0.8, 1, 0)), size="MCU", move="hold", lens=30, sx=0.08)   # hold on him: we only HEAR her
+cine("B3 a voice in my closet", 56.55, 59.5, CLOSET + V((0, 0, 0.6)), toward=MHB + V((-1.6, 1.2, 0)), size=0.55, span=8.0, move="push", amt=1.12, lens=35, sy=0.05, tilt=4, fstop=2.8)   # over his shoulder, the closet waits
+shot("B4 the crack: her hand", 59.5, 64.2, [(0, (1.3, -39.2, 4.3), (4.6, -45.5, 3.4), 46), (0.8, (2.0, -40.9, 4.2), (4.6, -45.6, 3.4), 46)], fstop=2.4)
+cine("B5 Mum?", 64.2, 65.1, milo, u=V((1, 0.3, 0)), size="CU", move="hold", lens=60, sx=-0.08)
+shot("B6 footsteps + knocks", 65.1, 69.45, [(0, (-7.2, -46.5, 7.0), (0.8, -34.0, 3.4), 25), (0.85, (-6.5, -45.2, 6.6), (0.6, -33.5, 3.4), 25)])
+shot("B7 Who are you talking to?", 69.45, SC["bedroom"][1], [(0, (4.6, -37.5, 1.7), (0, -30.6, 1.4), 38), (0.85, (3.9, -35.0, 1.8), (0, -30.6, 1.5), 38)], fstop=2.2)
 blinks(fm, B0, 72.4, every=2.4, ph=0.3); blinks(freal, B0, 72.4, every=3.6)
 shot("Z black", SC["black"][0], SC["black"][1], [(0, (0, -40, 5), (0, -30, 5), 30)])
 
@@ -475,14 +477,13 @@ arms_down(milo, FT(O0)); arm(milo, "Right", FT(73.9), euler=(70, -10)); arm(milo
 arm(milo, "Left", FT(73.25), euler=(60, 20)); arm(milo, "Left", FT(73.8), euler=(6, -6))                              # "Two mums." - a hand up
 idle(milo, FT(O0), NF, amp=0.015, base_z=0.4)
 OH = O + V((0, 0, 4.6))
-shot("O outro", O0, E2["total"], [(0, OH + V((0, 6.6, 0.2)), OH + V((0, 0, -0.2)), 34), (0.55, OH + V((0, 5.4, 0.15)), OH + V((0, 0, -0.15)), 38),
-                                  (1, OH + V((0, 4.6, 0.1)), OH + V((0, 0, -0.1)), 42)])
+cine("O outro", O0, E2["total"], milo, u=V((0, 1, 0)), size="MCU", move="push", amt=1.6, lens=28, sy=0.1, land=0.9)   # to camera, slow push on the question
 blinks(fm, O0, E2["total"], every=2.9, ph=0.2)
 
 # ================================================================== finish
 CUT_FR = [f0 for _, f0, _ in SHOTS[1:]]
 apply_blinks()
-flush_mouths(); apply_interp(); hold_cuts(); apply_interpolation()
+flush_mouths(); apply_interp(); hold_cuts(); apply_interpolation(); breathe()
 
 
 def check_faces():
@@ -509,6 +510,7 @@ print("FACE CHECK", "OK" if not probs else probs[:20])
 json.dump({"shots": SHOTS, "nf": NF}, open("/home/claude/talk/shots_p2.json", "w"))
 exec(open(SCR + "director.py").read())     # shot checker: camera inside a mesh / subject blocked / lens covered
 shot_probs = check_shots(SHOTS, allow=("bridge lunge",))     # the lunge AT the lens is the scare
+shot_probs += check_framing(SHOTS)
 if shot_probs and not os.environ.get("FORCE"):
     raise SystemExit("shot check failed - fix the cameras (FORCE=1 to render anyway)")
 # ================================================================== render settings

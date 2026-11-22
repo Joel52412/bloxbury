@@ -36,7 +36,8 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - **Hair:** dark skin never blonde/very light; white/grey only for older characters; keep a/b versions of B4, C19, K11. Banned: downloaded .obj hair, faces A–E and M1, hair H1, H5, H6, H7.
 - **Casting:** recurring characters have fixed cards; extras are random library mixes; monsters made fresh, saved only if approved.
 - **Animation:** fluid Roblox-fight style (anticipation, overshoot, settle, smear frames, motion blur, idle motion), never stop-motion. Faces match meaning and pitch. Anime lip-sync. Sparkles twinkle subtly, never flicker. **Narration = voiceover: mouth does not move**; lip-sync only for in-scene dialogue or talking straight to camera (outro).
-- **Camera:** calm, slow eased push-ins and drifts; shake only as a small jolt on the one big hit; no big swings or punchy shakes. Punch-ins on key words, hard cuts, follow the action.
+- **Camera:** calm, eased moves; shake only as a small jolt on the one big hit. Shots via `cinema.py` `cine()`/`insert()` (subject + size + move), never raw coords for character shots. Dolly, never zoom (fixed lens per shot); moves ≤25% size change, land at ~80% then settle; eyes upper third, looking room; vary size/move between cuts (hold, push, pull reveal, drift, sink); inserts land ON the key detail. `check_framing` (OFF/CROP/DRIFT/SAME) must pass. Joel 22 Nov: zooms that end on nothing / cropped faces = fail.
+- **Sets:** dress what the camera sees (walls behind faces) with `dressing.py` (two-tone walls, frames, shelves, coats, sconces, calendar/drawing rewatch bait). Cheap: boxes, shared mats, emission glows, max one practical light per room, no glass/volume (+~2% render time measured).
 - **QA:** check_faces (one mouth every frame, no closed eyes before a cut); check_shots (no camera in a mesh, nothing blocking the aim point or lens; deliberate cases in `allow=`); shot stills sheet reviewed; after GPU render, black/blank frame check.
 - **24 fps.** Captions small, lower-middle, clear of faces, word-timed (pocketsphinx).
 - **Story:** studio-grade first drafts. Hook picture + line in 0–3 s; new open question every 8–10 s; pattern breaks; pay off earlier parts; retell half-known legends made wrong; no cliché loud stings (silence, dropouts, misdirection, reflections, quiet lines), max one earned startle; 1–2 rewatch details; last line loops to first; end on a choice question.
@@ -62,15 +63,15 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - Approved: faces M2 (+12 emotions, faces4.RARE); hair H2 H3 H4 H8, M1–M6, X1–X6; outfits O1–O4 + role/kids/teen; props batches 1–3; sets Bloxbury Town, Milo's room, kitchen, hallway (mirror), hollow closet; cards MILO (`rig2.make_milo`), RAE, MAYOR, DAN, NEIGHBOUR, MUM (`recurring.py`); THE KNOCKER (`monster.make_knocker`).
 - Scene template: `part2.py` (+ `rig2.py`: `upgrade_rig`, `arm`, `build_face_v2`, `expr`, `blink`, `lipsync`, `accents`; walk cycle; smears = shoulder Z ×1.35 for 2 frames; motion blur 0.5 position START; `cam_key` with make_compatible).
 - Helpers/lessons: `place()` + `hold_cuts()` + `flush_mouths()`; use `idle_here()` (idle() keys absolute z); aim shots BEFORE parking characters; close-ups via `ots()`; emission sockets keyed with `key()`; Blender 5 needs `kf()`, `apply_interp()`, `_fcurves()`; DOF keyed on `cam.data`; no coplanar faces; check held-prop contact numerically; cups hollow. Glossy-only objects (`visible_glossy`) for mirror/reflection tricks.
+- `cinema.py` sets the 1080×1920 resolution before any maths (sensor fit uses the long side). Sizes = head fraction of frame height: ECU .40, CU .28, MCU .19, MS .12; small sets need short lenses (26–36) or the camera ends up in a wall.
 - Stills: `RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 FRAMES=a,b python3 partN.py`.
 
 ## Series so far
 - **Part 1** (71.75 s, `part1_v2.py`, `prep_p1.py`): Milo hears knocks at 3AM; the Knocker (tall, starved, black sockets with pinpoint white eyes, red thin-tooth grin; always kept in the dark with a cool rim light) is in his closet; lunge at the lens on "OUT", cut to black. Rae keeps the WHO'S LEFT list.
 - **Part 2 "She Came Home"** (80 s, 1921 frames, `part2.py`, `prep_p2.py`, script in `series/bloxbury/part2/`): Mum is back making pancakes but calls him "Milo" (she never does). Rae: Mum was crossed off the list three weeks ago; "mirrors don't lie". The hallway mirror's twin keeps smiling and turns. Real Mum whispers from the closet "I heard it too"; fake Mum knocks: "Who are you talking to?" Outro: "Two mums. One door. Which one would you open?" Music: Numbers instrumental loop (`assets/music`), 35%.
 
-## Status (22 Nov 16:20)
-- Part 1 and Part 2 delivered. `exports/Bloxbury_Part2_TikTok.mp4` is final (TikTok mix, quieter ElevenLabs sizzle `SIZZLE_DB` −46, "depends" dropout repaired).
-- `exports/Bloxbury_Part2.mp4` (YouTube master) still has the old sizzle and the glitch: swap in `_pipeline/data/p2/part2_audio.wav` when stitching the YouTube compilation.
-- TODO: wire `make_tiktok.sh` into `pod_finish.sh` so pods output both versions.
-- **NEXT: Part 3** (new chat), episode workflow from step 1, template `part2.py`.
-- Later: auto-pipeline (prompt in, Joel just renders); library batches (outdoor/vehicles, sets, animation moves).
+## Status (22 Nov 20:50)
+- Part 1 and Part 2 delivered. `exports/Bloxbury_Part2_TikTok.mp4` final; YouTube master needs `_pipeline/data/p2/part2_audio.wav` swapped in when stitching.
+- NEW: `cinema.py` (camera grammar + framing check) and `dressing.py` (draft set dressing, not in library until Joel approves → props4.py). `part2.py` re-shot with both (all checks pass); Part 2 NOT re-rendered yet — Joel to decide (~1921 frames, 3× 4090 ≈ 16 min).
+- TODO: wire `make_tiktok.sh` into `pod_finish.sh`.
+- **NEXT: Part 3** (template `part2.py`, uses cine/dressing).
