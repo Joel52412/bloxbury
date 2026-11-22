@@ -88,7 +88,12 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Card choice:** episodes go on **3× Community RTX 4090** ($0.34/hr each, about 58p per episode). Tests use 1–2×. Community stock often runs out (and `get-capacity` can be stale). Secure 4090 is $0.89/hr. `allowedCudaVersions` goes inside `gpu`.
 - **Speed (Test 2 scene, 1080×1920, 32 samples):** about 5.3 s per frame per 4090.
 - **Render settings:** 32 samples, OptiX denoise. Test each GPU with a `FRAMES=` still first, then check every frame.
-- **Create body:** image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`, disk 30, port 8888/http, startJupyter, and `env: {"GITHUB_RO": "{{ RUNPOD_SECRET_GITHUB_RO }}"}` **at create time**. Changing env later with update-pod restarts the container, wipes it and drops Jupyter's password. If that happens, restart Jupyter by hand with your own token.
+- **Ready-made image (22 Nov 14:44):** `ghcr.io/joel52412/bloxbury-render:5.3` is RunPod's PyTorch base plus Blender 5.3 at `/opt/blender`, its libs, ffmpeg, fonts and pillow/numpy.
+  - Built by GitHub Actions (`.github/workflows/render-image.yml`, from `docker/render.Dockerfile`), about 12 min. It rebuilds whenever the Dockerfile changes.
+  - With it, `pod_setup.sh` skips installing (it links `/opt/blender`), so setup drops from about 10 min to under a minute. That makes 4–6 GPUs worth it.
+  - The GHCR package must be **Public** for RunPod to pull it without credentials (Joel sets it once in GitHub → Packages → bloxbury-render → Package settings). It holds no code or secrets.
+  - Fallback if the pull fails: `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`, which does the full install.
+- **Create body:** image `ghcr.io/joel52412/bloxbury-render:5.3` (fallback `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`), disk 30, port 8888/http, startJupyter, and `env: {"GITHUB_RO": "{{ RUNPOD_SECRET_GITHUB_RO }}"}` **at create time**. Changing env later with update-pod restarts the container, wipes it and drops Jupyter's password. If that happens, restart Jupyter by hand with your own token.
 - **Getting the code onto the pod (no more base64 chunks):**
   - Token: `T=$(tr '\0' '\n' < /proc/1/environ | sed -n 's/^GITHUB_RO=//p')`.
   - Clone: `git clone --depth 1 https://x-access-token:$T@github.com/Joel52412/bloxbury.git /workspace/bloxbury`.
