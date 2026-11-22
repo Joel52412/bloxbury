@@ -75,7 +75,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - Anything long: the full low-res preview and the full-res final. In the workspace a preview took about 75 min on 2 CPUs and gets stopped when a reply ends; on a pod it's about 15–20 min including setup.
   - Once a pod is already up for an episode, small stills go there too (seconds).
 - **One pod per episode:**
-  1. Low-res preview (216×384, 4 samples): contact sheets pushed to a temporary `preview-*` branch for Claude to review, shown to Joel.
+  1. Low-res preview (216×384, 4 samples): contact sheets come back through `exec-pod` as base64 for Claude to review, then go to Joel.
   2. Fixes.
   3. Full-res render (1080×1920, 32 samples).
   4. Frame check, then `make_partN.sh`.
@@ -98,13 +98,17 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - Token: `T=$(tr '\0' '\n' < /proc/1/environ | sed -n 's/^GITHUB_RO=//p')`.
   - Clone: `git clone --depth 1 https://x-access-token:$T@github.com/Joel52412/bloxbury.git /workspace/bloxbury`.
   - Then `nohup sh /workspace/bloxbury/_pipeline/pod_setup.sh > setup.log &`. It installs apt packages and Blender 5.3 (note: no `-q` on `ensurepip`), and lays files out under `/home/claude`.
-  - RunPod secret `GITHUB_RO` (id `we7rf4p3y8`) holds Joel's fine-grained token "robloxrepo" for this repo. It's currently over-scoped (read+write); a read-only one is a todo.
+  - RunPod secret `GITHUB_RO` (id `we7rf4p3y8`) holds Joel's fine-grained token "robloxrepo" for this repo. **Read-only since 22 Nov 15:02** (Joel set Contents to Read-only), so pods can clone and pull but NEVER push.
 - **Multi-GPU (22 Nov 14:30): one shared frame queue.** `sh /workspace/bloxbury/_pipeline/pod_render.sh partN.py <NF> /workspace/frames` starts one Blender per GPU, every one over the WHOLE range (FS=1, FE=N). Blender placeholders make each GPU claim the next free frame, so a slow GPU never holds the finish back.
   - It also starts `pod_progress.py`, which writes the tiny `/workspace/render_progress.json` every 2 s: done/total, fps over the last 90 s, ETA, and per-GPU frames from the `render_gpuN*.log` "Saved:" lines.
   - It also starts `pod_balance.sh`, which restarts a helper on any GPU that goes idle while unclaimed frames remain.
   - Part 2 found the problem: with the old static split, GPU 0 (kitchen frames) ran at 0.27 fps against 0.40 on GPU 2.
 - **Download:** **always give Joel the full download link** with the token in it: `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. If Jupyter shows a login page, he pastes the token there. Delete the pod after he confirms.
-- **Preview branches:** Claude's workspace can't delete GitHub branches (the proxy blocks branch deletes). Delete `preview-*` FROM THE POD (`git push origin --delete preview-partN` with its token) before deleting the pod, or Joel deletes it on GitHub.
+- **Getting previews and stills from a pod to Claude (since 15:02 the token is read-only, so no more `preview-*` branches):**
+  - Make a small contact-sheet JPG on the pod (under about 700 KB) and print it as base64 through `exec-pod`. stdout holds up to 1 MiB, so split bigger sheets into parts.
+  - Decode it in the workspace and view it.
+  - Joel can also open the Jupyter frames link.
+  - Leftover branches `preview-part1-v2` and `preview-part2` can only be deleted by Joel on GitHub; the workspace proxy blocks branch deletes.
 - **Long jobs:** use `nohup`; `exec-pod` calls max out at 25 s.
 - **Tracking (Joel, 22 Nov 14:18):** the moment a render starts, send Joel the tracking block without being asked:
   - pod id, Jupyter token, and the Jupyter frames-folder link (`https://<pod>-8888.proxy.runpod.net/tree/workspace/frames?token=<token>`)
