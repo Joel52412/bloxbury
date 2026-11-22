@@ -131,16 +131,28 @@ TIKTOK = bool(os.environ.get("TIKTOK"))
 MUSIC_MUTES = MUTES[:-1] + [(m["So did I"][1] + 0.1, TOTAL)] if TIKTOK else MUTES
 # NOMUSIC=1: voices + SFX only, for TikTok uploads where the song is added in-app from TikTok's own library (licensed path)
 NOMUSIC = bool(os.environ.get("NOMUSIC"))
-if not NOMUSIC: mix += music_bed(REPO, TOTAL, SR, len(mix), part=3, mutes=MUSIC_MUTES)
+# Music sits well UNDER the voices (Joel 21:54: softer, "premium"): bed at 0.20, low end trimmed, and ducked a further
+# ~7 dB while anyone speaks (40 ms attack, 450 ms release) so it swells only in the gaps between lines.
+def duck_curve(v, depth_db=-7.0, att=0.04, rel=0.45):
+    k = int(0.01 * SR); n = len(v) // k
+    lvl = np.sqrt((v[:n * k].reshape(n, k) ** 2).mean(1)); on = (lvl > 10 ** (-42 / 20)).astype(np.float32)
+    g = np.ones(n, np.float32); cur = 1.0; lo = 10 ** (depth_db / 20)
+    for i in range(n):
+        tgt = lo if on[i] else 1.0; c = 0.01 / (att if tgt < cur else rel); cur += (tgt - cur) * min(1, c); g[i] = cur
+    return np.repeat(g, k).tolist() + [1.0] * (len(v) - n * k)
+if not NOMUSIC:
+    bed = music_bed(REPO, TOTAL, SR, len(mix), part=3, mutes=MUSIC_MUTES)
+    bed = bed - np.convolve(bed, np.ones(64) / 64, "same") * 0.5     # gentle low trim
+    mix += bed * np.array(duck_curve(vox), np.float32)
 mix[int(BLACK_CUT * SR):int(OUTRO0 * SR)] = 0
 mix = mix[:int(TOTAL * SR)]; mix = mix / max(np.abs(mix).max(), 1e-6) * 0.92
 with wave.open(OUT + "part3_raw.wav", "wb") as w:
     w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes((mix * 32767).astype(np.int16).tobytes())
-mm = subprocess.run(["ffmpeg", "-hide_banner", "-i", OUT + "part3_raw.wav", "-af", "loudnorm=I=-14:TP=-1.5:LRA=11:print_format=json",
+mm = subprocess.run(["ffmpeg", "-hide_banner", "-i", OUT + "part3_raw.wav", "-af", "loudnorm=I=-16:TP=-2:LRA=11:print_format=json",
                      "-f", "null", "-"], capture_output=True, text=True).stderr
 mj = json.loads(mm[mm.rindex("{"):mm.rindex("}") + 1])
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", OUT + "part3_raw.wav", "-af",
-                f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={mj['input_i']}:measured_TP={mj['input_tp']}:measured_LRA={mj['input_lra']}:"
+                f"loudnorm=I=-16:TP=-2:LRA=11:measured_I={mj['input_i']}:measured_TP={mj['input_tp']}:measured_LRA={mj['input_lra']}:"
                 f"measured_thresh={mj['input_thresh']}:offset={mj['target_offset']}:linear=true", "-ar", str(SR),
                 OUT + ("part3_nomusic.wav" if NOMUSIC else "part3_tiktok.wav" if TIKTOK else "part3_audio.wav")], check=True)
 

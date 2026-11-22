@@ -22,7 +22,7 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 ## Episode workflow
 1. **Story:** read `_pipeline/STORY_DIRECTION.md`, research, write beat sheet + script → `series/<story>/partN/partN_script.md`. Joel tweaks.
 2. **Voices:** paste-ready ElevenLabs blocks, one per voice: one line per paragraph, [emotion] tags, no numbers; main character narrates. New speaking character → Voice Design prompt (`_pipeline/VOICE_DESIGN.md`). Request ALL the part's SFX now (same file).
-3. **Audio:** align (`align_full.py`), split (`split_lines.py`), scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` in the cue sheet or ask for a regen), then `prep_pN.py`: pacing, level matching, voice FX, music bed + dropouts, SFX, loudnorm −14 LUFS, word-timed captions, lip-sync env (line modes N/D/C/O).
+3. **Audio:** align (`align_full.py`), split (`split_lines.py`), scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` in the cue sheet or ask for a regen), then `prep_pN.py`: pacing, level matching, voice FX, music bed + dropouts, SFX, loudnorm −16 LUFS / −2 dBTP (Joel 21:54: not too loud), music ~20 dB under voices and ducked ~7 dB while anyone speaks, word-timed captions, lip-sync env (line modes N/D/C/O).
 4. **Audio animatic** (dark frame + captions + scene labels + timecode) → Joel judges pacing.
 5. **Asset sheet** `partN_assets.py`, rendered here (detail bar applies): every new character/set/prop (sets at z=400, studio cyc for cards), NEW vs APPROVED panel. Review stills first. No pod until Joel OKs.
 6. **After OK:** save to library (`recurring.py` cards, `propsN.py`, manifest, studio.py), switch the asset script to library versions.

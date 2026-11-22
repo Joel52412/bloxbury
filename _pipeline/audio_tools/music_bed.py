@@ -18,7 +18,7 @@ PART_MUSIC = {
     2: {"file": "assets/music/Numbers_instrumental_loop.flac", "vol": 0.35, "fade_in": 0.0, "fade_out": 1.0},
     # Part 3 (Joel 21:51): piano cover "numbers - temporex piano" (70.45 s, not a loop). pause=True: the song PAUSES
     # during mutes and carries on where it stopped, so 0-28 s + 44-73 s + outro use ~65 s of it and it never repeats.
-    3: {"file": "assets/music/Numbers_piano.mp3", "vol": 0.32, "fade_in": 0.0, "fade_out": 1.0, "pause": True},
+    3: {"file": "assets/music/Numbers_piano.mp3", "vol": 0.20, "fade_in": 0.0, "fade_out": 1.0, "pause": True},
 }
 
 
