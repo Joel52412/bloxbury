@@ -28,3 +28,28 @@ Loop: the final line flows back into "My mum finally came home last night."
 ## New assets for the asset sheet
 Mum card, kitchen (props batch 1), hallway + mirror with a delayed-reflection double, Rae's porch, list page (Mum crossed out),
 Mum's bracelet, toaster reflection insert.
+
+## Full script (12:40) — N = narration (no mouth), D = in-scene dialogue (lip-sync), C = to camera (lip-sync)
+| Shot | Who | Line |
+|---|---|---|
+| 0 Bridge: Knocker lunge (dark) -> black -> match cut grin->smile | - | (silence, then sizzle + humming) |
+| 1 Sunny kitchen, Mum humming | Milo N | My mum finally came home last night. / I wish she hadn't. |
+| 1 | Mum D | Morning, Milo! |
+| 2 Pancakes / humming / hug | Milo N | She made my favourite pancakes. / She hummed my favourite song. / She hugged me for a really, really long time. |
+| 2 Push-in on Milo | Milo N | And she called me Milo. / Mum never calls me Milo. |
+| 3 Rae's porch | Milo D | My mum's back! But it's not... it's not her! |
+| 3 | Rae D | Did she knock? |
+| 3 | Milo D | No... she had a key. |
+| 3 | Rae D | Then it doesn't need to knock anymore. |
+| 3 List insert, Mum crossed out | Rae D | Milo... your mum was the first name I crossed off. / Three weeks ago. |
+| 4 Close on Milo | Milo D | So who's in my kitchen? |
+| 4 | Rae D | Check a mirror. Mirrors don't lie. |
+| 5 Night hallway mirror | Milo N | It looked like Mum. / Then Mum stopped smiling. / Her reflection didn't. (MUSIC OUT) |
+| 5 Mum facing away | Mum D | Milo... who told you about the mirror? |
+| 6 Locked bedroom | Milo N | I locked my door. |
+| 6 Downstairs | Mum D | Milo! Dinner's ready. Come downstairs. |
+| 6 Closet crack (MUSIC OUT) | Milo N | Then a voice came from inside my closet. |
+| 6 | Real Mum D | Bug... don't go down there. / I heard it too. |
+| 6 | Milo D (whisper) | Mum? |
+| 7 Footsteps stop, three soft knocks | Mum D | Bug?... Who are you talking to? -> hard cut to black |
+| 8 Outro | Milo C | Two mums. One door. / Which one would you open? / Comment below... Part Three depends on it. |
