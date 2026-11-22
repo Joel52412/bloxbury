@@ -8,3 +8,4 @@ voice clones/
 _studio_library/approval_sheets/
 _studio_library/Studio_Asset_Library.png
 *.mp4
+__pycache__/
