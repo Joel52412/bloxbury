@@ -16,7 +16,9 @@ import numpy as np, subprocess
 
 PART_MUSIC = {
     2: {"file": "assets/music/Numbers_instrumental_loop.flac", "vol": 0.35, "fade_in": 0.0, "fade_out": 1.0},
-    3: {"file": "assets/music/Numbers_instrumental_loop.flac", "vol": 0.30, "fade_in": 0.0, "fade_out": 1.0},
+    # Part 3 (Joel 21:51): piano cover "numbers - temporex piano" (70.45 s, not a loop). pause=True: the song PAUSES
+    # during mutes and carries on where it stopped, so 0-28 s + 44-73 s + outro use ~65 s of it and it never repeats.
+    3: {"file": "assets/music/Numbers_piano.mp3", "vol": 0.32, "fade_in": 0.0, "fade_out": 1.0, "pause": True},
 }
 
 
@@ -33,6 +35,20 @@ def music_bed(repo, total, sr, n=None, part=2, vol=None, fade_in=None, fade_out=
     reps = int(np.ceil(n / len(loop))) + 1
     bed = np.tile(loop, reps)[int(start * sr):][:n] * vol        # loop file is seamless, so plain tiling is clean
     end = int(total * sr)
+    if cfg.get("pause"):                                          # song pauses through mutes, resumes where it stopped
+        song = loop[int(start * sr):] * vol; bed = np.zeros(n, np.float32); pos = 0; t = 0
+        for a, b in list(mutes) + [(total, total)]:
+            a, b = int(a * sr), int(b * sr); k = min(a - t, len(song) - pos)
+            if k > 0:
+                seg = song[pos:pos + k].copy(); ki = min(int(0.6 * sr), k)
+                if t > 0: seg[:ki] *= np.linspace(0, 1, ki)
+                ko = min(int(0.04 * sr), k)
+                if a < end: seg[-ko:] *= np.linspace(1, 0, ko)
+                bed[t:t + k] = seg; pos += k
+            t = b
+        if fo: k = int(fo * sr); bed[max(0, end - k):end] *= np.linspace(1, 0, min(k, end))
+        bed[end:] = 0
+        return bed.astype(np.float32)
     if fi: k = int(fi * sr); bed[:k] *= np.linspace(0, 1, k)
     if fo: k = int(fo * sr); bed[max(0, end - k):end] *= np.linspace(1, 0, min(k, end))
     for t0, t1 in mutes:
