@@ -54,6 +54,7 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - **Create body:** image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404` (pod_setup installs Blender, ~2 min). `ghcr.io/joel52412/bloxbury-render:5.3` gave IMAGE_AUTH_ERROR 22 Nov 22:27 (package private / no registry credential): use it again only after making the GHCR package public, disk 30, port 8888/http, startJupyter, `env: {"GITHUB_RO": "{{ RUNPOD_SECRET_GITHUB_RO }}"}` at create time (changing env later wipes the pod).
 - **On the pod:** `T=$(tr '\0' '\n' < /proc/1/environ | sed -n 's/^GITHUB_RO=//p')`; `git clone --depth 1 https://x-access-token:$T@github.com/Joel52412/bloxbury.git /workspace/bloxbury`; `nohup sh /workspace/bloxbury/_pipeline/pod_setup.sh > setup.log &` (<1 min). Token is read-only: pods never push.
 - **Render:** write `/workspace/render_job.json` first (`name, group, total, frame_start, frame_end, cost_per_hr, pod_started, output, audio, captions, black, download_to=series/bloxbury/exports/...`), then `sh /workspace/bloxbury/_pipeline/pod_render.sh partN.py <NF> /workspace/frames` (one shared frame queue across GPUs + progress file + balancer + auto-finish). `exec-pod` calls max 25 s: use nohup.
+- **Download (Joel 23:41):** when the stage is `ready`, give Joel the backup download link; he downloads it himself, then Claude deletes the pod straight away (Claude can't reach the pod proxy; pulling 39 base64 chunks is slow). Render Monitor optional.
 - **Auto-finish:** `pod_finish.sh` checks frames, assembles (`make_part.sh`), the Render Monitor downloads and writes `received.json`, the pod deletes itself (`runpodctl`: confirm which syntax works on the next pod). No download in 60 min → pod stops itself. Failure → stage `needs_claude`.
 - **Tell Joel when a render starts:** pod id, Jupyter token, frames link `https://<pod>-8888.proxy.runpod.net/tree/workspace/frames?token=<token>`, cards + $/hr, frames, ETA, estimated cost, and the backup download link `.../files/workspace/<file>?token=<token>`. Render Monitor (`_tools/Render Monitor.bat`) shows it live.
 - **Pod → Claude images:** small contact-sheet JPG printed as base64 via exec-pod (≤1 MiB stdout).
@@ -72,9 +73,8 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - **Part 1** (71.75 s, `part1_v2.py`, `prep_p1.py`): Milo hears knocks at 3AM; the Knocker (tall, starved, black sockets with pinpoint white eyes, red thin-tooth grin; always kept in the dark with a cool rim light) is in his closet; lunge at the lens on "OUT", cut to black. Rae keeps the WHO'S LEFT list.
 - **Part 2 "She Came Home"** (80 s, 1921 frames, `part2.py`, `prep_p2.py`, script in `series/bloxbury/part2/`): Mum is back making pancakes but calls him "Milo" (she never does). Rae: Mum was crossed off the list three weeks ago; "mirrors don't lie". The hallway mirror's twin keeps smiling and turns. Real Mum whispers from the closet "I heard it too"; fake Mum knocks: "Who are you talking to?" Outro: "Two mums. One door. Which one would you open?" Music: Numbers instrumental loop (`assets/music`), 35%.
 
-## Status (22 Nov 23:02)
-- Part 1 and Part 2 delivered. `exports/Bloxbury_Part2_TikTok.mp4` final; YouTube master needs `_pipeline/data/p2/part2_audio.wav` swapped in when stitching. Part 2 re-render (new props/camera/captions) still Joel's call.
-- **Part 3 "Don't Say It"**: script v1 approved (`series/bloxbury/part3/part3_script.md`), voices + SFX in, `prep_p3.py` mix approved (84.2 s, piano Numbers, −16 LUFS), animatic OK. Props batch 6 + lookdev/lighting APPROVED 23:02 (sheet `approval_sheets/Part3_asset_sheet.jpg`).
-- TODO: wire `make_tiktok.sh` into `pod_finish.sh`; GHCR render image is private (use runpod/pytorch).
-- Part 3 scene `part3.py` built (30 shots, 2023 frames, all checks pass; lights keyed per shot via `light_shot()`); shot-stills sheet sent 23:2x. Data for pods in `_pipeline/data/p3` (env, captions, mix).
-- **NEXT:** Joel OKs stills + price → GPU render → TikTok version.
+## Status (22 Nov 23:42)
+- Parts 1-3 delivered. Part 3 "Don't Say It": `exports/Bloxbury_Part3.mp4` (Joel downloaded) + `Bloxbury_Part3_TikTok.mp4` (music built in, off after "So did I"); 84.2 s, 2023 frames, frame check OK, 3x Secure 4090 ~23 min ~$1.00. Part 2 re-render still Joel's call.
+- Library: props 1-6 + lookdev approved; `LIGHTING.md`, captions, hook rules in force.
+- TODO: wire `make_tiktok.sh` into `pod_finish.sh`; GHCR render image private (use runpod/pytorch).
+- **NEXT: Part 4** (open thread: where is real Mum? who has Milo's voice?).
