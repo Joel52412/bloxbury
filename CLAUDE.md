@@ -102,8 +102,8 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
     - **Sip:** the mug was at eye height and clipping into the face. It's now `SIP=(0.2, 0.75, 3.7)` with a tilt of about 25°, found by a numeric search: rim on the mouth, mug in front of the face, no clipping.
     - **Mug is hollow:** open top, a solidified 0.045 wall, coffee lower inside.
     - **Sparkles:** now flat 4-point yellow emissive glints with a hot pale centre, not lit and casting no light. The old white tube/ball crosses looked like objects, and a transparent halo caused a gold rim on the eyes, so the halo is gone.
-  - **Next:** re-render v2 (Joel picks the GPUs), then send with the download link.
-- **Then: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
+  - **Approved from stills (22 Nov 01:04):** Joel is happy with the fixes and doesn't need a v2 re-render. **Test 2 is closed**, and its fixes are the template for Part 1.
+- **NEXT: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
   - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
   - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
