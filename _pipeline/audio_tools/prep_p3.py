@@ -38,7 +38,7 @@ CUES = [
     ("milo", "It was learning", 0.30, "N", "r", None, None),
     ("milo", "So I didn't", 0.60, "N", "w", None, "note"),
     ("milo", "I wrote", 0.25, "N", "w", None, None),                 # then pencil, slide in, wait, slide back, note insert
-    ("milo", "I didn't make", 4.40, "N", "w", None, "escape"),       # window, roof, run
+    ("milo", "I didn't make", 6.00, "N", "w", None, "escape"),       # window, roof, run
     ("rae", "Milo?", 3.80, "D", "w", None, "rae_door"),              # run + door unlock in the gap
     ("rae", "You just", 0.45, "D", "w", None, None),
     ("rae", "You said", 0.65, "D", "w", None, None),
@@ -112,9 +112,11 @@ def sfx(key, var, a=0, b=None, db=-36, fi=0.02, fo=0.15, filt=None):
     return s
 m = marks
 put(mix, sfx("Soft_knocks", 2, 1.05, 2.15, -30, filt="lowpass=f=2600"), m["Because"][1] + 0.25)          # three soft knocks before "Bug?"
-put(mix, sfx("Pencil_writing", 2, 0.1, 1.9, -36), m["I wrote"][1] + 0.15)                                # writes LIGHTHOUSE
-put(mix, sfx("Paper_slide", 2, 0.25, 2.25, -34), m["I wrote"][1] + 2.05)                                 # into the closet
-put(mix, sfx("Paper_slide", 4, 0.25, 2.25, -36), m["I wrote"][1] + 3.55)                                 # ...and back
+put(mix, sfx("Pencil_writing", 2, 0.1, 1.7, -36), m["I wrote"][1] + 0.15)                                # writes LIGHTHOUSE
+# Joel 21:57: the two slides overlapped each other and the window (sounded repeated). Now: short soft push in,
+# ~0.9 s of silence, then a slower, different slide back, and 0.5 s of quiet on the note before the window.
+put(mix, sfx("Paper_slide", 2, 0.6, 1.6, -39, fo=0.25), m["I wrote"][1] + 1.95)                         # pushed into the closet
+put(mix, sfx("Paper_slide", 1, 0.9, 2.2, -36, fo=0.3), m["I wrote"][1] + 3.85)                          # ...slides back
 put(mix, sfx("Window_open", 1, 0.8, 3.5, -34, fo=0.4), m["I didn't make"][0] - 0.6)
 put(mix, sfx("Roof_steps", 1, 0.0, 2.6, -38, fi=0.2, fo=0.5), m["I didn't make"][0] + 1.6)
 put(mix, sfx("Night_ambience", 2, 0.0, m["Rae, it's me"][0] - m["I didn't make"][0] + 0.5, -47, fi=0.6, fo=0.8), m["I didn't make"][0] - 0.2)
