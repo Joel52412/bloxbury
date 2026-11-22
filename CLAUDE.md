@@ -50,6 +50,11 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - Small, lower-middle, clear of faces.
   - Word-timed with pocketsphinx alignment.
 - **Directing:** punch-ins on key words, slow push-ins for tension, hard cuts, follow the action.
+- **Story and scares (Joel, 22 Nov): studio-grade, never generic.** Joel wants every first draft at full quality, not slop.
+  - **Retention:** hook with picture and line together in the first 1–3 s. Open a new question every ~8–10 s before closing the last one. Use pattern breaks (three normal things, then one wrong one). Pay off earlier parts' mysteries so returning viewers are rewarded.
+  - **Familiar made wrong:** retell a story people half-know (urban legends, viral creepypastas) in the Roblox format. A familiar person, room or voice that is slightly off beats any monster.
+  - **No cliché loud-sting jump scares.** Use silence and audio dropouts, misdirection (the scare is somewhere other than where the camera points), delayed reflections, things in plain sight, quiet lines that land like a hit, and the music cutting out. Keep at most one real startle per part, and earn it.
+  - **Rewatch bait:** hide one or two background details (e.g. a 4-frame reflection) that reward a second watch. Make the last line flow into the first so TikTok loops cleanly. End with a choice question for comments.
 - **Voiceover scripts:**
   - Paste-ready blocks for ElevenLabs.
   - One line per paragraph, [emotion] tags, no numbers.
