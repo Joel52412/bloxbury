@@ -6,8 +6,8 @@ WrapStyle: 0
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: W,DejaVu Sans,54,&H00FFFFFF,&H00FFFFFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,4,1,2,120,120,560,1
-Style: R,DejaVu Sans,54,&H003C3CFF,&H003C3CFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,4,1,2,120,120,560,1
+Style: W,DejaVu Sans,54,&H00FFFFFF,&H00FFFFFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,120,120,330,1
+Style: R,DejaVu Sans,54,&H003C3CFF,&H003C3CFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,120,120,330,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
