@@ -1,12 +1,11 @@
 # music_bed.py - looped background music bed for a part's mix.
 # Joel (22 Nov): Part 2 uses ONLY the instrumental of "Numbers" (TEMPOREX), looped for the whole part at ~40% volume.
 # The instrumental was split from backgorund music/Numbers.mp3 with UVR-MDX-NET-Inst_HQ_3 (vocals removed) and
-# Joel (22 Nov 12:14): loop after ~25 s. The loop is the song's first 10 bars (0.07-25.59 s, ~94 BPM), cut so the
-# attack of bar 11 lines up with the attack of bar 1 (sample-exact, 15 ms pre-roll where the old note's decay fades out).
-# Joel (12:18): the volume dipped at ~0:08-0:14 (bars 4-6 were a breakdown carried by the vocals, so the instrumental
-# went quiet). Bars 4-6 are replaced by the full bars 7-9 (bar order 1,2,3,7,8,9,7,8,9,10), spliced on the beat with
-# 15 ms crossfades. Every 0.25 s stays within about -17 to -25 dB, with no drop.
-# Stored as FLAC (Numbers_instrumental_loop.flac, 25.52 s) because MP3 padding would put tiny gaps between repeats.
+# Joel (22 Nov 12:23): loop ONLY the intro, without the whistle (the pitch-slide whistle at ~19.8-20.6 s is not in it).
+# The loop is the intro's 4 bars (0.07-10.28 s, ~94 BPM). Bar 5 has the same chords as bar 1, so bar 4 -> bar 1 is the
+# song's own chord change. Bar 4's ring-out fades under bar 1's first hit over 150 ms, and a slow, circular level
+# rider (only lifts dips, max +9 dB) fills the thin end of bar 4, so every 0.25 s stays within about -15 to -25 dB.
+# Stored as FLAC (Numbers_instrumental_loop.flac, 10.21 s) because MP3 padding would put tiny gaps between repeats.
 #
 # Usage inside a prep_pN.py, after voice + SFX are put into `mix` and BEFORE the peak normalise:
 #     from music_bed import music_bed
