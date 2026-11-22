@@ -137,12 +137,13 @@ def env_fade(sig, fi, fo):
 
 # bridge: Part 1's lunge under a low swell, then dead silence on black
 put(mix, env_fade(load(sfx("low_horror_drone_#3"), 0, 0.85) * 0.45, 0.05, 0.12), 0.0)
-# kitchen: soft pan sizzle (synth: band-passed noise with crackle), 1.25-18.2
-dur = 16.9; n = int(dur * SR); s = rng.standard_normal(n).astype(np.float32)
-s = np.convolve(s, np.ones(6) / 6, "same") - np.convolve(s, np.ones(60) / 60, "same")
-crack = (rng.random(n) < 0.0009).astype(np.float32) * rng.standard_normal(n).astype(np.float32) * 3
-s = (s * 0.5 + np.convolve(crack, np.exp(-np.arange(200) / 30), "same") * 0.4) * 0.035
-put(mix, env_fade(s, 0.4, 1.2), 1.25)
+# kitchen: pan sizzle only under the opening (Joel 13:15: was too loud and ran too long, read as static).
+# 1.25-7.0 s, ~8 dB quieter, softer top end, mostly crackle, faded out after "Morning, Milo!"
+dur = 5.75; n = int(dur * SR); s = rng.standard_normal(n).astype(np.float32)
+s = np.convolve(s, np.ones(14) / 14, "same") - np.convolve(s, np.ones(90) / 90, "same")
+crack = (rng.random(n) < 0.0012).astype(np.float32) * rng.standard_normal(n).astype(np.float32) * 3
+s = (s * 0.25 + np.convolve(crack, np.exp(-np.arange(200) / 30), "same") * 0.5) * 0.014
+put(mix, env_fade(s, 0.3, 1.4), 1.25)
 # hallway at night: clock ticking, which stops dead with the music at 44.30
 put(mix, env_fade(load(sfx("clock_ticking_#1"), 0, 4.4) * 0.35, 0.3, 0.02), 39.9)
 # reflection turns in silence; only a faint low swell as the head turns (46.2-47.6)
@@ -155,9 +156,10 @@ for i, gap in enumerate([0.52, 0.55, 0.58, 0.64, 0.72, 0.0]):
     k = int(0.16 * SR); thud = rng.standard_normal(k).astype(np.float32)
     thud = np.convolve(thud, np.ones(40) / 40, "same") * np.exp(-np.arange(k) / (0.035 * SR)) * (0.55 + 0.08 * i)
     put(mix, thud, t); t += gap
-# three SOFT knocks (one real knock sample, muffled and quiet)
-knock = load(sfx("three_heavy_door_kno_#1"), 0.25, 0.52, "lowpass=f=1600")
-for tk in (67.90, 68.45, 69.00): put(mix, env_fade(knock.copy() * 0.42, 0.003, 0.08), tk)
+# three soft knocks (Joel 13:15: use the other knock). Part 1's front-door knock (#4), its first three knocks as
+# performed (onsets 0.53/0.84/1.09), quieter and a little muffled: the series' signature knock, gentler this time.
+kn = load(sfx("three_heavy_door_kno_#4"), 0.45, 1.33, "lowpass=f=2400")   # stops before its 4th knock (1.37)
+put(mix, env_fade(kn * 0.55, 0.01, 0.12), 67.82)              # knocks land at ~67.90 / 68.21 / 68.46
 # hard cut to black: everything stops
 mix[int(BLACK_CUT * SR):int(OUTRO0 * SR)] = 0
 
