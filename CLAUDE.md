@@ -49,18 +49,21 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - One block per voice; the main character narrates.
 
 ## RunPod
-- **Before you create:** state the price first, and Joel must OK pod creation (the auto-check can block it).
-- **Pod ownership:** only delete pods made in this chat, and never print the API key.
-- **Card choice:** episodes go on **3× Community RTX 4090** ($0.34/hr each, about 58p per episode). Tests use 1×.
-- **Render settings:** 32 samples, OptiX denoise. Test each GPU, check every frame.
-- **Pod setup:**
-  - Image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`, disk 30, port 8888/http, startJupyter.
-  - apt-get install: wget xz-utils ffmpeg libx11-6 libxi6 libxxf86vm1 libxfixes3 libxrender1 libxkbcommon0 libsm6 libice6 libgl1 libegl1.
-  - Blender 5.3 into `/workspace/blender`, then use its own Python (`blender/5.3/python/bin/python3.13`): `ensurepip`, then `pip install pillow numpy`.
-- **Upload:** neither sandbox can reach the pod proxy. Send an xz tar as base64, in ≤16,000-character chunks via `exec-pod` env (`printf %s "$C" > cN`), check md5s, then decode and extract to `/home/claude`.
+- **Before you create:** state the price first, and Joel must OK pod creation (the auto-check can block it). When offering cards, give each option's **hourly price, total time and total cost**, and always include **multi-GPU options** (2×, 3×).
+- **Pod ownership:** only delete pods made in this chat, and never print the API key or the GitHub token.
+- **Card choice:** episodes go on **3× Community RTX 4090** ($0.34/hr each, about 58p per episode). Tests use 1–2×. Community stock often runs out (and `get-capacity` can be stale). Secure 4090 is $0.89/hr. `allowedCudaVersions` goes inside `gpu`.
+- **Speed (Test 2 scene, 1080×1920, 32 samples):** about 5.3 s per frame per 4090.
+- **Render settings:** 32 samples, OptiX denoise. Test each GPU with a `FRAMES=` still first, then check every frame.
+- **Create body:** image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`, disk 30, port 8888/http, startJupyter, and `env: {"GITHUB_RO": "{{ RUNPOD_SECRET_GITHUB_RO }}"}` **at create time**. Changing env later with update-pod restarts the container, wipes it and drops Jupyter's password. If that happens, restart Jupyter by hand with your own token.
+- **Getting the code onto the pod (no more base64 chunks):**
+  - Token: `T=$(tr '\\0' '\\n' < /proc/1/environ | sed -n 's/^GITHUB_RO=//p')`.
+  - Clone: `git clone --depth 1 https://x-access-token:$T@github.com/Joel52412/bloxbury.git /workspace/bloxbury`.
+  - Then `nohup sh /workspace/bloxbury/_pipeline/pod_setup.sh > setup.log &`. It installs apt packages and Blender 5.3 (note: no `-q` on `ensurepip`), and lays files out under `/home/claude`.
+  - RunPod secret `GITHUB_RO` (id `we7rf4p3y8`) holds Joel's fine-grained token "robloxrepo" for this repo. It's currently over-scoped (read+write); a read-only one is a todo.
+- **Multi-GPU:** `sh /workspace/bloxbury/_pipeline/pod_render.sh test2.py <NF> /workspace/frames` runs one Blender per GPU (`CUDA_VISIBLE_DEVICES`, `FS`/`FE` split). Logs go to `render_gpuN.log`.
 - **Download:** Joel uses `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. Delete the pod after he confirms.
 - **Long jobs:** use `nohup`; `exec-pod` calls max out at 25 s.
-- **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`) and give Joel the pod id and token for his monitor.
+- **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`) and give Joel the pod id and Jupyter token.
 
 ## Engine
 - **Load order:** the `bloxbury_part1.py` prefix (up to `# Milo starts at the fence`), then charlib, stylelab, hair2, hair3, faces2, garments, garments2, hair4, faces3, faces4, props (and studio for the registry).
@@ -88,13 +91,12 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 
 ## Status (22 Nov)
 - **GitHub repo set up** (22 Nov): `Joel52412/bloxbury`, restore tested from a clean clone.
-  - **Todo:** Joel makes a fine-grained read-only GitHub token for this repo, saved as RunPod secret `GITHUB_RO`. Then pods `git clone` directly instead of the base64 chunk upload (big usage saving).
-  - Until then the upload uses a minimal bundle (part1 prefix, test2, engine, env2/timing2): about 100 KB base64, 7 chunks.
+  - Pods now `git clone` the repo with the `GITHUB_RO` secret (working since 22 Nov 00:30). No more base64 chunk uploads.
 - **Mouth test v1:** approved the lip-sync and Rae's motion. Fixed since: Milo's flicker, and a face that vanished before a cut.
 - **Test 2** (`test2.py`, 354 frames, 14.75 s), preview reviewed and fixed:
   - **Shot A:** Milo's outro acted to the line (curious, hype, lean-in, ominous), with the closet glow creeping in.
   - **Shot B:** Dan sips coffee, walks, grabs the *BLOXBURY DAILY: KNOCKING CONTINUES* newspaper, throws it into a bin, then a smug sip.
-  - **Next:** GPU render, then audio mux (`test2_audio.wav`), then send. 22 Nov ~00:10: no Community 4090 or 4080 SUPER stock (capacity listings were stale). Joel OK'd a 4080 SUPER at $0.28/hr as a fallback. Other cards need his OK. `allowedCudaVersions` goes inside `gpu` in create-pod.
+  - **22 Nov 00:33:** rendering on 2× Secure 4090 (pod `xvv54gga9g41ck`, $1.78/hr), frames split 1–177 / 178–354. Next: black-frame check, mux `test2_audio.wav`, send, delete pod after Joel confirms.
 - **Then: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
   - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
   - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.
