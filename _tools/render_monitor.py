@@ -85,9 +85,13 @@ def count_local(folder, fs=None, fe=None):
                 newest = max(newest, st.st_mtime)
     return n, newest
 
+POD_URL_FMT = "https://%s-8888.proxy.runpod.net"     # tests point this at a local mock pod
+def pod_url(pod_id):
+    return POD_URL_FMT.replace("%s", pod_id.strip())
+
 def _jupyter_get(pod_id, token, path, timeout=30):
-    url = "https://%s-8888.proxy.runpod.net/api/contents/%s?content=1&token=%s" % (
-        pod_id.strip(), urllib.request.quote(path.strip("/")), token.strip())
+    url = pod_url(pod_id) + "/api/contents/%s?content=1&token=%s" % (
+        urllib.request.quote(path.strip("/")), token.strip())
     req = urllib.request.Request(url, headers={"User-Agent": "bloxbury-render-monitor"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read().decode("utf-8"))
@@ -104,6 +108,42 @@ def remote_progress(pod_id, token):
     """The pod's /workspace/render_progress.json, written every 2 s by _pipeline/pod_progress.py (tiny)."""
     d = _jupyter_get(pod_id, token, "workspace/render_progress.json", timeout=8)
     return json.loads(d.get("content") or "{}")
+
+def remote_output(pod_id, token):
+    """The pod's /workspace/render_output.json (pod_finish.sh): stage rendering/checking/assembling/ready/received..."""
+    d = _jupyter_get(pod_id, token, "workspace/render_output.json", timeout=8)
+    return json.loads(d.get("content") or "{}")
+
+ROOT = os.path.dirname(HERE)          # the robloxshorts folder (this script lives in robloxshorts/_tools)
+
+def download_file(pod_id, token, remote, dest, expect_size, progress=None):
+    """Streams https://<pod>-8888.proxy.runpod.net/files/<remote> to dest (via dest.part). Returns bytes written."""
+    url = pod_url(pod_id) + "/files/%s?token=%s" % (urllib.request.quote(remote.strip("/")), token.strip())
+    req = urllib.request.Request(url, headers={"User-Agent": "bloxbury-render-monitor"})
+    os.makedirs(os.path.dirname(dest) or ".", exist_ok=True)
+    tmp, n = dest + ".part", 0
+    with urllib.request.urlopen(req, timeout=60) as r, open(tmp, "wb") as f:
+        while True:
+            b = r.read(1 << 20)
+            if not b:
+                break
+            f.write(b); n += len(b)
+            if progress: progress(n)
+    if expect_size and n != int(expect_size):
+        os.remove(tmp)
+        raise IOError("download was %d bytes, pod says %d" % (n, int(expect_size)))
+    os.replace(tmp, dest)
+    return n
+
+def send_receipt(pod_id, token, size):
+    """Writes /workspace/received.json on the pod: pod_finish.sh sees it and deletes the pod."""
+    url = pod_url(pod_id) + "/api/contents/workspace/received.json?token=%s" % token.strip()
+    body = json.dumps({"type": "file", "format": "text",
+                       "content": json.dumps({"size": int(size), "at": time.time()})}).encode()
+    req = urllib.request.Request(url, data=body, method="PUT",
+                                 headers={"Content-Type": "application/json", "User-Agent": "bloxbury-render-monitor"})
+    with urllib.request.urlopen(req, timeout=30) as r:
+        return r.status
 
 def count_remote(pod_id, token, remote_dir, fs=None, fe=None):
     d = _jupyter_get(pod_id, token, remote_dir)
@@ -136,6 +176,10 @@ class Job:
         self.pod = None                    # last render_progress.json from the pod
         self.pod_rx = 0.0                  # when we received it (laptop clock)
         self.next_listing = 0.0            # fallback folder listing, at most every 30 s
+        self.out = {}                      # last render_output.json (pod_finish.sh)
+        self.delivery = ""                 # "" / downloading / saved / failed
+        self.dl_bytes = 0
+        self.saved_path = ""
 
     # spec helpers
     @property
@@ -182,6 +226,8 @@ class Job:
                     prog = remote_progress(s["pod_id"], s["token"])
                 except Exception:
                     prog = None
+                if (prog and prog.get("finished")) or self.out:
+                    self._check_output(s)
                 if prog and "done" in prog:
                     self.pod, self.pod_rx = prog, now
                     n = int(prog["done"])
@@ -206,9 +252,38 @@ class Job:
         except Exception as e:
             if self.kind == "runpod":
                 self.status = "done" if self.total and self.done >= self.total else "offline"
-                self.error = "pod not reachable (stopped or deleted?)"
+                self.error = "" if self.delivery == "saved" else "pod not reachable (stopped or deleted?)"
             else:
                 self.status, self.error = "error", str(e)[:80]
+
+    def _check_output(self, s):
+        """Finished render: follow pod_finish.sh, download the video when it is ready, then send the receipt."""
+        try:
+            self.out = remote_output(s["pod_id"], s["token"]) or self.out
+        except Exception:
+            return
+        if self.out.get("stage") == "ready" and self.delivery in ("", "failed") and s.get("auto_download", True):
+            self.delivery = "downloading"
+            threading.Thread(target=self._deliver, args=(dict(s), dict(self.out)), daemon=True).start()
+
+    def _deliver(self, s, out):
+        remote = out.get("file") or ""
+        rel = s.get("download_to") or os.path.join("series", s.get("group_dir", "bloxbury"), os.path.basename(remote))
+        dest = rel if os.path.isabs(rel) else os.path.join(ROOT, rel)
+        if os.path.exists(dest):                       # never overwrite an earlier version
+            b, e = os.path.splitext(dest); dest = "%s_%s%s" % (b, datetime.datetime.now().strftime("%H%M"), e)
+        for attempt in range(3):
+            try:
+                def prog(n): self.dl_bytes = n
+                download_file(s["pod_id"], s["token"], remote, dest, out.get("size"), prog)
+                self.saved_path = dest
+                send_receipt(s["pod_id"], s["token"], out.get("size") or os.path.getsize(dest))
+                self.delivery = "saved"
+                return
+            except Exception as e:
+                self.error = "download: %s" % str(e)[:70]
+                time.sleep(5)
+        self.delivery = "failed"
 
     def _update(self, n, now):
         if n != self.done or not self.samples:
@@ -440,6 +515,12 @@ def job_line(j):
         parts.append("spent %s" % money(c[0]))
         if j.status != "done":
             parts.append("est. total %s" % money(c[1]))
+    if j.delivery == "downloading":
+        parts.append("downloading video %.1f MB" % (j.dl_bytes / 1e6))
+    elif j.delivery == "saved":
+        parts.append("SAVED %s, pod deleting itself" % j.saved_path)
+    elif j.out.get("stage") and j.out.get("stage") not in ("rendering", "received"):
+        parts.append("pod: %s" % j.out["stage"])
     if j.error:
         parts.append("(%s)" % j.error)
     return "   ·   ".join(parts)
@@ -578,6 +659,8 @@ def gui_mode(mon):
             btn(hdr, "✕", remove, fg=SUB).pack(side="right", padx=(6, 0))
             self.open_b = btn(hdr, "Open frames", lambda: webbrowser.open(pod_link(self.j)) if pod_link(self.j) else None)
             self.open_b.pack(side="right")
+            self.vid_b = btn(hdr, "Open video", lambda: self.j.saved_path and (os.startfile(self.j.saved_path) if os.name == "nt"
+                                                                            else webbrowser.open(self.j.saved_path)), fg="#22c55e")
             self.bar = tk.Canvas(self.f, height=26, bg=CARD, highlightthickness=0)
             self.bar.pack(fill="x", padx=14, pady=(4, 8))
             stats = tk.Frame(self.f, bg=CARD); stats.pack(fill="x", padx=14, pady=(0, 8))
@@ -592,6 +675,7 @@ def gui_mode(mon):
             self.gpu = tk.Frame(self.f, bg=CARD); self.gpu.pack(fill="x", padx=14, pady=(0, 12))
             self.gpu_rows = []
             self.note = tk.Label(self.f, text="", bg=CARD, fg="#f59e0b", font=F(9), anchor="w")
+            self.deliv = tk.Label(self.f, text="", bg=CARD, fg="#22c55e", font=F(10, "bold"), anchor="w")
             self.j = j
 
         def draw_bar(self, frac, col):
@@ -659,6 +743,26 @@ def gui_mode(mon):
                 if not shared and fr < 1 and g.get("eta_s") is not None: parts.append(fmt_dur(g["eta_s"]))
                 if i == slowest and fr < 1: parts.append("slowest")
                 txt.config(text="  ·  ".join(parts), fg="#f59e0b" if i == slowest and fr < 1 else SUB)
+            STAGE = {"checking": "Checking every frame on the pod...", "assembling": "Putting the video together on the pod...",
+                     "ready": "Video ready on the pod, starting download...", "needs_claude": "Pod stopped at a problem: tell Claude",
+                     "stopped_no_download": "Not downloaded in 60 min: pod STOPPED (disk kept). Tell Claude."}
+            dtext = ""
+            if j.delivery == "downloading":
+                mb = (j.out.get("size") or 0) / 1e6
+                dtext = "Downloading video... %.1f / %.1f MB" % (j.dl_bytes / 1e6, mb) if mb else "Downloading video..."
+            elif j.delivery == "saved":
+                dtext = "Saved to %s  ·  pod is deleting itself (no more cost)" % j.saved_path
+            elif j.delivery == "failed":
+                dtext = "Download failed 3 times: use Open frames, or tell Claude"
+            elif j.out.get("stage") in STAGE:
+                dtext = STAGE[j.out["stage"]]
+            if dtext:
+                self.deliv.config(text=dtext, fg="#ef4444" if j.delivery == "failed" or "Claude" in dtext else "#22c55e")
+                self.deliv.pack(fill="x", padx=14, pady=(0, 10))
+            else:
+                self.deliv.pack_forget()
+            if j.saved_path: self.vid_b.pack(side="right", padx=4)
+            else: self.vid_b.pack_forget()
             if j.error:
                 self.note.config(text=j.error); self.note.pack(fill="x", padx=14, pady=(0, 10))
             else:
@@ -697,6 +801,8 @@ def gui_mode(mon):
             cards[key] = card
             card.update(j)
             seen.append(key)
+            if j.delivery == "saved" and not getattr(j, "alerted_saved", False):
+                j.alerted_saved = True; alert(j)
             if j.status == "done" and not j.alerted:
                 j.alerted = True
                 if time.time() - j.first_seen > 10:

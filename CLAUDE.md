@@ -16,7 +16,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 4. **Audio animatic:** render the full audio over a dark frame with captions + scene labels + timecode; send it so Joel can judge pacing. Fix his sound notes straight away.
 5. **Full asset sheet:** `partN_assets.py` (rendered here in the workspace: quick) builds every new character/set/prop (new sets in the air at z=400, studio cyc for character cards, `only()` to hide the rest), renders stills, composes one sheet with captions + a NEW / ALREADY APPROVED panel. Review every still yourself first (contact sheet) and fix clipping/composition before sending. **No pod is created until Joel OKs it.**
 6. **After the OK:** save the approved assets to the library straight away (cards in `recurring.py`, props/sets in a `propsN.py` batch, `manifest.json`, `studio.py`), switch the asset script to the library versions and re-check a few stills.
-7. **Scene:** `partN.py` from the previous part's scene script; build + `check_faces` here, then the low-res preview ON THE POD, reviewed on contact sheets (+ `check_faces`); then Joel's OK on the price (hourly, total time, total cost, incl. 2×/3×), GPU render, frame check, delivery with the full download link.
+7. **Scene (no low-res preview since 22 Nov 15:05):** `partN.py` from the previous part's scene script. Build it here (about 10 s) until `check_faces` AND `check_shots` (`_pipeline/scripts/director.py`) both pass. Then render one still per shot here (mid-frame, 216×384, about 3 s each) into a shot contact sheet, review it, and send it to Joel. Then Joel's OK on the price (hourly, total time, total cost, incl. 2×/3×), then the GPU render. The pod checks frames, assembles the video, the Render Monitor downloads it into `series/`, and the pod deletes itself (see RunPod → Auto-finish).
 8. **When finished:** audit every asset used and push anything not yet in the library.
 
 ## Hard rules
@@ -48,7 +48,8 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Camera (Joel, 22 Nov):** keep camera moves **calm and fluid**, like other channels' videos. Use slow, eased push-ins and gentle drifts. Keep shake to rare, small jolts on the biggest hits (the jump scare). No big lens or position swings inside a shot, and no punchy multi-key shakes on ordinary lines.
 - **QA before sending anything:**
   - `check_faces` passes: one mouth every frame, no closed eyes right before a cut.
-  - A full low-res preview is reviewed frame by frame on contact sheets.
+  - `check_shots` passes: no camera inside a mesh, nothing between the lens and the aim point, nothing covering the lens. Intentional cases (the lunge at the lens) go in `allow=`. It caught Part 2's B3 push-in ending inside Milo's hair (fixed in `part2.py`).
+  - A per-shot stills contact sheet (rendered here) is reviewed before the GPU render. The low-res pod preview is retired.
   - After the GPU render, automated checks for black or blank frames.
 - **24 fps** (20% cheaper than 30).
 - **Captions:**
@@ -103,7 +104,11 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - It also starts `pod_progress.py`, which writes the tiny `/workspace/render_progress.json` every 2 s: done/total, fps over the last 90 s, ETA, and per-GPU frames from the `render_gpuN*.log` "Saved:" lines.
   - It also starts `pod_balance.sh`, which restarts a helper on any GPU that goes idle while unclaimed frames remain.
   - Part 2 found the problem: with the old static split, GPU 0 (kitchen frames) ran at 0.27 fps against 0.40 on GPU 2.
-- **Download:** **always give Joel the full download link** with the token in it: `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. If Jupyter shows a login page, he pastes the token there. Delete the pod after he confirms.
+- **Auto-finish (22 Nov 15:20):** `pod_render.sh` also starts `pod_finish.sh`. When the last frame is done it runs `check_frames.py`, assembles with the generic `_pipeline/make_part.sh <frames> <out.mp4> <audio.wav> <captions.ass>`, and writes `/workspace/render_output.json` (stage rendering → checking → assembling → ready → received; or needs_claude / stopped_no_download).
+  - The Render Monitor sees `ready`, downloads the video to `download_to` (relative to the robloxshorts folder, never overwriting: a clash gets a time suffix), checks the size, and writes `/workspace/received.json`. The pod then deletes itself with `runpodctl` (tries `pod delete`, `pod remove`, `remove pod`: verify which works on the next pod).
+  - No download within 60 min: the pod STOPS itself (disk kept, almost free) and Claude takes over.
+  - Frame check or assembly failure: stage `needs_claude`, the pod stays up.
+  - Still **give Joel the full download link** with the token in it as a backup: `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. If the monitor isn't running, delete the pod after he confirms.
 - **Getting previews and stills from a pod to Claude (since 15:02 the token is read-only, so no more `preview-*` branches):**
   - Make a small contact-sheet JPG on the pod (under about 700 KB) and print it as base64 through `exec-pod`. stdout holds up to 1 MiB, so split bigger sheets into parts.
   - Decode it in the workspace and view it.
@@ -119,7 +124,9 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - The ETA comes from the pod's live speed, so it updates when the render speeds up or slows down.
   - Each job is a card: progress bar, frames, time left, finish clock, speed, running time, cost (spent / estimated total) and per-GPU lanes.
   - Live window title, an "Open frames" button (Jupyter link), and a beep + bring-to-front when a render finishes.
-- **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`, `cost_per_hr`, `pod_started` = the pod's createdAt, which shows spend) and give Joel the pod id and Jupyter token.
+- **Render monitor:** write `/workspace/render_job.json` BEFORE starting the render: `name`, `group`, `total`, `frame_start`, `frame_end`, `cost_per_hr`, `pod_started` (the pod's createdAt, which shows spend), plus for auto-finish `output` (e.g. `Bloxbury_Part3.mp4`), `audio` and `captions` (pod paths), `black` (deliberate black frame ranges for check_frames, e.g. `"1738-1752"`) and `download_to` (e.g. `series/bloxbury/Bloxbury_Part3.mp4`). Give Joel the pod id and Jupyter token.
+- **Spot / interruptible pods (checked 22 Nov):** about half price, but they can only be made through RunPod's GraphQL API (`podRentInterruptable`), which the MCP tools and REST v2 don't have, so Claude can't create them. `pod_render.sh` is resume-safe (it deletes 0-byte placeholders on start), so a manual spot pod (console + same image) could be restarted after an eviction. Not used by default.
+- **Render quality (tested 22 Nov):** `director.render_quality(s, QUALITY)`, env `QUALITY=full|fast|turbo`. Same 32 samples + denoise; fast trims bounces (diffuse/glossy 2), adaptive threshold 0.04, no caustics: **19% faster, looks the same**. Turbo (1 bounce, 0.06): 36% faster, but corners and the bedroom go darker and flatter. Side-by-side: `_studio_library/approval_sheets/render_quality_test.png`. **Default stays `full` until Joel picks.**
 
 ## Engine
 - **Load order:** the `bloxbury_part1.py` prefix (up to `# Milo starts at the fence`), then charlib, stylelab, hair2, hair3, faces2, garments, garments2, hair4, faces3, faces4, props (and studio for the registry).
@@ -150,7 +157,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Monetisation thresholds:** YouTube Partner Program needs 1,000 subs plus 4,000 watch hours (8,000 from 1 Feb 2027). TikTok rewards need videos over 1 minute.
 - **Keep it ad-safe:** creepy, not gory, and nothing graphic in the first 7 seconds or the thumbnail.
 
-## Status (22 Nov, updated 09:30)
+## Status (22 Nov, updated 15:25)
 - **GitHub repo set up** (22 Nov): `Joel52412/bloxbury`, restore tested from a clean clone.
   - Pods now `git clone` the repo with the `GITHUB_RO` secret (working since 22 Nov 00:30). No more base64 chunk uploads.
 - **Mouth test v1:** approved the lip-sync and Rae's motion. Fixed since: Milo's flicker, and a face that vanished before a cut.
@@ -193,6 +200,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
     - Frame check OK (1921). `Bloxbury_Part2.mp4` (26 MB) was assembled on the pod with `make_part2.sh`.
     - Speed: about 3 s per frame per A40. GPU 0's kitchen frames ran slowest; work-sharing helpers took over on GPUs 1 and 2 at 14:47 and 14:48.
     - **DELIVERED 14:55:** Joel downloaded it. The pod was deleted (about 42 min, about $1.25 total). The `preview-part2` and old `preview-part1-v2` branches are still on GitHub (harmless). Asset audit: every asset used is already in the library (recurring + props2 + props3 + monster).
+- **Streamlining (22 Nov 15:05–15:25, Joel's options 2–6):** low-res pod preview retired; `director.py` shot checker (`check_shots`) + per-shot stills here; auto-finish on the pod (`pod_finish.sh`, `make_part.sh`) + Render Monitor auto-download and pod self-delete (tested against a mock pod; the runpodctl delete command still needs confirming on a real pod); render-quality presets tested (fast = 19% quicker, waiting on Joel's pick); spot pods can't be automated (GraphQL only). Fixed Part 2's B3 camera in `part2.py` (template for Part 3).
 - **NEXT: Part 3** (new chat). Use the episode workflow above. Start from `part2.py` as the scene template, use the ready-made image and the shared-queue pod render. (Old note kept for reference: Part 2 started from `part1_v2.py` as the template: the town set, Milo's house interior, cast cards, the Knocker, `prep_p1.py` → copy as `prep_p2.py` for the new script audio. Apply the narration-mouth and calm-camera rules from the start. Every asset used in Part 1 and Test 2 is now in the library (audit 22 Nov 09:40): `recurring.py`, `props2.py`, `monster.py`, plus the sets.
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
 

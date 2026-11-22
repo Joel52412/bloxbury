@@ -451,7 +451,7 @@ for o in FEET: vis_obj(o, 1, False); vis_obj(o, FT(67.45), True); vis_obj(o, FT(
 MHB = MB + V((0, 0, 4.6)); DOOR_IN = V((0, -30.6, 4.4)); CLOSET = V((5.6, -45.9, 4.2))
 shot("B1 I locked my door", B0, 53.35, [(0, (6.0, -44.0, 5.6), MB + V((0, 2.5, 4.0)), 28), (1, (5.6, -43.0, 5.4), MB + V((0, 2.0, 4.0)), 30)])
 shot("B2 Dinner's ready", 53.35, 56.55, [(0, MHB + V((1.3, 4.6, 0.3)), MHB, 46), (1, MHB + V((1.15, 4.0, 0.28)), MHB, 52)])
-shot("B3 a voice in my closet", 56.55, 59.5, [(0, MHB + V((-1.6, 2.6, 0.6)), CLOSET, 32), (1, MHB + V((-1.2, 1.6, 0.4)), CLOSET, 40)])
+shot("B3 a voice in my closet", 56.55, 59.5, [(0, MHB + V((-2.7, 2.6, 0.6)), CLOSET, 32), (1, MHB + V((-2.5, 1.9, 0.5)), CLOSET, 38)])     # shot checker: the old push-in ended in his hair
 shot("B4 the crack: her hand", 59.5, 64.2, [(0, (1.3, -39.2, 4.3), (4.6, -45.5, 3.4), 42), (1, (1.9, -40.4, 4.2), (4.6, -45.6, 3.4), 50)], fstop=2.4)
 shot("B5 Mum?", 64.2, 65.1, [(0, MHB + V((3.8, 1.2, 0.2)), MHB, 56), (1, MHB + V((3.5, 1.1, 0.2)), MHB, 60)])
 shot("B6 footsteps + knocks", 65.1, 69.45, [(0, (-7.2, -46.5, 7.0), (0.8, -34.0, 3.4), 24), (1, (-6.6, -45.5, 6.6), (0.6, -33.5, 3.4), 26)])
@@ -507,6 +507,10 @@ def check_faces():
 probs = check_faces()
 print("FACE CHECK", "OK" if not probs else probs[:20])
 json.dump({"shots": SHOTS, "nf": NF}, open("/home/claude/talk/shots_p2.json", "w"))
+exec(open(SCR + "director.py").read())     # shot checker: camera inside a mesh / subject blocked / lens covered
+shot_probs = check_shots(SHOTS, allow=("bridge lunge",))     # the lunge AT the lens is the scare
+if shot_probs and not os.environ.get("FORCE"):
+    raise SystemExit("shot check failed - fix the cameras (FORCE=1 to render anyway)")
 # ================================================================== render settings
 eng = os.environ.get("ENGINE", "CPU")
 if eng == "GPU":
@@ -523,6 +527,8 @@ if eng == "GPU":
 else:
     s.cycles.device = "CPU"; s.cycles.samples = int(os.environ.get("SAMPLES", 6))
 s.render.engine = "CYCLES"; s.cycles.use_denoising = True
+exec(open(SCR + "director.py").read()) if "render_quality" not in globals() else None
+render_quality(s, os.environ.get("QUALITY", "full"))     # "fast" once Joel approves the side-by-side
 try: s.cycles.denoiser = "OPTIX" if eng == "GPU" else "OPENIMAGEDENOISE"
 except Exception: pass
 s.render.use_persistent_data = True
