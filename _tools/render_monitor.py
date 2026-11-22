@@ -260,7 +260,8 @@ def discover(cfg):
                     pass
     for j in cfg.get("jobs", []):
         specs.append(dict(j))
-    return specs
+    hidden = set(cfg.get("hidden", []))
+    return [d for d in specs if Job(d).key not in hidden]
 
 class Monitor:
     def __init__(self, cfg_path=CONFIG_PATH):
@@ -298,7 +299,10 @@ class Monitor:
         self.refresh_jobs()
 
     def remove_job(self, key):
+        before = len(self.cfg.get("jobs", []))
         self.cfg["jobs"] = [s for s in self.cfg.get("jobs", []) if Job(s).key != key]
+        if len(self.cfg["jobs"]) == before:      # found by a watch folder: hide it instead
+            self.cfg.setdefault("hidden", []).append(key)
         save_config(self.cfg, self.cfg_path)
         self.refresh_jobs()
 
@@ -349,6 +353,26 @@ def group_summary(members):
     waiting_on = [short(j) for j in members if j.status != "done"]
     return total, done, eta, waiting_on
 
+GBP_PER_USD = 0.79
+
+def job_cost(j):
+    """(spent_usd, estimated_total_usd) from cost_per_hr + pod_started in render_job.json."""
+    rate, started = j.spec.get("cost_per_hr"), j.spec.get("pod_started")
+    if not rate or not started:
+        return None
+    try:
+        t0 = datetime.datetime.fromisoformat(str(started).replace("Z", "+00:00")).timestamp()
+    except ValueError:
+        return None
+    spent = max(0.0, time.time() - t0) / 3600 * float(rate)
+    eta = j.eta_seconds()
+    total = spent + (eta / 3600 * float(rate) if eta and j.status != "done" else 0)
+    return spent, total
+
+def money(usd):
+    return "$%.2f (~%.0fp)" % (usd, usd * GBP_PER_USD * 100) if usd * GBP_PER_USD < 1 else \
+           "$%.2f (~£%.2f)" % (usd, usd * GBP_PER_USD)
+
 def job_line(j):
     spf = j.sec_per_frame()
     eta = j.eta_seconds()
@@ -361,6 +385,11 @@ def job_line(j):
         parts += ["%.1f s/frame" % spf if spf else "speed: measuring...",
                   "%s left" % fmt_dur(eta), "finish ~%s" % fmt_clock(eta),
                   j.status.upper()]
+    c = job_cost(j)
+    if c:
+        parts.append("spent %s" % money(c[0]))
+        if j.status != "done":
+            parts.append("est. total %s" % money(c[1]))
     if j.error:
         parts.append("(%s)" % j.error)
     return "   ·   ".join(parts)
@@ -486,8 +515,17 @@ def gui_mode(mon):
 
     def make_row(key, title_font):
         f = tk.Frame(body, bg=BG)
-        t = tk.Label(f, text="", bg=BG, fg=FG, font=title_font, anchor="w")
-        t.pack(fill="x")
+        hdr = tk.Frame(f, bg=BG)
+        hdr.pack(fill="x")
+        t = tk.Label(hdr, text="", bg=BG, fg=FG, font=title_font, anchor="w")
+        t.pack(side="left", fill="x", expand=True)
+        if key.startswith("j:"):
+            def remove(k=key[2:]):
+                name = t.cget("text").strip()
+                if messagebox.askyesno("Remove", "Stop watching \"%s\"?\n(This doesn't touch the render itself.)" % name):
+                    mon.remove_job(k)
+            tk.Button(hdr, text="✕", command=remove, bg=BG, fg=SUB, bd=0, activebackground="#2a2e36",
+                      activeforeground=FG, cursor="hand2").pack(side="right", padx=(0, 12))
         b = ttk.Progressbar(f, orient="horizontal", length=760, mode="determinate", maximum=1000)
         b.pack(fill="x", pady=2)
         i = tk.Label(f, text="", bg=BG, fg=SUB, font=("Segoe UI", 9), anchor="w")

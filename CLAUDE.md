@@ -63,7 +63,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Multi-GPU:** `sh /workspace/bloxbury/_pipeline/pod_render.sh test2.py <NF> /workspace/frames` runs one Blender per GPU (`CUDA_VISIBLE_DEVICES`, `FS`/`FE` split). Logs go to `render_gpuN.log`.
 - **Download:** Joel uses `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. Delete the pod after he confirms.
 - **Long jobs:** use `nohup`; `exec-pod` calls max out at 25 s.
-- **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`) and give Joel the pod id and Jupyter token.
+- **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`, `cost_per_hr`, `pod_started` = the pod's createdAt, which shows spend) and give Joel the pod id and Jupyter token.
 
 ## Engine
 - **Load order:** the `bloxbury_part1.py` prefix (up to `# Milo starts at the fence`), then charlib, stylelab, hair2, hair3, faces2, garments, garments2, hair4, faces3, faces4, props (and studio for the registry).
