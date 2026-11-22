@@ -104,6 +104,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - It also starts `pod_balance.sh`, which restarts a helper on any GPU that goes idle while unclaimed frames remain.
   - Part 2 found the problem: with the old static split, GPU 0 (kitchen frames) ran at 0.27 fps against 0.40 on GPU 2.
 - **Download:** **always give Joel the full download link** with the token in it: `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. If Jupyter shows a login page, he pastes the token there. Delete the pod after he confirms.
+- **Preview branches:** Claude's workspace can't delete GitHub branches (the proxy blocks branch deletes). Delete `preview-*` FROM THE POD (`git push origin --delete preview-partN` with its token) before deleting the pod, or Joel deletes it on GitHub.
 - **Long jobs:** use `nohup`; `exec-pod` calls max out at 25 s.
 - **Tracking (Joel, 22 Nov 14:18):** the moment a render starts, send Joel the tracking block without being asked:
   - pod id, Jupyter token, and the Jupyter frames-folder link (`https://<pod>-8888.proxy.runpod.net/tree/workspace/frames?token=<token>`)
@@ -187,7 +188,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
     - Two Community 4090s were tried first: one had no stock at 13.2, and the 13.0 host was broken (deleted after 1 min).
     - Frame check OK (1921). `Bloxbury_Part2.mp4` (26 MB) was assembled on the pod with `make_part2.sh`.
     - Speed: about 3 s per frame per A40. GPU 0's kitchen frames ran slowest; work-sharing helpers took over on GPUs 1 and 2 at 14:47 and 14:48.
-    - **DELIVERED 14:55:** Joel downloaded it. The pod was deleted (about 42 min, about $1.25 total) and the `preview-part2` branch removed. Asset audit: every asset used is already in the library (recurring + props2 + props3 + monster).
+    - **DELIVERED 14:55:** Joel downloaded it. The pod was deleted (about 42 min, about $1.25 total). The `preview-part2` and old `preview-part1-v2` branches are still on GitHub (harmless). Asset audit: every asset used is already in the library (recurring + props2 + props3 + monster).
 - **NEXT: Part 3** (new chat). Use the episode workflow above. Start from `part2.py` as the scene template, use the ready-made image and the shared-queue pod render. (Old note kept for reference: Part 2 started from `part1_v2.py` as the template: the town set, Milo's house interior, cast cards, the Knocker, `prep_p1.py` → copy as `prep_p2.py` for the new script audio. Apply the narration-mouth and calm-camera rules from the start. Every asset used in Part 1 and Test 2 is now in the library (audit 22 Nov 09:40): `recurring.py`, `props2.py`, `monster.py`, plus the sets.
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
 
