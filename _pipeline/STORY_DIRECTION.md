@@ -23,5 +23,7 @@ Studio-grade first drafts (Joel). Short rules are in CLAUDE.md; this is the reas
 4. Scare toolkit (pick, don't repeat between parts): silence / music dropout, misdirection, delayed reflection, the wrong voice
    from the wrong place, a detail in plain sight, a nickname or word that lands like a hit. At most ONE real startle per part.
 5. Rewatch bait: 1-2 hidden details (e.g. a 4-frame reflection). End on a comment-choice question. Last line -> first line loop.
-6. Continuity bridge: open on (or match-cut from) the previous part's final image so returning viewers feel no jump.
+6. Continuity: NOT in the first 3 s. Part 2 opened on a dark recap + ~0.75 s of black and lost scrollers. Hook new viewers first
+   (lit picture, voice by 0.3 s, impossible claim, e.g. viral plane video: "I've been on this plane for almost thirty hours"),
+   then bridge to the previous part around 3-10 s.
 7. Ad-safe: creepy not gory, nothing graphic in the first 7 s or the thumbnail.

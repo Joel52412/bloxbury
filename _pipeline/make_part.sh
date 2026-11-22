@@ -12,5 +12,5 @@ def fix(m):
     f=m.group(0).split(','); f[2]=str(max(8,round(int(f[2])*k))); f[16]=str(max(1,round(float(f[16])*k),)); f[21]=str(round(int(f[21])*k)); f[19]=str(round(int(f[19])*k)); f[20]=str(round(int(f[20])*k)); return ','.join(f)
 s=re.sub(r'^Style: .*$',fix,s,flags=re.M); open(p,'w').write(s)
 PY
-ffmpeg -y -loglevel error -framerate 24 -i $F/%04d.png -i $AU -vf "ass=/tmp/cap_scaled.ass,format=yuv420p" \
+ffmpeg -y -loglevel error -framerate 24 -i $F/%04d.png -i $AU -vf "ass=/tmp/cap_scaled.ass:fontsdir=$(dirname $0)/../assets/fonts,format=yuv420p" \
   -c:v libx264 -preset veryfast -crf 18 -c:a aac -b:a 192k -shortest "$O" && echo "WROTE $O"

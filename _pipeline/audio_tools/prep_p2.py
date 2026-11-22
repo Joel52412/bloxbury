@@ -228,35 +228,7 @@ env = {"fps": FPS, "total": TOTAL, "nf": N, "outro0": OUTRO0, "black_cut": BLACK
        "lines": caps, "lipsync_modes": ["D", "C"]}
 json.dump(env, open(OUT + "env_p2.json", "w"))
 
-def ts(t):
-    t = max(0, t); h = int(t // 3600); m = int(t % 3600 // 60); s = t % 60
-    return f"{h}:{m:02d}:{s:05.2f}"
-ass = ["[Script Info]", "ScriptType: v4.00+", "PlayResX: 1080", "PlayResY: 1920", "WrapStyle: 0", "", "[V4+ Styles]",
-       "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, "
-       "StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
-       "Style: W,DejaVu Sans,54,&H00FFFFFF,&H00FFFFFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,120,120,330,1",
-       "Style: R,DejaVu Sans,54,&H003C3CFF,&H003C3CFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,120,120,330,1",
-       "Style: I,DejaVu Sans,50,&H00D8D8D8,&H00D8D8D8,&H00101010,&H80000000,-1,-1,0,0,100,100,0,0,1,6,2,2,120,120,330,1",
-       "", "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"]
-YEL = "&H0030E0FF&"
-for i, c in enumerate(caps):
-    toks = c["text"].split(); ws = c["words"]
-    if not ws: continue
-    sty = "R" if c["style"] == "r" else ("I" if c["mode"] == "O" else "W")   # off-screen voices in grey italics
-    t0 = ws[0][1] - 0.05
-    nxt = caps[i + 1]["words"][0][1] - 0.05 if i + 1 < len(caps) else t0 + 3
-    t1 = min(ws[-1][2] + 0.6, nxt)
-    if t0 < BLACK_CUT <= t1: t1 = BLACK_CUT
-    times = [w[1] for w in ws]
-    tt = [times[min(j, len(times) - 1)] for j in range(len(toks))]
-    for k, tok in enumerate(toks):
-        a = t0 if k == 0 else tt[k]; b = tt[k + 1] if k + 1 < len(toks) else t1
-        parts = []
-        for q, tk in enumerate(toks):
-            if q == k and sty == "W": parts.append("{\\c" + YEL + "}" + tk + "{\\r}")
-            elif q == k: parts.append("{\\fscx108\\fscy108}" + tk + "{\\r" + sty + "}")
-            elif q > k: parts.append("{\\alpha&H60&}" + tk + "{\\r" + sty + "}")
-            else: parts.append(tk)
-        ass.append(f"Dialogue: 0,{ts(a)},{ts(b)},{sty},,0,0,0,,{' '.join(parts)}")
-open(OUT + "captions_p2.ass", "w").write("\n".join(ass) + "\n")
+import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from captions import write_ass   # shared big yellow one-word captions (22 Nov 21:26)
+write_ass(caps, OUT + "captions_p2.ass", BLACK_CUT)
 print("frames", N, "total", TOTAL, "lines", len(caps))
