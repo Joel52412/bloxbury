@@ -182,7 +182,12 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
       - `place()`/`park()` moves the root immediately, so aim shots BEFORE parking anyone.
       - CU cameras use `ots()` so the camera never sits inside the other character's head.
       - Sockets (emission) are keyed with `key()`, not `kf()`.
-  - **Low-res preview:** the workspace run was stopped (Joel 14:03: long renders go on GPUs). Next: a pod does the preview, then the final.
+  - **RENDERED 22 Nov 14:53** (Joel skipped the low-res preview this time).
+    - Pod `ids55rvi5qzm1v`, 3× Secure A40 (EU-SE-1, CUDA 13.2), $1.77/hr. Pod created 14:13, render 14:16–14:50, about $1.20 at delivery.
+    - Two Community 4090s were tried first: one had no stock at 13.2, and the 13.0 host was broken (deleted after 1 min).
+    - Frame check OK (1921). `Bloxbury_Part2.mp4` (26 MB) was assembled on the pod with `make_part2.sh`.
+    - Speed: about 3 s per frame per A40. GPU 0's kitchen frames ran slowest; work-sharing helpers took over on GPUs 1 and 2 at 14:47 and 14:48.
+    - **Waiting on:** Joel's download, then delete the pod and the `preview-part2` branch. Then the step 8 asset audit (everything used is already in the library).
 - **NEXT: Part 2** (new chat). Start from `part1_v2.py` as the template: the town set, Milo's house interior, cast cards, the Knocker, `prep_p1.py` → copy as `prep_p2.py` for the new script audio. Apply the narration-mouth and calm-camera rules from the start. Every asset used in Part 1 and Test 2 is now in the library (audit 22 Nov 09:40): `recurring.py`, `props2.py`, `monster.py`, plus the sets.
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
 
