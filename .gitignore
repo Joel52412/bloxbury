@@ -1,0 +1,10 @@
+# big / generated stuff stays on Joel's laptop only
+series/**/frames/
+*.blend
+*.blend1
+renders/
+inspo/
+voice clones/
+_studio_library/approval_sheets/
+_studio_library/Studio_Asset_Library.png
+*.mp4

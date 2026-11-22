@@ -1,0 +1,98 @@
+# Bloxbury Studio: pipeline map
+Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3AM Knock**, made in **Blender 5.3 Python** and rendered on **RunPod**. It's a studio workflow: a reusable asset library plus scripted scenes.
+
+## Start of every chat
+1. Stage from `C:\Users\frimp\Downloads\robloxshorts`: `_pipeline/**`, `_studio_library/engine/*.py`, `series/bloxbury/audio script/*.mp3`.
+2. Run `sh /mnt/user-data/uploads/robloxshorts/_pipeline/restore.sh`. It rebuilds `/home/claude/{bloxbury-blender,studio_library/engine,audio,talk,cloud}` and pip-installs bpy.
+3. After changing any script, copy it back into the folder (device_commit_files).
+
+## Hard rules
+- **Library:**
+  - Save only assets Joel has verified.
+  - Ask before bulk saves.
+  - "Full asset sheet" means show everything.
+- **Look:**
+  - R6 Roblox characters, classic head, only designs makeable in Roblox.
+  - **No clipping.** Hats get under-hat hair.
+- **Hair colour:**
+  - Dark skin never gets blonde or very light hair.
+  - White or grey hair only for older characters.
+  - Keep "a" (light) and "b" (dark) versions of B4, C19, K11.
+- **Banned:**
+  - The downloaded .obj hair.
+  - Faces A–E and M1.
+  - Hair H1, H5, H6, H7.
+- **Casting:**
+  - Recurring characters get fixed cards.
+  - Extras are random library mixes.
+  - Unique monsters are made fresh and saved only if approved.
+- **Animation:**
+  - Fluid like Roblox fight animations: anticipation, overshoot and settle, snappy timing, **smear frames**, motion blur, idle motion. Never stop-motion.
+  - Faces match the line's **meaning and voice pitch**.
+  - Anime lip-sync (current method approved).
+  - Sparkle eyes: a subtle twinkle only, never flicker.
+- **QA before sending anything:**
+  - `check_faces` passes: one mouth every frame, no closed eyes right before a cut.
+  - A full low-res preview is reviewed frame by frame on contact sheets.
+  - After the GPU render, automated checks for black or blank frames.
+- **24 fps** (20% cheaper than 30).
+- **Captions:**
+  - Small, lower-middle, clear of faces.
+  - Word-timed with pocketsphinx alignment.
+- **Directing:** punch-ins on key words, slow push-ins for tension, hard cuts, follow the action.
+- **Voiceover scripts:**
+  - Paste-ready blocks for ElevenLabs.
+  - One line per paragraph, [emotion] tags, no numbers.
+  - One block per voice; the main character narrates.
+
+## RunPod
+- **Before you create:** state the price first, and Joel must OK pod creation (the auto-check can block it).
+- **Pod ownership:** only delete pods made in this chat, and never print the API key.
+- **Card choice:** episodes go on **3× Community RTX 4090** ($0.34/hr each, about 58p per episode). Tests use 1×.
+- **Render settings:** 32 samples, OptiX denoise. Test each GPU, check every frame.
+- **Pod setup:**
+  - Image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`, disk 30, port 8888/http, startJupyter.
+  - apt-get install: wget xz-utils ffmpeg libx11-6 libxi6 libxxf86vm1 libxfixes3 libxrender1 libxkbcommon0 libsm6 libice6 libgl1 libegl1.
+  - Blender 5.3 into `/workspace/blender`, then use its own Python (`blender/5.3/python/bin/python3.13`): `ensurepip`, then `pip install pillow numpy`.
+- **Upload:** neither sandbox can reach the pod proxy. Send an xz tar as base64, in ≤16,000-character chunks via `exec-pod` env (`printf %s "$C" > cN`), check md5s, then decode and extract to `/home/claude`.
+- **Download:** Joel uses `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. Delete the pod after he confirms.
+- **Long jobs:** use `nohup`; `exec-pod` calls max out at 25 s.
+- **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`) and give Joel the pod id and token for his monitor.
+
+## Engine
+- **Load order:** the `bloxbury_part1.py` prefix (up to `# Milo starts at the fence`), then charlib, stylelab, hair2, hair3, faces2, garments, garments2, hair4, faces3, faces4, props (and studio for the registry).
+- **Registry:** `studio.py`, with `CAST` tags F1–F6, B1–B6, C1–C24, K1–K12 and `studio_character(tag)`.
+- **Approved assets:**
+  - **Faces:** M2, shine at 70% opacity, 12 emotions, plus `faces4.RARE` (14 faces).
+  - **Hair:** H2, H3, H4, H8; M1–M6; X1–X6.
+  - **Outfits:** O1–O4, plus role, kids and teen outfits.
+  - **Props batch 1:** cars, house furniture, kitchen, door, laptop, plant, clock, bin.
+- **Scene template: `test2.py`.** Reuse its parts:
+  - **Rig:** `upgrade_rig(P)` adds Chest, HipL/R, Head, and hand grips that keep props level. `arm(P, side, frame, target | euler)`. The shoulder is at (±1.5, 0, 3.5) and the arm is 1.5 long.
+  - **Face:** `build_face_v2(P)` with posed brows and eyes, a blink layer, smooth sparkles and mouth swaps. Helpers: `expr(rig, frame, EX preset)`, `blink`, `eyes_closed`, `sparkle`, `mouth`, `lipsync(styles calm / excited / whisper)`, `accents` (nods on stressed syllables).
+  - **Motion:** a per-frame walk cycle; smears by scaling the shoulder Z to about 1.35 for 2 frames; motion blur at shutter 0.5 with **position START** (clean cuts); `cam_key` with `make_compatible` (no camera spins).
+- **Audio:** `talk/prep2.py` builds `env2.json` (loudness and brightness per frame) and the mixed wav with synthesised foley. Order: prep2, then test2, then prep2 again.
+- **Render commands:**
+  - Preview: `RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 python3 test2.py` (about 1.5 s per frame).
+  - Pod: `ENGINE=GPU RENDER=1 RX=1080 RY=1920 ./blender/blender -b --python test2.py`.
+  - `FRAMES=a,b,c` renders stills only.
+- **Blender 5.x:** use the `kf()` and `apply_interp()` helpers. Layered actions need `_fcurves()`. DOF is keyed on `cam.data`. Avoid coplanar faces.
+
+## Platforms
+- **Where things go:** parts go to TikTok and YouTube Shorts. YouTube also gets a 10–15 min compilation, made by `make_youtube.sh` in `series/bloxbury/youtube` (parts as `Bloxbury_PartN.mp4`, 16:9 with blurred sides).
+- **Monetisation thresholds:** YouTube Partner Program needs 1,000 subs plus 4,000 watch hours (8,000 from 1 Feb 2027). TikTok rewards need videos over 1 minute.
+- **Keep it ad-safe:** creepy, not gory, and nothing graphic in the first 7 seconds or the thumbnail.
+
+## Status (21 Nov)
+- **Mouth test v1:** approved the lip-sync and Rae's motion. Fixed since: Milo's flicker, and a face that vanished before a cut.
+- **Test 2** (`test2.py`, 354 frames, 14.75 s), preview reviewed and fixed:
+  - **Shot A:** Milo's outro acted to the line (curious, hype, lean-in, ominous), with the closet glow creeping in.
+  - **Shot B:** Dan sips coffee, walks, grabs the *BLOXBURY DAILY: KNOCKING CONTINUES* newspaper, throws it into a bin, then a smug sip.
+  - **Next:** GPU render on 1× 4090 (needs Joel's OK), then audio mux (`test2_audio.wav`), then send.
+- **Then: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
+  - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
+  - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.
+- **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
+
+## Joel's tools
+`_tools/Render Monitor.bat` watches `series/` and RunPod pods, showing a progress bar, time left and finish time for each render.

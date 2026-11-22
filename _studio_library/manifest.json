@@ -1,0 +1,152 @@
+{
+  "studio": "Joel's Roblox shorts studio - approved asset library",
+  "version": "2026-11-21c",
+  "approved_by": "Joel",
+  "face_style": {
+    "M2": "midway between Classic and Minimal; thin expressive brows; bright eye shine at 70% opacity",
+    "emotions": [
+      "happy",
+      "laugh",
+      "angry",
+      "sad",
+      "shocked",
+      "smug",
+      "scared",
+      "determined",
+      "crying",
+      "evil",
+      "sleepy",
+      "wink"
+    ]
+  },
+  "hair": {
+    "women": {
+      "H2": "Wavy middle part",
+      "H3": "Long straight",
+      "H4": "Long curly + bangs",
+      "H8": "Long anime (two-tone)"
+    },
+    "men": {
+      "M1": "Fluffy messy (black)",
+      "M2": "Fluffy anime (ash)",
+      "M3": "Curly fluffy (blonde)",
+      "M4": "Wavy full messy (brown)",
+      "M5": "Split two-tone",
+      "M6": "Messy + curly ends"
+    },
+    "hat_hair": "short under-hat hair used automatically with any hat",
+    "extra": {
+      "X1": "Short crop + fade",
+      "X2": "Afro",
+      "X3": "Bob (even chin length)",
+      "X4": "High ponytail",
+      "X5": "Two braids",
+      "X6": "Top bun + bangs"
+    }
+  },
+  "outfits": {
+    "O1": "White long-sleeve tee + distressed grey denim",
+    "O2": "Grey sketch tee, crossbody bag (fixed strap), cross chain, ripped black jeans",
+    "O3": "Open black puffer over grey tee + blue jeans",
+    "O4": "Red button-up + black rolled jeans + red cap"
+  },
+  "outfit_generators": {
+    "fashion": "turtlenecks, blazers, pinstripe shirts, graphic tees, tailored/plaid/pinstripe trousers, skirts, tape measure, beret, glasses, pin cushion, sketchbook, scissors, hanger",
+    "bakery": "chef jackets, chef hats, check trousers, 3D aprons with flour, CRUMB & CO. polo/hoodie, flat cap, baguette, rolling pin, whisk, croissant, cake box, coffee",
+    "everyday_roles": "casual, student, police, doctor (lab coat/scrubs), office, elderly, builder (hi-vis), sporty",
+    "kids_teens": "bright kid tees/overalls/hoodies/school uniform; teen hoodies, bombers, denim, headphones"
+  },
+  "characters": {
+    "F1-F6": "fashion design cast (make_theme_looks seed 42, indices 0-5)",
+    "B1-B6": "bakery cast: head baker, pastry chef, cashier, baker, delivery, customer (indices 6-11)",
+    "C1-C24": "everyday cast (make_everyday_cast seed 77)",
+    "K1-K12": "kids K1-K6, teens K7-K12 (make_kids_cast seed 909)",
+    "two-version": {
+      "B4a/B4b": "light / dark hair",
+      "C19a/C19b": "light / dark hair",
+      "K11a/K11b": "light / dark hair"
+    }
+  },
+  "rejected": [
+    "downloaded .obj hair (never use)",
+    "face styles A-E and M1",
+    "old hair H1, H5, H6, H7 (replaced by M1-M6)"
+  ],
+  "rare_faces": [
+    "jaw-drop",
+    "sparkle eyes",
+    "dizzy",
+    "rage",
+    "deadpan",
+    "waterfall sob",
+    "flustered",
+    "creepy grin",
+    "knocked out",
+    "heart eyes",
+    "money eyes",
+    "horror",
+    "cat smug",
+    "side-eye"
+  ],
+  "ages": {
+    "adult": 1.0,
+    "teen": 0.86,
+    "kid": 0.7
+  },
+  "rules": [
+    "darker skin tones never get blonde/very light hair (except the approved 'a' variants)",
+    "white/grey hair only for elderly",
+    "hats always use under-hat hair",
+    "no clipping",
+    "no two identical-looking characters in a shot"
+  ],
+  "props": [
+    "sketchbook",
+    "scissors",
+    "hanger",
+    "rolling pin",
+    "croissant",
+    "baguette",
+    "cake box",
+    "whisk",
+    "coffee"
+  ],
+  "headwear_accessories": [
+    "beret",
+    "chef hat",
+    "flat cap",
+    "cap",
+    "headphones",
+    "glasses",
+    "tape measure",
+    "pin cushion",
+    "crossbody bag + chain",
+    "police cap",
+    "hard hat",
+    "headband",
+    "stethoscope",
+    "ID lanyard",
+    "backpack"
+  ],
+  "props_furniture": [
+    "police car",
+    "taxi",
+    "family car (any colour)",
+    "bed + nightstand + lamp",
+    "sofa",
+    "armchair",
+    "dining table + 4 chairs",
+    "desk + PC + office chair",
+    "wardrobe",
+    "bookshelf",
+    "TV unit + console",
+    "fridge",
+    "kitchen counter (sink + hob)",
+    "floor lamp",
+    "door (opens on hinge)",
+    "laptop",
+    "house plant",
+    "wall clock",
+    "wheelie bin"
+  ]
+}
