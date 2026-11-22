@@ -233,5 +233,28 @@
  "props_batch4_upgrade": {
   "picture": "generated art (land/sea/portrait/family/abstract) instead of flat colour",
   "floor_clutter": "hoodie with sleeves + hood"
+ },
+ "props_batch6": {
+  "file": "engine/props6.py",
+  "approved": "Joel 22 Nov 2026 23:02",
+  "render_cost": "+~3% (boxes, shared materials, emission glows, one practical per set)",
+  "p6_note": "torn notebook page: LIGHTHOUSE in Milo's pencil (front), WINDOW. RAE'S. GO. in Mum's ink (back)",
+  "p6_pencil": "hex pencil: wood cone, graphite, ferrule + groove, eraser, chew mark",
+  "p6_drawing": "taped crayon lighthouse drawing, LIGHTHOUSE hidden in the beam, curled corner",
+  "p6_bedroom_door": "Milo's door inside: panels, trim, knob, slide bolt shut, kick plate scuffs, KNOCK FIRST sign, dressing gown",
+  "p6_light_gap": "real gap under a door, warm card outside, soft baked foot shadows; gap_feet(G, on, fr) swaps",
+  "p6_side_window": "sash window (upper + lower open frames, lower slides via open_u), lock, sill robot + cactus, curtains",
+  "p6_fence_gap": "two pickets out, lower rail snapped, fallen picket with nail",
+  "p6_branches": "tree limb outside a window = moving shadow cookie",
+  "p6_torch": "torch: grip rings, flared head, bezel, glowing lens, narrow spot",
+  "p6_phone": "phone: case, generated call screen (caller name), camera bump, buttons, sticker",
+  "p6_rae_door_set": "Rae's front door + hall at night: siding facade, swung door, chain hanging unhooked, peephole, letterbox, number 7, porch lamp (practical), HOME mat, two-tone hall, coats, pictures, stairs, table + lamp + key bowl",
+  "sets": "Milo's room right wall now has the side window (scene script patches the wall); bedroom wainscot split around the door (props4 fix)"
+ },
+ "lookdev": {
+  "file": "engine/lookdev.py",
+  "approved": "Joel 22 Nov 2026 23:02",
+  "cinematic_look": "AgX contrast, bloom on practicals, vignette, cool-shadow/warm-highlight split, slight lens fringe (+3%)",
+  "playbook": "_pipeline/LIGHTING.md"
  }
 }
