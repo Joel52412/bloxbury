@@ -427,12 +427,12 @@ def gui_mode(mon):
 
     def form(folder=None):
         w = tk.Toplevel(root, bg=BG)
-        w.title("Add render")
-        fields = [("Name", "name", os.path.basename(folder) if folder else ""),
-                  ("Group (episode)", "group", ""), ("Total frames", "total", "")]
-        if not folder:
-            fields += [("Pod id", "pod_id", ""), ("Jupyter token", "token", ""),
-                       ("Frames folder on pod", "remote_dir", "workspace/frames")]
+        w.title("Add RunPod pod" if not folder else "Watch local folder")
+        if folder:
+            fields = [("Name", "name", os.path.basename(folder)),
+                      ("Total frames", "total", "")]
+        else:   # pods describe themselves via /workspace/render_job.json
+            fields = [("Pod id", "pod_id", ""), ("Jupyter token", "token", "")]
         ents = {}
         for i, (lab, key, val) in enumerate(fields):
             tk.Label(w, text=lab, bg=BG, fg=FG).grid(row=i, column=0, sticky="w", padx=8, pady=3)
@@ -440,9 +440,9 @@ def gui_mode(mon):
             e.insert(0, val)
             e.grid(row=i, column=1, padx=8, pady=3)
             ents[key] = e
-        if not folder:
-            tk.Label(w, text="Name / group / total can stay empty if the pod has render_job.json",
-                     bg=BG, fg=SUB).grid(row=len(fields), column=0, columnspan=2, padx=8)
+        tk.Label(w, text=("Claude gives you both of these when a render starts." if not folder else
+                          "Total frames is optional (shows % and time left)."),
+                 bg=BG, fg=SUB).grid(row=len(fields), column=0, columnspan=2, padx=8)
 
         def ok():
             spec = {k: e.get().strip() for k, e in ents.items() if e.get().strip()}
@@ -470,7 +470,7 @@ def gui_mode(mon):
             messagebox.showinfo("Config", mon.cfg_path)
 
     for txt, cmd in (("Settings file", open_cfg), ("Add RunPod pod", lambda: form(None)),
-                     ("Add local folder", add_folder)):
+                     ("Watch laptop folder", add_folder)):
         tk.Button(top, text=txt, command=cmd).pack(side="right", padx=3)
 
     canvas = tk.Canvas(root, bg=BG, highlightthickness=0)
@@ -554,7 +554,7 @@ def gui_mode(mon):
         if not order:
             if "empty" not in widgets:
                 f = tk.Frame(body, bg=BG)
-                tk.Label(f, text="No renders yet. Use 'Add local folder' or 'Add RunPod pod',\n"
+                tk.Label(f, text="No renders yet. Use 'Add RunPod pod' or 'Watch laptop folder',\n"
                                  "or add watch folders in the settings file.", bg=BG, fg=SUB,
                          justify="left").pack(anchor="w")
                 f.pack(fill="x", pady=20)
