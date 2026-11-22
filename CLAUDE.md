@@ -84,6 +84,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 ## RunPod
 - **Before you create:** state the price first, and Joel must OK pod creation (the auto-check can block it). When offering cards, give each option's **hourly price, total time and total cost**, and always include **multi-GPU options** (2×, 3×).
 - **Pod ownership:** only delete pods made in this chat, and never print the API key or the GitHub token.
+- **CUDA rule (22 Nov, a 3rd broken Community 4090 on CUDA 13.0, pod eyntfwr3g1c478, deleted after 1 min):** always create with `allowedCudaVersions: ["13.2"]`. A Community 4090 on any other CUDA version has failed every time. If 13.2 has no stock, offer Secure or another card; don't drop the filter.
 - **Card choice:** episodes go on **3× Community RTX 4090** ($0.34/hr each, about 58p per episode). Tests use 1–2×. Community stock often runs out (and `get-capacity` can be stale). Secure 4090 is $0.89/hr. `allowedCudaVersions` goes inside `gpu`.
 - **Speed (Test 2 scene, 1080×1920, 32 samples):** about 5.3 s per frame per 4090.
 - **Render settings:** 32 samples, OptiX denoise. Test each GPU with a `FRAMES=` still first, then check every frame.
