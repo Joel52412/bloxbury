@@ -528,7 +528,7 @@ else:
     s.cycles.device = "CPU"; s.cycles.samples = int(os.environ.get("SAMPLES", 6))
 s.render.engine = "CYCLES"; s.cycles.use_denoising = True
 exec(open(SCR + "director.py").read()) if "render_quality" not in globals() else None
-render_quality(s, os.environ.get("QUALITY", "full"))     # "fast" once Joel approves the side-by-side
+render_quality(s, os.environ.get("QUALITY", "fast"))     # Joel picked fast 22 Nov 15:23
 try: s.cycles.denoiser = "OPTIX" if eng == "GPU" else "OPENIMAGEDENOISE"
 except Exception: pass
 s.render.use_persistent_data = True
