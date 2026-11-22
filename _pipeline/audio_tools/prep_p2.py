@@ -143,11 +143,14 @@ def env_fade(sig, fi, fo):
 put(mix, env_fade(load(sfx("low_horror_drone_#3"), 0, 0.85) * 0.45, 0.05, 0.12), 0.0)
 # kitchen: pan sizzle only under the opening (Joel 13:15: was too loud and ran too long, read as static).
 # 1.25-7.0 s, ~8 dB quieter, softer top end, mostly crackle, faded out after "Morning, Milo!"
-dur = 5.75; n = int(dur * SR); s = rng.standard_normal(n).astype(np.float32)
-s = np.convolve(s, np.ones(14) / 14, "same") - np.convolve(s, np.ones(90) / 90, "same")
-crack = (rng.random(n) < 0.0012).astype(np.float32) * rng.standard_normal(n).astype(np.float32) * 3
-s = (s * 0.25 + np.convolve(crack, np.exp(-np.arange(200) / 30), "same") * 0.5) * 0.014
-put(mix, env_fade(s, 0.3, 1.4), 1.25)
+# Joel 15:25: the synth crackle didn't read as sizzling. Use his ElevenLabs SFX "pan_sizzle" (variant SIZZLE_VAR);
+# until it's in "sound effects/" the kitchen opening has no sizzle at all (better silent than fake).
+SIZZLE_VAR = os.environ.get("SIZZLE_VAR", "1")
+try:
+    f = next(SFXD + x for x in sorted(os.listdir(SFXD)) if x.lower().startswith("pan_sizzle") and "#" + SIZZLE_VAR + "-" in x)
+    put(mix, env_fade(load(f, 0, 5.75) * 0.30, 0.3, 1.4), 1.25)
+except StopIteration:
+    print("NO SIZZLE SFX: ask Joel for pan_sizzle (prompt in VOICE_DESIGN.md -> SFX requests)")
 # hallway at night: clock ticking, which stops dead with the music at 44.30
 put(mix, env_fade(load(sfx("clock_ticking_#1"), 0, 4.4) * 0.35, 0.3, 0.02), 39.9)
 # reflection turns in silence; only a faint low swell as the head turns (46.2-47.6)
