@@ -116,10 +116,28 @@ REF = active_db(AUD + FILE["milo"])
 GAIN = {w: 10 ** ((REF - active_db(AUD + f)) / 20) for w, f in FILE.items()}
 print("voice gains dB", {w: round(20 * np.log10(g), 1) for w, g in GAIN.items()})
 
+# ElevenLabs glitches inside a take (Joel 15:41: "a bug in Milo speaking near the end"): in milo_p2.mp3 "depends"
+# had a 70 ms dropout mid-word (33.458-33.528 s): cut it with a 3 ms crossfade. Repairs are in SOURCE seconds;
+# a cut is padded back with silence at the line's end so everything after stays in sync with the rendered lip-sync.
+REPAIR = {("milo", "Comment below"): [("cut", 33.458, 33.528)]}
+
+def repair(sig, a0, ops):
+    for op in ops:
+        if op[0] == "fadein":
+            i = int((op[1] - a0) * SR); k = int(op[2] * SR); sig[i:i + k] *= np.linspace(0, 1, k)
+    for op in ops:
+        if op[0] == "cut":
+            i, j = int((op[1] - a0) * SR), int((op[2] - a0) * SR); x = int(0.003 * SR)
+            head, tail = sig[:i + x].copy(), sig[j:].copy()
+            head[-x:] = head[-x:] * np.linspace(1, 0, x) + tail[:x] * np.linspace(0, 1, x)
+            sig = np.concatenate([head, tail[x:], np.zeros(j - i, np.float32)])
+    return sig
+
 placed = []
 for who, pre, d, mode, st, fx in CUES:
     o = ln(who, pre)
     sig = load(AUD + FILE[who], o["a"], o["b"], FX[fx]) * GAIN[who]
+    if (who, pre) in REPAIR: sig = repair(sig, o["a"], REPAIR[(who, pre)])
     if fx in ("fake", "door"): sig = fake_double(sig) if fx == "fake" else fake_double(sig) * 1.0
     k = int(0.01 * SR); sig[:k] *= np.linspace(0, 1, k); sig[-k:] *= np.linspace(1, 0, k)
     put(mix, sig, d); put(vox, sig, d); put(spk[who], sig, d)
