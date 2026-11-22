@@ -19,7 +19,9 @@ PART_MUSIC = {
 }
 
 
-def music_bed(repo, total, sr, n=None, part=2, vol=None, fade_in=None, fade_out=None, start=0.0):
+def music_bed(repo, total, sr, n=None, part=2, vol=None, fade_in=None, fade_out=None, start=0.0, mutes=()):
+    # mutes: [(t0, t1), ...] seconds where the music drops out for a scene (Joel 12:38: cut it whenever it helps).
+    # Cuts are hard-ish (40 ms) going out, so the silence lands, and fade back in over 0.6 s.
     cfg = PART_MUSIC[part]
     vol = cfg["vol"] if vol is None else vol
     fi = cfg["fade_in"] if fade_in is None else fade_in
@@ -32,5 +34,10 @@ def music_bed(repo, total, sr, n=None, part=2, vol=None, fade_in=None, fade_out=
     end = int(total * sr)
     if fi: k = int(fi * sr); bed[:k] *= np.linspace(0, 1, k)
     if fo: k = int(fo * sr); bed[max(0, end - k):end] *= np.linspace(1, 0, min(k, end))
+    for t0, t1 in mutes:
+        a, b = int(t0 * sr), int(t1 * sr); ko, ki = int(0.04 * sr), int(0.6 * sr)
+        bed[a:a + ko] *= np.linspace(1, 0, len(bed[a:a + ko]))
+        bed[a + ko:b] = 0
+        bed[b:b + ki] *= np.linspace(0, 1, len(bed[b:b + ki]))
     bed[end:] = 0
     return bed.astype(np.float32)

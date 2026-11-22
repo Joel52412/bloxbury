@@ -21,7 +21,7 @@ Loop: the final line flows back into "My mum finally came home last night."
 
 ## Open decisions (asked 12:32)
 - Mum's ElevenLabs voice (one voice, fake = slightly too perfect + faint double; real = weak whisper).
-- Music dropout ~2 s at the mirror (Joel wanted music throughout).
+- Music dropouts: Joel OK'd cutting the music wherever it helps the scene (12:38). Planned: the mirror beat, the closet whisper, the final knocks.
 - Fake Mum never blinks / no breathing idle / smile holds a frame too long.
 - Bridge: ad-safe check, Knocker kept in darkness, eyes only, <1.5 s.
 
