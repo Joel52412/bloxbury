@@ -14,7 +14,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 2. **Voices:** ElevenLabs blocks per voice; any NEW speaking character gets a Voice Design prompt + preview text + guidance (`_pipeline/VOICE_DESIGN.md`).
 3. **Recordings in → audio first:** save as `audio script/<voice>_pN.mp3`; force-align (`audio_tools/align_full.py`), split into lines (`split_lines.py`, cuts in ElevenLabs' digital silence, check each cut), then `prep_pN.py` = the cue sheet: pacing (Claude directs it, Joel allows edits), voice level matching, voice FX, music bed + dropouts, sound design, loudnorm −14 LUFS, captions, per-speaker lip-sync env with line modes N/D/C/O.
 4. **Audio animatic:** render the full audio over a dark frame with captions + scene labels + timecode; send it so Joel can judge pacing. Fix his sound notes straight away.
-5. **Full asset sheet:** `partN_assets.py` (rendered on the GPU pod) builds every new character/set/prop (new sets in the air at z=400, studio cyc for character cards, `only()` to hide the rest), renders stills, composes one sheet with captions + a NEW / ALREADY APPROVED panel. Review every still yourself first (contact sheet) and fix clipping/composition before sending. **No pod is created until Joel OKs it.**
+5. **Full asset sheet:** `partN_assets.py` (rendered here in the workspace: quick) builds every new character/set/prop (new sets in the air at z=400, studio cyc for character cards, `only()` to hide the rest), renders stills, composes one sheet with captions + a NEW / ALREADY APPROVED panel. Review every still yourself first (contact sheet) and fix clipping/composition before sending. **No pod is created until Joel OKs it.**
 6. **After the OK:** save the approved assets to the library straight away (cards in `recurring.py`, props/sets in a `propsN.py` batch, `manifest.json`, `studio.py`), switch the asset script to the library versions and re-check a few stills.
 7. **Scene:** `partN.py` from the previous part's scene script; build + `check_faces` here, then the low-res preview ON THE POD, reviewed on contact sheets (+ `check_faces`); then Joel's OK on the price (hourly, total time, total cost, incl. 2×/3×), GPU render, frame check, delivery with the full download link.
 8. **When finished:** audit every asset used and push anything not yet in the library.
@@ -67,18 +67,19 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - One line per paragraph, [emotion] tags, no numbers.
   - One block per voice; the main character narrates.
 
-## Rendering location (Joel, 22 Nov 13:59): NEVER render in Claude's workspace
-- **Every render goes on a RunPod GPU:** low-res previews, the frames for contact sheets, asset-sheet stills, test stills, and the final.
-- **Only builds and checks run in the workspace:** scripts, `check_faces`, audio, alignment, and composing sheets from frames the pod made.
-- **Why:** the workspace has 2 CPUs, so a Part preview takes about 75 minutes there. Background jobs also get stopped when a reply ends.
-- **Fast flow:** one pod per episode does it all:
-  1. Asset-sheet stills.
-  2. Joel's OK on the sheet.
-  3. Low-res preview (216×384, 4 samples): contact sheets pushed to a temporary `preview-*` branch for Claude to review.
-  4. Fixes.
-  5. Full-res render (1080×1920, 32 samples).
-  6. Frame check, then `make_partN.sh`.
-- **Pod lifetime:** keep the pod alive between steps instead of recreating it, unless Joel says otherwise. The price rule below still applies before creating it.
+## Where things render (Joel, 22 Nov 14:03)
+- **In Claude's workspace:**
+  - Asset-sheet stills, test stills and quick generations (a handful of frames). Measured: about 6–7 min for a full 10-still sheet, free.
+  - A new pod would take 12–15 min for the same job, because setup alone is 8–12 min.
+- **On RunPod GPUs (they're there to save time):**
+  - Anything long: the full low-res preview and the full-res final. In the workspace a preview took about 75 min on 2 CPUs and gets stopped when a reply ends; on a pod it's about 15–20 min including setup.
+  - Once a pod is already up for an episode, small stills go there too (seconds).
+- **One pod per episode:**
+  1. Low-res preview (216×384, 4 samples): contact sheets pushed to a temporary `preview-*` branch for Claude to review, shown to Joel.
+  2. Fixes.
+  3. Full-res render (1080×1920, 32 samples).
+  4. Frame check, then `make_partN.sh`.
+  - Keep the pod alive between these steps. The price rule below still applies before creating it.
 
 ## RunPod
 - **Before you create:** state the price first, and Joel must OK pod creation (the auto-check can block it). When offering cards, give each option's **hourly price, total time and total cost**, and always include **multi-GPU options** (2×, 3×).
@@ -163,7 +164,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
       - `place()`/`park()` moves the root immediately, so aim shots BEFORE parking anyone.
       - CU cameras use `ots()` so the camera never sits inside the other character's head.
       - Sockets (emission) are keyed with `key()`, not `kf()`.
-  - **Low-res preview:** the workspace run was stopped (Joel 13:59: never render here). Next: a pod does the preview, then the final.
+  - **Low-res preview:** the workspace run was stopped (Joel 14:03: long renders go on GPUs). Next: a pod does the preview, then the final.
 - **NEXT: Part 2** (new chat). Start from `part1_v2.py` as the template: the town set, Milo's house interior, cast cards, the Knocker, `prep_p1.py` → copy as `prep_p2.py` for the new script audio. Apply the narration-mouth and calm-camera rules from the start. Every asset used in Part 1 and Test 2 is now in the library (audit 22 Nov 09:40): `recurring.py`, `props2.py`, `monster.py`, plus the sets.
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
 
