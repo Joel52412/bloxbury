@@ -146,7 +146,7 @@ put(mix, env_fade(load(sfx("low_horror_drone_#3"), 0, 0.85) * 0.45, 0.05, 0.12),
 # Joel 15:25: the synth crackle didn't read as sizzling. Use his ElevenLabs SFX "pan_sizzle" (variant SIZZLE_VAR);
 # until it's in "assets/sfx/" the kitchen opening has no sizzle at all (better silent than fake).
 SIZZLE_VAR = os.environ.get("SIZZLE_VAR", "1")     # Joel sent #1 and #4 (15:31); #1 is steadier and starts at once
-SIZZLE_DB = float(os.environ.get("SIZZLE_DB", -38))  # RMS before loudnorm: a bed under the voices, not "static"
+SIZZLE_DB = float(os.environ.get("SIZZLE_DB", -46))  # RMS before loudnorm (Joel 15:40: -38 too loud): faint, ~20 dB under the voices
 try:
     import re as _re
     f = next(SFXD + x for x in sorted(os.listdir(SFXD))
