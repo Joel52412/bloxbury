@@ -1,7 +1,9 @@
 # music_bed.py - looped background music bed for a part's mix.
 # Joel (22 Nov): Part 2 uses ONLY the instrumental of "Numbers" (TEMPOREX), looped for the whole part at ~40% volume.
 # The instrumental was split from backgorund music/Numbers.mp3 with UVR-MDX-NET-Inst_HQ_3 (vocals removed) and
-# saved as a seamless loop (equal-power 1.5 s seam from the song's tail into its intro): Numbers_instrumental_loop.mp3.
+# Joel (22 Nov 12:14): loop after ~25 s. The loop is the song's first 10 bars (0.07-25.59 s, ~94 BPM), cut so the
+# attack of bar 11 lines up with the attack of bar 1 (sample-exact, 15 ms pre-roll where the old note's decay fades out).
+# Stored as FLAC (Numbers_instrumental_loop.flac, 25.52 s) because MP3 padding would put tiny gaps between repeats.
 #
 # Usage inside a prep_pN.py, after voice + SFX are put into `mix` and BEFORE the peak normalise:
 #     from music_bed import music_bed
@@ -11,7 +13,7 @@
 import numpy as np, subprocess
 
 PART_MUSIC = {
-    2: {"file": "backgorund music/Numbers_instrumental_loop.mp3", "vol": 0.40, "fade_in": 0.0, "fade_out": 1.0},
+    2: {"file": "backgorund music/Numbers_instrumental_loop.flac", "vol": 0.40, "fade_in": 0.0, "fade_out": 1.0},
 }
 
 
