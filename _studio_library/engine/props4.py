@@ -276,7 +276,10 @@ def dress_hallway(HO):
 def dress_bedroom():
     """Milo's room (interior x -11..11, y -49..-31, floor 0.4, ceiling 14). Kept clear of the closet (x 4..10 at the back),
     the bed (back left), the door and the two front windows."""
-    wainscot("BWain", -11, 11, -49, -31, "RB", h=3.4, rgb=(80, 100, 140), top=None, z0=0.4)
+    # front wall (y=-31, "B" here) is split around the door: the old full-width panel covered the door's lower half
+    wainscot("BWain", -11, 11, -49, -31, "R", h=3.4, rgb=(80, 100, 140), top=None, z0=0.4)
+    wainscot("BWainL", -11, -3.0, -49, -31, "B", h=3.4, rgb=(80, 100, 140), top=None, z0=0.4)
+    wainscot("BWainR", 3.0, 11, -49, -31, "B", h=3.4, rgb=(80, 100, 140), top=None, z0=0.4)
     shelf_books("BShelf", (11, -40.5, 0.4), (-1, 0, 0), 6.6, w=4.4, seed=7)
     picture("BPoster1", (11, -45.5, 0.4), (-1, 0, 0), 7.2, w=2.6, h=3.4, rgb=(40, 60, 120), frame=(30, 30, 30))
     picture("BPoster2", (-1.0, -49, 0.4), (0, 1, 0), 7.6, w=2.4, h=3.2, rgb=(170, 60, 50), frame=(30, 30, 30))

@@ -24,7 +24,7 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 2. **Voices:** paste-ready ElevenLabs blocks, one per voice: one line per paragraph, [emotion] tags, no numbers; main character narrates. New speaking character → Voice Design prompt (`_pipeline/VOICE_DESIGN.md`). Request ALL the part's SFX now (same file).
 3. **Audio:** align (`align_full.py`), split (`split_lines.py`), scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` in the cue sheet or ask for a regen), then `prep_pN.py`: pacing, level matching, voice FX, music bed + dropouts, SFX, loudnorm −16 LUFS / −2 dBTP (Joel 21:54: not too loud), music ~20 dB under voices and ducked ~7 dB while anyone speaks, word-timed captions, lip-sync env (line modes N/D/C/O).
 4. **Audio animatic** (dark frame + captions + scene labels + timecode) → Joel judges pacing.
-5. **Asset sheet** `partN_assets.py`, rendered here (detail bar applies): every new character/set/prop (sets at z=400, studio cyc for cards), NEW vs APPROVED panel. Review stills first. No pod until Joel OKs.
+5. **Asset sheet** `partN_assets.py` (detail bar applies), quick low-res checks here, then the sheet itself on a pod at FINAL quality (Joel 22:25: 1× Secure 4090, ~$0.10, `pod_stills.sh partN_assets.py` → `contact.jpg` + `stills.zip`): every new character/set/prop (sets at z=400, studio cyc for cards), NEW vs APPROVED panel. Review stills first. No pod until Joel OKs.
 6. **After OK:** save to library (`recurring.py` cards, `propsN.py`, manifest, studio.py), switch the asset script to library versions.
 7. **Scene** `partN.py` from the previous part: build here (~10 s) until `check_faces` and `check_shots` pass; render one still per shot here (216×384) into a contact sheet → Joel. Then price OK → GPU render → pod auto-finish → Render Monitor downloads to `exports/` → pod deletes itself.
 8. **TikTok:** `TIKTOK=1 prep_pN.py`, then `make_tiktok.sh <part.mp4> <tiktok.wav> <Bloxbury_PartN_TikTok.mp4>` (keeps 94% picture with black borders: TikTok's zoom crops them off. Joel 16:05).
@@ -48,7 +48,7 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - **TikTok:** copyrighted music must span ≤55 s first-to-last (else muted); YouTube keeps the full mix.
 
 ## Rendering
-- **Here (free):** asset sheets, shot stills, tests. **RunPod:** only the full-res final (1080×1920, 32 samples, OptiX, `QUALITY=fast`).
+- **Here (free):** low-res tests and shot stills. **RunPod:** asset sheets at final quality (`pod_stills.sh`, 1× Secure 4090) and the full-res final (1080×1920, 32 samples, OptiX, `QUALITY=fast`). Every shot gets the `lookdev.cinematic_look()` grade (+3% render time) and a motivated key / low fill / cool rim lighting recipe.
 - **Before creating a pod:** give hourly price, total time, total cost per option incl. 2×/3× GPUs; Joel must OK. Only delete pods made in this chat. Never print API keys or tokens.
 - **Cards:** default 3× Community RTX 4090 ($0.34/hr each); Secure 4090 $0.89/hr; A40 Secure $0.59/hr. Always `allowedCudaVersions: ["13.2"]` (inside `gpu`): 13.0 Community 4090s were broken 3 times. Check torch CUDA in the first minute; delete if broken. Speeds: ~1.5 s/frame per 4090, ~3 s per A40.
 - **Create body:** image `ghcr.io/joel52412/bloxbury-render:5.3` (Blender at /opt/blender; fallback `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`), disk 30, port 8888/http, startJupyter, `env: {"GITHUB_RO": "{{ RUNPOD_SECRET_GITHUB_RO }}"}` at create time (changing env later wipes the pod).
