@@ -4,8 +4,9 @@
 # Usage: nohup sh pod_balance.sh part2.py 1921 /workspace/frames > /workspace/balance.log 2>&1 &
 S=$1; N=$2; OUT=${3:-/workspace/frames}; G=$(nvidia-smi -L | wc -l)
 while true; do
-  left=$(python3 -c "import os,sys;d=sys.argv[1];print(sum(1 for f in range(1,int(sys.argv[2])+1) if not (os.path.exists(d+'/%04d.png'%f) and os.path.getsize(d+'/%04d.png'%f)>0)))" $OUT $N)
-  [ "$left" -eq 0 ] && echo "all frames done" && break
+  # frames nobody has claimed yet (no file, not even a 0-byte placeholder); 0 = everything is done or in progress
+  left=$(python3 -c "import os,sys;d=sys.argv[1];print(sum(1 for f in range(1,int(sys.argv[2])+1) if not os.path.exists(d+'/%04d.png'%f)))" $OUT $N)
+  [ "$left" -eq 0 ] && echo "$(date +%T) every frame is done or being rendered" && break
   i=0
   while [ $i -lt $G ]; do
     busy=0
