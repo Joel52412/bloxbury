@@ -374,6 +374,26 @@ def money(usd):
     return "$%.2f (~%.0fp)" % (usd, usd * GBP_PER_USD * 100) if usd * GBP_PER_USD < 1 else \
            "$%.2f (~£%.2f)" % (usd, usd * GBP_PER_USD)
 
+def job_started(j):
+    """Start time: the pod's createdAt (render_job.json pod_started) if known, else when the monitor first saw the job."""
+    st = j.spec.get("render_started") or j.spec.get("pod_started")
+    if st:
+        try:
+            return datetime.datetime.fromisoformat(str(st).replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            pass
+    return j.first_seen
+
+def job_elapsed(j):
+    if j.status == "done":
+        if not getattr(j, "done_at", None):
+            j.done_at = time.time()
+        end = j.done_at
+    else:
+        j.done_at = None
+        end = time.time()
+    return max(0.0, end - job_started(j))
+
 def job_line(j):
     spf = j.sec_per_frame()
     eta = j.eta_seconds()
@@ -381,8 +401,9 @@ def job_line(j):
     parts = ["%s/%s" % (format(j.done, ","), format(j.total, ",") if j.total else "?"),
              "%.0f%%" % pct]
     if j.status == "done":
-        parts.append("DONE")
+        parts += ["DONE", "took %s" % fmt_dur(job_elapsed(j))]
     else:
+        parts.append("running %s" % fmt_dur(job_elapsed(j)))
         parts += ["%.1f s/frame" % spf if spf else "speed: measuring...",
                   "%s left" % fmt_dur(eta), "finish ~%s" % fmt_clock(eta),
                   j.status.upper()]
