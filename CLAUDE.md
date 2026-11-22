@@ -75,13 +75,14 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - **Props batch 1:** cars, house furniture, kitchen, door, laptop, plant, clock, bin.
 - **Scene template: `test2.py`.** Reuse its parts:
   - **Rig:** `upgrade_rig(P)` adds Chest, HipL/R, Head, and hand grips that keep props level. `arm(P, side, frame, target | euler)`. The shoulder is at (±1.5, 0, 3.5) and the arm is 1.5 long.
-  - **Face:** `build_face_v2(P)` with posed brows and eyes, a blink layer, smooth sparkles and mouth swaps. Helpers: `expr(rig, frame, EX preset)`, `blink`, `eyes_closed`, `sparkle`, `mouth`, `lipsync(styles calm / excited / whisper)`, `accents` (nods on stressed syllables).
+  - **Face:** `build_face_v2(P)` with posed brows and eyes, a blink layer, smooth sparkles (yellow emissive `spark_star` glints) and mouth swaps. Helpers: `expr(rig, frame, EX preset)`, `blink`, `eyes_closed`, `sparkle`, `mouth`, `lipsync(styles calm / excited / whisper)`, `accents` (nods on stressed syllables).
   - **Motion:** a per-frame walk cycle; smears by scaling the shoulder Z to about 1.35 for 2 frames; motion blur at shutter 0.5 with **position START** (clean cuts); `cam_key` with `make_compatible` (no camera spins).
 - **Audio:** `talk/prep2.py` builds `env2.json` (loudness and brightness per frame) and the mixed wav with synthesised foley. Order: prep2, then test2, then prep2 again.
 - **Render commands:**
   - Preview: `RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 python3 test2.py` (about 1.5 s per frame).
   - Pod: `ENGINE=GPU RENDER=1 RX=1080 RY=1920 ./blender/blender -b --python test2.py`.
   - `FRAMES=a,b,c` renders stills only.
+- **Held props:** check contact numerically (prop vs mouth/hand in head space, no clipping) before rendering. Cups must be hollow.
 - **Blender 5.x:** use the `kf()` and `apply_interp()` helpers. Layered actions need `_fcurves()`. DOF is keyed on `cam.data`. Avoid coplanar faces.
 
 ## Platforms
@@ -96,7 +97,12 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Test 2** (`test2.py`, 354 frames, 14.75 s), preview reviewed and fixed:
   - **Shot A:** Milo's outro acted to the line (curious, hype, lean-in, ominous), with the closet glow creeping in.
   - **Shot B:** Dan sips coffee, walks, grabs the *BLOXBURY DAILY: KNOCKING CONTINUES* newspaper, throws it into a bin, then a smug sip.
-  - **Done (22 Nov 00:55):** rendered on 2× Secure 4090 in about 16 min, QA passed, and Joel downloaded `Bloxbury_Test2.mp4`. Pod deleted; total pod cost about $1.40, mostly idle time while sorting the token. **Waiting on Joel's notes on the video.**
+  - **v1 rendered 22 Nov 00:55** (2× Secure 4090, about 16 min). Joel: the animation is much better and Milo's speech movement is really good.
+  - **Fixed after his notes (22 Nov):**
+    - **Sip:** the mug was at eye height and clipping into the face. It's now `SIP=(0.2, 0.75, 3.7)` with a tilt of about 25°, found by a numeric search: rim on the mouth, mug in front of the face, no clipping.
+    - **Mug is hollow:** open top, a solidified 0.045 wall, coffee lower inside.
+    - **Sparkles:** now flat 4-point yellow emissive glints with a hot pale centre, not lit and casting no light. The old white tube/ball crosses looked like objects, and a transparent halo caused a gold rim on the eyes, so the halo is gone.
+  - **Next:** re-render v2 (Joel picks the GPUs), then send with the download link.
 - **Then: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
   - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
   - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.

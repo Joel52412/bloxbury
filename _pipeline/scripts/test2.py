@@ -110,6 +110,26 @@ def arm(P, side, frame, target=None, euler=None, interp="BEZIER"):
 def fsurf(x): return surf_y(max(-0.59, min(0.59, x)))
 
 
+M_SPARK_CORE = mat("SparkCore", (255, 206, 40), emit=2.0, rough=0.5)
+M_SPARK_HOT = mat("SparkHot", (255, 250, 215), emit=3.5, rough=0.5)
+
+
+def spark_star(name, size, m, parent, dy):
+    """Flat 4-point star facing the camera (+y): thin pointed rays, reads as a glint effect."""
+    import bmesh as _bm2
+    b = _bm2.new(); c = b.verts.new((0, dy, 0)); ring = []
+    for i in range(8):
+        a = i * math.pi / 4; r = size if i % 2 == 0 else size * 0.2
+        ring.append(b.verts.new((r * math.cos(a), dy, r * math.sin(a))))
+    for i in range(8):
+        b.faces.new((c, ring[i], ring[(i + 1) % 8]))
+    me = bpy.data.meshes.new(name); b.to_mesh(me); b.free()
+    ob = bpy.data.objects.new(name, me); ob.data.materials.append(m); ob.parent = parent
+    COL_CHARS.objects.link(ob)
+    ob.visible_shadow = False; ob.visible_diffuse = False; ob.visible_glossy = False   # glows without lighting the eye
+    return ob
+
+
 def adopt(objs, piv, piv_loc):
     for o in objs:
         o.parent = piv
@@ -154,9 +174,8 @@ def build_face_v2(P):
         for dx, dz, sz in ((0.035, 0.13, 0.05), (-0.045, 0.03, 0.026)):
             loc = V((sx + dx, fsurf(sx + dx) + 0.03, dz + 0.6))
             pv = empty(f"{nm}_Spark{side}", loc - base, col=COL_CHARS, parent=pb); pv.scale = (0, 0, 0)
-            tube("SpkH", [(-sz, 0, 0), (sz, 0, 0)], 0.011, M_EYEWHITE, pv)
-            tube("SpkV", [(0, 0, -sz * 1.25), (0, 0, sz * 1.25)], 0.011, M_EYEWHITE, pv)
-            ball("SpkC", (sz * 0.45, 0.02, sz * 0.45), V((0, 0, 0)), M_EYEWHITE, pv)
+            spark_star("SpkCore", sz * 1.25, M_SPARK_CORE, pv, 0.004)    # yellow glint
+            spark_star("SpkHot", sz * 0.6, M_SPARK_HOT, pv, 0.008)      # hot centre, reads as light
             sp.append(pv)
         bz = 0.235
         pbr = empty(f"{nm}_Brow{side}", V((sx, fsurf(sx), bz + 0.6)), col=COL_CHARS, parent=head)
@@ -397,8 +416,14 @@ pap_fly = paper_obj("PaperFly", None, M_NEWS, M_NEWSB)
 # mug in Dan's right hand
 mugm = pmat("MugRed", (196, 52, 46), rough=0.35, coat=0.6)
 mug = empty("Mug", V((-0.1, 0.5, 0.15)), col=COL_PROPS, parent=dan["tiltRight"])
-rcyl("MugBody", 0.3, 0.62, V((0, 0, 0)), mugm, mug, bevel=0.04)
-rcyl("Coffee", 0.26, 0.02, V((0, 0, 0.29)), pmat("Coffee", (60, 34, 20), rough=0.15), mug, bevel=0.0)
+_mb = rcyl("MugBody", 0.3, 0.62, V((0, 0, 0)), mugm, mug, bevel=0.0)
+import bmesh as _bm
+_b = _bm.new(); _b.from_mesh(_mb.data)
+_bm.ops.delete(_b, geom=[f for f in _b.faces if f.normal.z > 0.99 and f.calc_center_median().z > 0.3], context="FACES_ONLY")
+_b.to_mesh(_mb.data); _b.free()
+_sol = _mb.modifiers.new("Wall", "SOLIDIFY"); _sol.thickness = 0.045; _sol.offset = -1; _sol.use_even_offset = True
+_bev = _mb.modifiers.new("RimRound", "BEVEL"); _bev.width = 0.012; _bev.segments = 2; _bev.limit_method = "ANGLE"
+rcyl("Coffee", 0.252, 0.02, V((0, 0, 0.16)), pmat("Coffee", (60, 34, 20), rough=0.15), mug, bevel=0.0)
 tube("MugHandle", [(0.28, 0, 0.18), (0.48, 0, 0.12), (0.48, 0, -0.12), (0.28, 0, -0.18)], 0.06, mugm, mug)
 mug.rotation_euler = (0, 0, R(-90))           # handle toward the hand
 
@@ -461,12 +486,12 @@ WY0 = -1.2
 kf(d, "location", 1, (X0, WY0, 0)); kf(d, "location", FB(0.0), (X0, WY0, 0))
 kf(d, "rotation_euler", 1, (0, 0, 0)); kf(d, "rotation_euler", FB(0.0), (0, 0, 0))
 CHEST_MUG = (0.85, 0.75, 2.7)
-SIP = (0.2, 0.6, 4.2)
+SIP = (0.2, 0.75, 3.7)                 # rim on the mouth, mug in front of the face (searched, no clipping)
 # --- sip (0 - 1.75)
 arm(dan, "Right", FB(0.0), CHEST_MUG); arm(dan, "Right", FB(0.3), CHEST_MUG); arm(dan, "Right", FB(0.42), (0.9, 0.75, 2.55))
 arm(dan, "Right", FB(0.8), SIP); arm(dan, "Right", FB(1.4), SIP); arm(dan, "Right", FB(1.75), CHEST_MUG)
 tr = dan["tiltRight"]
-for t, a in ((0.0, 0), (0.55, 0), (0.85, 32), (1.3, 40), (1.5, 0)):
+for t, a in ((0.0, 0), (0.55, 0), (0.85, 22), (1.3, 26), (1.5, 0)):
     kf(tr, "rotation_euler", FB(t), (R(a), 0, 0))
 arm(dan, "Left", FB(0.0), euler=(3, -4)); arm(dan, "Left", FB(1.9), euler=(3, -4))
 for t, x in ((0.0, 0), (0.5, 0), (0.85, -14), (1.35, -16), (1.65, 2), (1.8, 0)):
@@ -565,7 +590,7 @@ kf(pap_fly, "location", FB(7.55), BIN + V((0, 0, 1.2)))
 vis(fly_objs, FB(7.55), False)
 # --- smug sip at the end (7.5 - 8.0)
 arm(dan, "Right", FB(7.45), CHEST_MUG); arm(dan, "Right", FB(7.92), SIP); arm(dan, "Right", FB(8.0), SIP)
-kf(tr, "rotation_euler", FB(7.6), (0, 0, 0)); kf(tr, "rotation_euler", FB(7.95), (R(30), 0, 0))
+kf(tr, "rotation_euler", FB(7.6), (0, 0, 0)); kf(tr, "rotation_euler", FB(7.95), (R(25), 0, 0))
 eyes_closed(fd, FB(7.85), FB(8.2))
 for fr in range(FB(4.7), FB(8.0), 12):
     kf(d, "location", fr, 0.018 * math.sin(fr / FPS * 2.0), index=2)
