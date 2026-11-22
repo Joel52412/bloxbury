@@ -373,7 +373,7 @@ def p6_rae_door_set(RO, name="RaeDoor"):
     lp = bpy.data.lights.new(name + "Lamp", "POINT"); lp.energy = 260; lp.color = (1.0, 0.74, 0.46); lp.shadow_soft_size = 0.12   # small = crisp top-light shadows
     lo = bpy.data.objects.new(name + "Lamp", lp); COL_PROPS.objects.link(lo); lo.location = RO + _V6((-4.0, -1.4, 8.0))
     # door swung in 70 deg, hinge on the left (x=-2.5), chain from door edge to the frame
-    hinge = root_of(name + "Hinge", RO + _V6((-2.45, 0.7, 0.5))); hinge.rotation_euler = (0, 0, math.radians(-68))
+    hinge = root_of(name + "Hinge", RO + _V6((-2.45, 0.7, 0.5))); hinge.rotation_euler = (0, 0, math.radians(68))   # swings IN (into the hall)
     dw = dmat("raeDoor", (120, 70, 90), rough=0.5)
     rb(name + "Door", (4.9, 0.35, 9.0), _V6((2.45, 0, 4.5)), dw, hinge, r=0.05)
     for z0 in (1.3, 5.2): rb(name + "DPnl", (3.6, 0.1, 3.0), _V6((2.45, -0.2, z0 + 1.5)), dmat("raeDoorPnl", (135, 82, 104), rough=0.5), hinge, r=0.06)

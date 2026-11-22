@@ -76,4 +76,5 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - Part 1 and Part 2 delivered. `exports/Bloxbury_Part2_TikTok.mp4` final; YouTube master needs `_pipeline/data/p2/part2_audio.wav` swapped in when stitching. Part 2 re-render (new props/camera/captions) still Joel's call.
 - **Part 3 "Don't Say It"**: script v1 approved (`series/bloxbury/part3/part3_script.md`), voices + SFX in, `prep_p3.py` mix approved (84.2 s, piano Numbers, −16 LUFS), animatic OK. Props batch 6 + lookdev/lighting APPROVED 23:02 (sheet `approval_sheets/Part3_asset_sheet.jpg`).
 - TODO: wire `make_tiktok.sh` into `pod_finish.sh`; GHCR render image is private (use runpod/pytorch).
-- **NEXT: Part 3 scene `part3.py`** (template `part2.py` + `part3_assets.py` lighting; cine shots; hook rules; check_faces/check_shots; 216×384 still per shot → Joel).
+- Part 3 scene `part3.py` built (30 shots, 2023 frames, all checks pass; lights keyed per shot via `light_shot()`); shot-stills sheet sent 23:2x. Data for pods in `_pipeline/data/p3` (env, captions, mix).
+- **NEXT:** Joel OKs stills + price → GPU render → TikTok version.
