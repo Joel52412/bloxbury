@@ -56,6 +56,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - **No cliché loud-sting jump scares.** Use silence and audio dropouts, misdirection (the scare is somewhere other than where the camera points), delayed reflections, things in plain sight, quiet lines that land like a hit, and the music cutting out. Keep at most one real startle per part, and earn it.
   - **Full reasoning and method:** `_pipeline/STORY_DIRECTION.md` (research, beat-sheet method, scare toolkit). Read it before writing any part.
   - **Rewatch bait:** hide one or two background details (e.g. a 4-frame reflection) that reward a second watch. Make the last line flow into the first so TikTok loops cleanly. End with a choice question for comments.
+- **Voice design (Joel, 22 Nov):** every new speaking character gets an ElevenLabs Voice Design prompt, preview text and settings from Claude. Formula and cast list: `_pipeline/VOICE_DESIGN.md` (Mum is there).
 - **Voiceover scripts:**
   - Paste-ready blocks for ElevenLabs.
   - One line per paragraph, [emotion] tags, no numbers.
