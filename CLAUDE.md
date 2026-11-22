@@ -56,7 +56,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Render settings:** 32 samples, OptiX denoise. Test each GPU with a `FRAMES=` still first, then check every frame.
 - **Create body:** image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404`, disk 30, port 8888/http, startJupyter, and `env: {"GITHUB_RO": "{{ RUNPOD_SECRET_GITHUB_RO }}"}` **at create time**. Changing env later with update-pod restarts the container, wipes it and drops Jupyter's password. If that happens, restart Jupyter by hand with your own token.
 - **Getting the code onto the pod (no more base64 chunks):**
-  - Token: `T=$(tr '\\0' '\\n' < /proc/1/environ | sed -n 's/^GITHUB_RO=//p')`.
+  - Token: `T=$(tr '\0' '\n' < /proc/1/environ | sed -n 's/^GITHUB_RO=//p')`.
   - Clone: `git clone --depth 1 https://x-access-token:$T@github.com/Joel52412/bloxbury.git /workspace/bloxbury`.
   - Then `nohup sh /workspace/bloxbury/_pipeline/pod_setup.sh > setup.log &`. It installs apt packages and Blender 5.3 (note: no `-q` on `ensurepip`), and lays files out under `/home/claude`.
   - RunPod secret `GITHUB_RO` (id `we7rf4p3y8`) holds Joel's fine-grained token "robloxrepo" for this repo. It's currently over-scoped (read+write); a read-only one is a todo.
