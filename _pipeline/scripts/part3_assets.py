@@ -296,7 +296,7 @@ NIGHT_LIGHTS = (MOON_SPOT, MOON_IN, DOOR_PRAC, ROOM_FILL, MILO_RIM, RAE_MOON, RA
 MOON_FACE = area("MoonFace", (8.0, -36.0, 8.0), (-6.2, -39.6, 4.6), 0, 3.0, (0.62, 0.74, 1.0))   # window-side soft key on faces
 FAIRY = area("FairyGlow", (-6.8, -47.6, 10.2), (-7.0, -49.0, 6.5), 0, 2.0, (1.0, 0.78, 0.5))       # motivated by the fairy lights
 FAIRY_RIM = area("FairyRim", (-6.6, -47.8, 10.0), (-6.2, -39.6, 5.0), 0, 1.5, (1.0, 0.72, 0.42))  # warm edge on hair from the fairy lights
-SODIUM = area("Sodium", (31.0, -30.0, 11.0), (24.2, -37.0, 4.6), 0, 2.0, (1.0, 0.55, 0.22))         # street lamp: orange key
+SODIUM = spot("Sodium", (31.0, -30.0, 11.0), (24.2, -37.0, 4.0), 0, 22, 0.3, (1.0, 0.55, 0.22))     # street-lamp direction: a tight orange pool on Milo
 YARD_RIM = area("YardRim", (15.0, -39.0, 12.0), (24.2, -37.0, 4.8), 0, 2.5, (0.62, 0.74, 1.0))      # moon edge from behind
 NIGHT_LIGHTS = NIGHT_LIGHTS + (MOON_FACE, FAIRY, FAIRY_RIM, SODIUM, YARD_RIM)
 BRANCH = p6_branches("Branches")
@@ -318,9 +318,19 @@ def night(**en):
     mo = [o for o in bpy.data.objects if o.data == MOON_SPOT][0]
     mo.location = V(en.pop("moon_from", (24.0, -34.0, 13.0)))         # always a line that passes through the side window
     aim(MOON_SPOT, en.pop("moon_at", (-2.0, -39.0, 1.5)))
-    cookie_on(mo.location, en.pop("cookie_at", (-2.0, -39.0, 1.5))) if en.pop("cookie", True) else None
+    if en.pop("cookie", True): cookie_on(mo.location, en.pop("cookie_at", (-2.0, -39.0, 1.5)))
+    else: en.pop("cookie_at", None); BRANCH.location = (3000, 3000, -900)        # cookie off: never visible in exteriors
     key(MILO_LIGHT, "energy", 0.0, en.pop("room", 0))                    # Part 1's warm room bulb: off unless asked
     for L in NIGHT_LIGHTS: L.energy = en.get(L.name, 0)
+
+
+_LAMPS = [o.data for o in bpy.data.objects if o.type == "LIGHT" and o.name.startswith("LampLight")]
+_LAMP0 = [(d.energy, tuple(d.color)) for d in _LAMPS]
+
+
+def street_lamps(energy=None, col=None):
+    for d, (e0, c0) in zip(_LAMPS, _LAMP0):
+        d.energy = e0 if energy is None else energy; d.color = c0 if col is None else col
 
 
 def sit(P, loc, yaw):
@@ -373,7 +383,8 @@ def sh_window_in():
 
 
 def sh_yard():
-    night(YardMoon=700, WinGlow=180, room=300, Sodium=2600, YardRim=700, cookie=False); only(milo); stand(milo); aim(YARD_MOON, (24.2, -37.0, 3.0))
+    night(YardMoon=0, WinGlow=260, room=300, Sodium=14000, YardRim=650, cookie=False); only(milo); stand(milo); s.view_settings.exposure = 0.3; key(sun_data, "energy", 0.0, 0.18)   # low moon sun: night, not day
+    street_lamps(2600, (1.0, 0.6, 0.28))                                  # the town's lamps ARE the sodium key: orange pools, dark between; aim(YARD_MOON, (24.2, -37.0, 3.0))
     pose(milo, (24.2, -37.0, 0.0), -90); arm(milo, "Right", 1, euler=(25, 8)); arm(milo, "Left", 1, euler=(-20, -8))
     setface(fm, "scared", "rest_frown")
     look((33.5, -42.5, 4.6), (22.0, -36.5, 3.0), 28)
@@ -440,7 +451,7 @@ for name, (rx, ry), fn in SHOT_LIST:
     if want != ["all"] and not any(name.startswith(w) for w in want): continue
     for o in bpy.data.objects:
         if o.animation_data and o.animation_data.action: o.animation_data_clear()
-    _MEV.clear(); _CUTS.clear(); reset_arms(); stand(milo)
+    _MEV.clear(); _CUTS.clear(); reset_arms(); stand(milo); street_lamps()
     NOTE.rotation_euler = (0, 0, DEG(-18)); SW_LOWER.location.z = 4.4 + 1.0; TORCH_BEAM.data.energy = 900; PHONE.rotation_euler = (0, 0, 0)
     s.view_settings.exposure = 0.9 if os.environ.get("LOOK", "1") == "1" else 0.0
     fn()
