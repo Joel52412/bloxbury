@@ -16,6 +16,7 @@ import numpy as np, subprocess
 
 PART_MUSIC = {
     2: {"file": "assets/music/Numbers_instrumental_loop.flac", "vol": 0.35, "fade_in": 0.0, "fade_out": 1.0},
+    3: {"file": "assets/music/Numbers_instrumental_loop.flac", "vol": 0.30, "fade_in": 0.0, "fade_out": 1.0},
 }
 
 
