@@ -67,7 +67,9 @@ SFX = [
     ("three_heavy_door_kno_#1", 53.4, 1.9, 0.9, 0, 0.3, "muffled"),    # from inside the closet (onsets 53.69/53.99/54.26/54.53)
     ("low_horror_drone_#3", 53.4, 9.0, 0.32, 0.8, 0.3, None),
     ("creaking_wooden_door_#3", 57.4, 3.0, 2.0, 0, 0.5, None),
-    ("a_sharp_horror_sting_#1", 62.35, 2.0, 0.9, 0, 0.3, None),        # hard cut to black
+    ("a_sharp_horror_sting_#2", 61.30, 1.3, 1.0, 0, 0.3, None),        # JUMP SCARE: door ripped open, the lunge
+    ("a_sharp_horror_sting_#1", 62.35, 2.0, 0.55, 0, 0.3, None),       # hard cut to black
+    ("low_horror_drone_#4", 49.7, 2.2, 0.35, 0.3, 0.6, None),          # the silhouette in the window
     ("a_sharp_horror_sting_#3", 71.05, 1.5, 0.45, 0, 0.5, None),       # "don't open the door"
 ]
 
