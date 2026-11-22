@@ -72,6 +72,10 @@ BLACK_CUT = 72.40
 OUTRO0 = 73.00
 TOTAL = 80.00
 MUTES = [(0.0, 1.25), (44.30, 51.60), (56.60, OUTRO0)]
+# TikTok only authorises copyrighted music for under 1 minute (first to last second it's heard). TIKTOK=1 keeps the
+# music off after the bedroom dropout (no return in the outro), so it spans 1.25-56.6 s = 55 s. Mix only; lip-sync env unchanged.
+TIKTOK = bool(os.environ.get("TIKTOK"))
+MUSIC_MUTES = MUTES[:-1] + [(56.60, TOTAL)] if TIKTOK else MUTES
 SCENES = [("bridge", 0.0, 1.25), ("kitchen", 1.25, 18.4), ("porch", 18.4, 39.9), ("mirror", 39.9, 51.7),
           ("bedroom", 51.7, BLACK_CUT), ("black", BLACK_CUT, OUTRO0), ("outro", OUTRO0, TOTAL)]
 
@@ -163,7 +167,7 @@ put(mix, env_fade(kn * 0.55, 0.01, 0.12), 67.82)              # knocks land at ~
 # hard cut to black: everything stops
 mix[int(BLACK_CUT * SR):int(OUTRO0 * SR)] = 0
 
-mix += music_bed(REPO, TOTAL, SR, len(mix), part=2, mutes=MUTES)
+mix += music_bed(REPO, TOTAL, SR, len(mix), part=2, mutes=MUSIC_MUTES)
 mix[int(BLACK_CUT * SR):int(OUTRO0 * SR)] = 0
 mix = mix[:int(TOTAL * SR)]
 pk = np.abs(mix).max(); mix = mix / max(pk, 1e-6) * 0.92
