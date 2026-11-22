@@ -96,7 +96,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Test 2** (`test2.py`, 354 frames, 14.75 s), preview reviewed and fixed:
   - **Shot A:** Milo's outro acted to the line (curious, hype, lean-in, ominous), with the closet glow creeping in.
   - **Shot B:** Dan sips coffee, walks, grabs the *BLOXBURY DAILY: KNOCKING CONTINUES* newspaper, throws it into a bin, then a smug sip.
-  - **22 Nov 00:33:** rendering on 2× Secure 4090 (pod `xvv54gga9g41ck`, $1.78/hr), frames split 1–177 / 178–354. Next: black-frame check, mux `test2_audio.wav`, send, delete pod after Joel confirms.
+  - **22 Nov 00:53: GPU render done** on 2× Secure 4090 (pod `xvv54gga9g41ck`, $1.78/hr; about 16 min render). QA passed: no missing, black or blank frames, and the only brightness jump is the A→B cut at frame 163. `Bloxbury_Test2.mp4` (14.75 s, 1080×1920, 24 fps, with `test2_audio.wav`) is on the pod at `/workspace`. **Waiting on Joel's review; delete the pod once he has downloaded it.**
 - **Then: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
   - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
   - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.
