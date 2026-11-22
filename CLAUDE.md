@@ -26,7 +26,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - "Full asset sheet" means show everything.
 - **Look:**
   - R6 Roblox characters, classic head, only designs makeable in Roblox.
-  - **No clipping.** Hats get under-hat hair.
+  - **No glitch clipping (Joel 13:33):** props or bodies passing through things they shouldn't (a toaster through a table, feet through a floor, a mug through a face). Contact clipping that can't be avoided is fine: hugs, fist bumps, tools in hands. Hats get under-hat hair.
 - **Hair colour:**
   - Dark skin never gets blonde or very light hair.
   - White or grey hair only for older characters.
@@ -140,7 +140,17 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - **Audio:** `audio_tools/prep_p2.py` is the cue sheet and pacing (80 s, 1921 frames). It matches each voice's level (Mum −5.9 dB), adds a too-perfect double on fake Mum, and filters the downstairs, closet and door voices. Music dropouts: 0–1.25, 44.3–51.6, 56.6–73.0. Sound: the sizzle only runs 1.25–7.0 s (Joel: it was too loud and long); the clock stops with the music; the three soft knocks use Part 1's front-door knock #4, cut before its 4th knock (Joel: "use the other knock"). Hard black 72.4–73.0. Loudnorm to −14 LUFS. Outputs `talk/{env_p2.json, part2_audio.wav, captions_p2.ass}` (copies in `data/p2`). env has per-speaker rms/cen and line `mode` N/D/C/O (lip-sync only for D and C).
   - **Asset sheet** (`_pipeline/scripts/part2_assets.py`, about 4 min on CPU): `_studio_library/approval_sheets/Part2_asset_sheet.png`, sent 13:30, **waiting on Joel's OK**. It covers: the Mum card (Milo's skin tone, H4 brown hair, sage cardigan, jeans, tan flats, rounded-square gold bangle on her left wrist with no clipping); fake vs real Mum faces; the kitchen set; the toaster; the hallway with a real mirror; Rae's porch (town); the list with Mum crossed off first; the Knocker kept dark; and a hollow closet (the solid ClosetBox is swapped for a shell). New sets are built in the air at z=400 so the town hills stay out of frame.
   - **APPROVED by Joel 13:27 (all designs).** Saved to the library: `recurring.make_mum` (+ `p3_bangle`), `props3.py` (toaster, list, kitchen set, hallway set, hollow closet), manifest + studio.py updated; `part2_assets.py` now loads the library versions (rechecked).
-  - **Still to do (Claude's own notes, Joel OK'd):** the toaster's 4-frame Knocker reflection, and the delayed reflection (a mirror-twin rig behind a portal) for the scene. Then build `part2.py` from `part1_v2.py`, preview, quote the pod price, render. Save the Mum card, sets and props to the library only after Joel approves them.
+  - **Scene `_pipeline/scripts/part2.py` (built 22 Nov 13:30–14:00, FACE CHECK OK, 33 shots).** It loads the library (recurring + props2 + props3), env_p2, and Part 1's camera/shot system. Key tricks:
+    - **Mirror twin:** the fake Mum has `visible_glossy` off, so she has no reflection of her own. `ReflMum` is visible only in glossy rays, so the mirror shows the twin; it keeps smiling, then turns its head.
+    - **Toaster ghost:** a Knocker visible only in glossy rays, for 4 frames at 9.95 s.
+    - **Doorway:** light under the bedroom door with two foot shadows.
+    - **Kitchen:** chairs hidden, a front wall added for reverse shots, and the hug is from behind (her face beside his).
+    - **Lessons from this build:**
+      - Part 1's `idle()` keys absolute z, so use `idle_here()`.
+      - `place()`/`park()` moves the root immediately, so aim shots BEFORE parking anyone.
+      - CU cameras use `ots()` so the camera never sits inside the other character's head.
+      - Sockets (emission) are keyed with `key()`, not `kf()`.
+  - **Low-res preview** running (216×384, 4 samples, ~2.3 s/frame on 2 CPUs, ~75 min).
 - **NEXT: Part 2** (new chat). Start from `part1_v2.py` as the template: the town set, Milo's house interior, cast cards, the Knocker, `prep_p1.py` → copy as `prep_p2.py` for the new script audio. Apply the narration-mouth and calm-camera rules from the start. Every asset used in Part 1 and Test 2 is now in the library (audit 22 Nov 09:40): `recurring.py`, `props2.py`, `monster.py`, plus the sets.
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
 
