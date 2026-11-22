@@ -6,6 +6,7 @@
 STUDIO = {
     "version": "2026-11-22",
     "recurring": ["MILO (rig2.make_milo)", "RAE (recurring.make_rae)", "MAYOR (recurring.make_mayor)", "DAN (recurring.make_dan)", "NEIGHBOUR (recurring.make_neighbour)"],
+    "props3": "props3 (Part 2, 22 Nov): toaster, list with Mum crossed off, p3_room/p3_area, SETS p3_kitchen_set, p3_hallway_set, p3_hollow_closet; MUM card in recurring.make_mum",
     "props2": "props2.PROPS2 (hammer, crate, notebook, WHO'S LEFT list insert, newspaper, hollow mug, cafe table, round bin, red-orange door glow)",
     "sets": ["BLOXBURY TOWN (bloxbury_part1.py prefix + trees/lighting; part1_v2 patches Milo's windows to sill 4/top 8)", "MILO'S ROOM (hollow MiloHouse interior: bed, closet with hinge, wall clock 2:59/3:00)"],
     "monsters": ["KNOCKER (monster.make_knocker): keep him in the dark, eyes pop, cool rim for silhouette, faint red underglow"],

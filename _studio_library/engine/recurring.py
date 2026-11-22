@@ -55,3 +55,40 @@ def make_neighbour():
 
 
 RECURRING.update({"DAN": make_dan, "NEIGHBOUR": make_neighbour})
+
+
+def p3_bangle(P, name="Bangle"):
+    """Thin gold bangle on the LEFT wrist: rounded-square (superellipse) ring that clears the 1x1 arm block."""
+    import bmesh
+    me = bpy.data.meshes.new(name); bm = bmesh.new(); vs = []
+    for i in range(48):
+        a = 2 * math.pi * i / 48; c, s_ = math.cos(a), math.sin(a)
+        r = 0.66 / (abs(c) ** 4 + abs(s_) ** 4) ** 0.25
+        vs.append(bm.verts.new((r * c, r * s_, 0)))
+    for i in range(48): bm.edges.new((vs[i], vs[(i + 1) % 48]))
+    bm.to_mesh(me); bm.free()
+    ob = bpy.data.objects.new(name, me); bpy.context.scene.collection.objects.link(ob)
+    ob.parent = P["Left"]; ob.location = (0, 0, -1.18)
+    ob.modifiers.new("skin", "SKIN")
+    for v in me.skin_vertices[0].data: v.radius = (0.055, 0.055)
+    ob.modifiers.new("sub", "SUBSURF").levels = 1
+    me.materials.append(pmat("BraceletGold", (222, 176, 70), rough=0.22, metal=1.0))
+    return ob
+
+
+def make_mum(name="Mum"):
+    """MUM (Part 2, approved 22 Nov 13:27): Milo's skin tone, long curly brown H4 hair (family look), sage cardigan over a
+    cream top, blue jeans, tan flats, gold bangle on her LEFT wrist (proves the closet hand is really her).
+    The fake Mum is the SAME card: she's 'wrong' through acting only (held smile, never blinks, no breathing idle)."""
+    S = new_set(); skin = (234, 184, 146); rng = RNG(905)
+    d_cardigan(S, rng, skin, col=(132, 160, 132), inner=(244, 234, 214))
+    b_trousers(S, (58, 78, 120), rng, kind="jeans")
+    s_shoes(S, "loafers", (176, 130, 92), rng)
+    finish(S, rng)
+    P = build_body(name, skin, S)
+    add_hair_any(P, "H4", random.Random(21), colour=(92, 60, 38))
+    p3_bangle(P, name + "_Bangle")
+    return P
+
+
+RECURRING.update({"MUM": make_mum})

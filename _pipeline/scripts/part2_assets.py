@@ -134,119 +134,33 @@ def strip_faces(P):
 # ================================================================== PART 2 ASSETS
 exec(open(LIB + "recurring.py").read())
 exec(open(LIB + "props2.py").read())
-GOLD = pmat("BraceletGold", (222, 176, 70), rough=0.22, metal=1.0)
-
-
-def make_mum():
-    """MUM (new, Part 2): Milo's skin tone and long curly brown H4 hair (family look), sage cardigan over a cream top, blue jeans,
-    tan flats, thin gold bangle on her LEFT wrist (the bracelet that proves the closet hand is really her)."""
-    S = new_set(); skin = (234, 184, 146); rng = RNG(905)
-    d_cardigan(S, rng, skin, col=(132, 160, 132), inner=(244, 234, 214))
-    b_trousers(S, (58, 78, 120), rng, kind="jeans")
-    s_shoes(S, "loafers", (176, 130, 92), rng)
-    finish(S, rng)
-    P = build_body("Mum", skin, S)
-    add_hair_any(P, "H4", random.Random(21), colour=(92, 60, 38))
-    return P
-
-
-def bracelet(P, name="Bangle"):
-    import bmesh
-    me = bpy.data.meshes.new(name); bm = bmesh.new()
-    # rounded-square bangle (superellipse) that clears the 1x1 arm block: corners 0.73 > 0.707, faces 0.6 > 0.5 (no clipping)
-    vs = []
-    for i in range(48):
-        a = 2 * math.pi * i / 48; c, s_ = math.cos(a), math.sin(a)
-        r = 0.66 / (abs(c) ** 4 + abs(s_) ** 4) ** 0.25
-        vs.append(bm.verts.new((r * c, r * s_, 0)))
-    for i in range(48): bm.edges.new((vs[i], vs[(i + 1) % 48]))
-    bm.to_mesh(me); bm.free()
-    ob = bpy.data.objects.new(name, me); s.collection.objects.link(ob)
-    ob.parent = P["Left"]; ob.location = (0, 0, -1.18)
-    sk = ob.modifiers.new("skin", "SKIN")
-    for v in me.skin_vertices[0].data: v.radius = (0.055, 0.055)
-    ob.modifiers.new("sub", "SUBSURF").levels = 1
-    me.materials.append(GOLD)
-    return ob
-
-
-def toaster(loc, name="Toaster"):
-    r = root_of(name, loc); ch = CHROME()
-    rb(name + "Body", (1.7, 1.0, 1.15), V((0, 0, 0.6)), ch, r, r=0.25)
-    for dx in (-0.35, 0.35): rb(name + "Slot", (0.18, 0.75, 0.06), V((dx, 0, 1.18)), BLACKPL(), r, r=0.02)
-    rb(name + "Lever", (0.12, 0.25, 0.12), V((0.92, 0, 0.75)), BLACKPL(), r, r=0.03)
-    rb(name + "Base", (1.8, 1.1, 0.12), V((0, 0, 0.06)), BLACKPL(), r, r=0.04)
-    return r
-
-
-def room(name, org, w, d, h, wall_rgb, floor_rgb, wall_kind="plaster", floor_kind="planks"):
-    """Open-front box room: floor, back/left/right walls, ceiling. Camera looks from -y toward +y."""
-    o = V(org); root = root_of(name, o)
-    fm = tex_mat(name + "Floor", floor_rgb, floor_kind, rough=0.6) if floor_kind else pmat(name + "Floor", floor_rgb)
-    wm = tex_mat(name + "Wall", wall_rgb, wall_kind)
-    rb(name + "FloorB", (w, d, 0.3), V((0, 0, -0.15)), fm, root, r=0.02)
-    rb(name + "Back", (w, 0.4, h), V((0, d / 2, h / 2)), wm, root, r=0.02)
-    rb(name + "Left", (0.4, d, h), V((-w / 2, 0, h / 2)), wm, root, r=0.02)
-    rb(name + "Right", (0.4, d, h), V((w / 2, 0, h / 2)), wm, root, r=0.02)
-    rb(name + "Ceil", (w, d, 0.3), V((0, 0, h + 0.15)), pmat(name + "CeilM", (240, 238, 232), rough=0.9), root, r=0.02)
-    rb(name + "Skirt", (w - 0.5, 0.2, 0.5), V((0, d / 2 - 0.25, 0.25)), pmat(name + "SkirtM", (246, 246, 242)), root, r=0.02)
-    return root, o
-
-
-def area(name, loc, tgt, energy, size, col=(1, 1, 1)):
-    d_ = bpy.data.lights.new(name, "AREA"); d_.energy = energy; d_.size = size; d_.color = col
-    ob = bpy.data.objects.new(name, d_); s.collection.objects.link(ob); ob.location = V(loc)
-    ob.rotation_euler = (V(tgt) - V(loc)).to_track_quat("-Z", "Y").to_euler(); return d_
+exec(open(LIB + "props3.py").read())        # props/sets batch 3 (Part 2, approved 22 Nov)
 
 
 def pose(P, loc, yaw):
     P["root"].location = V(loc); P["root"].rotation_euler = (0, 0, DEG(yaw))
 
 
+area = p3_area
+
+
 # ---------------------------------------------------------------- cast
-milo = make_milo(); mum = make_mum(); rae = make_rae(); real = make_mum()
+milo = make_milo(); mum = make_mum("Mum"); rae = make_rae(); real = make_mum("RealMum")
 CAST = (milo, mum, rae, real)
 for P in CAST: strip_faces(P)
 for o in bpy.data.objects: o.animation_data_clear()
 for P in CAST: upgrade_rig(P)
 fm, fmum, frae, freal = (build_face_v2(P) for P in CAST)
-bracelet(mum, "BangleMum"); bracelet(real, "BangleReal")
 note = p2_notebook(rae["tiltLeft"])
 KN = make_knocker("Knocker", 11.5)
 
 # ---------------------------------------------------------------- SET: sunny kitchen (new)
-KO = V((520, 0, 400))
-kroot, _ = room("Kitchen", KO, 26, 18, 11, (246, 236, 206), (196, 160, 118))
-kit = kitchen("KitUnit", cab=(120, 156, 170), top=(238, 234, 226), loc=KO + V((-2, 7.2, 0))); kit.rotation_euler = (0, 0, DEG(180))
-fridge("Fridge", loc=KO + V((9.6, 6.8, 0)))
-dining_set("Table", loc=KO + V((-6.5, -2.5, 0)))
-plant("KPlant", loc=KO + V((-11.5, 7.5, 0)), seed=4)
-wall_clock("KClock", loc=KO + V((6, 8.75, 8.2))).rotation_euler = (0, 0, DEG(180))
-toaster(KO + V((-6.6, 6.6, 4.1)), "Toaster")
-# window over the sink: bright sky panel + sunlight pouring in
-win = rb("KWindow", (6.0, 0.1, 3.6), KO + V((1.0, 8.75, 7.4)), pmat("KSky", (200, 225, 255), emit=3.0, emit_rgb=(225, 238, 255)), None, r=0.02)
-for dx in (-3.05, 3.05): rb("KWinF", (0.25, 0.3, 3.9), KO + V((1.0 + dx, 8.65, 7.4)), pmat("WinFrame", (250, 250, 248)), None, r=0.03)
-for dz in (-1.9, 1.9): rb("KWinF", (6.3, 0.3, 0.25), KO + V((1.0, 8.65, 7.4 + dz)), pmat("WinFrame", (250, 250, 248)), None, r=0.03)
-area("KSun", KO + V((1.0, 7.5, 9.5)), KO + V((-3, -2, 0)), 2600, 6, (1.0, 0.9, 0.75))
-area("KFill", KO + V((0, -14, 9)), KO + V((0, 2, 3)), 1400, 14, (1.0, 0.97, 0.92))
-pose(mum, KO + V((2.6, 4.3, 0)), 180)          # at the hob (back to camera in the hook; turned for the sheet)
-pose(milo, KO + V((-4.0, -0.5, 0)), 20)
-
-# ---------------------------------------------------------------- SET: upstairs hallway + mirror, night (new)
-HO = V((560, 0, 400))
-room("Hall", HO, 10, 26, 11, (182, 170, 150), (120, 86, 60), wall_kind="plaster")
-mirror_m = pmat("Mirror", (235, 238, 240), rough=0.0, metal=1.0)
-rb("MirrorFrame", (0.3, 3.8, 6.0), HO + V((-4.7, 2.0, 5.2)), pmat("MirrorWood", (70, 46, 30), rough=0.5), None, r=0.08)
-rb("MirrorGlass", (0.06, 3.2, 5.4), HO + V((-4.52, 2.0, 5.2)), mirror_m, None, r=0.01)
-door("HallDoorEnd", loc=HO + V((0, 12.8, 0)))
-rb("Runner", (3.6, 22, 0.05), HO + V((0, 0, 0.03)), fabric("RunnerFab", (120, 40, 44)), None, r=0.01)
-area("HallLamp", HO + V((0, 6, 10.5)), HO + V((0, 6, 0)), 260, 2.5, (1.0, 0.72, 0.45))
-area("HallMoon", HO + V((4.5, -12, 8)), HO + V((-3, 4, 3)), 300, 6, (0.55, 0.65, 1.0))
+KO = V((520, 0, 400)); KIT = p3_kitchen_set(KO)
+pose(mum, KO + V((2.6, 4.3, 0)), 180); pose(milo, KO + V((-4.0, -0.5, 0)), 20)
+HO = V((560, 0, 400)); HALL = p3_hallway_set(HO)
 
 # ---------------------------------------------------------------- list page (Mum crossed out FIRST, three weeks ago)
-LIST_PATH = "/tmp/p2_list_mum.png"
-LIST = p2_list_insert(V((700, 700, 0)), path=LIST_PATH,
-                      names=("Milo's Mum", "Mr. Hollis", "The Patels", "Jonah", "Mrs. Reed", "Old Tom", "Ellie", "Rae", "Milo?"), crossed=7)
+LIST = p3_list_insert(V((700, 700, 0)), path="/tmp/p2_list_mum.png")
 
 # ---------------------------------------------------------------- camera + shot list
 cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam")); s.collection.objects.link(cam); s.camera = cam
@@ -314,11 +228,7 @@ def add(name, res, fn): SHOT_LIST.append((name, res, fn))
 
 
 ALL = (milo, mum, rae, real)
-# Part 2 needs a HOLLOW closet (the real Mum is inside it): swap the solid ClosetBox for a shell with the same outside
-_cb = bpy.data.objects["ClosetBox"]; _cm = _cb.material_slots[0].material; _cb.hide_render = True; _cb.hide_viewport = True
-for nm_, sz_, lc_ in (("ClosetBackP", (6.0, 0.2, 10.0), (7.0, -48.9, 5.0)), ("ClosetSideL", (0.2, 3.0, 10.0), (4.1, -47.5, 5.0)),
-                      ("ClosetSideR", (0.2, 3.0, 10.0), (9.9, -47.5, 5.0)), ("ClosetTopP", (6.0, 3.0, 0.2), (7.0, -47.5, 9.9))):
-    rb(nm_, sz_, V(lc_), _cm, None, r=0.01)
+p3_hollow_closet()     # Part 2: the real Mum is inside it
 
 
 def reset_arms():

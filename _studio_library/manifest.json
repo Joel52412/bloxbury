@@ -1,177 +1,188 @@
 {
-  "studio": "Joel's Roblox shorts studio - approved asset library",
-  "version": "2026-11-22b",
-  "approved_by": "Joel",
-  "face_style": {
-    "M2": "midway between Classic and Minimal; thin expressive brows; bright eye shine at 70% opacity",
-    "emotions": [
-      "happy",
-      "laugh",
-      "angry",
-      "sad",
-      "shocked",
-      "smug",
-      "scared",
-      "determined",
-      "crying",
-      "evil",
-      "sleepy",
-      "wink"
-    ]
+ "studio": "Joel's Roblox shorts studio - approved asset library",
+ "version": "2026-11-22c",
+ "approved_by": "Joel",
+ "face_style": {
+  "M2": "midway between Classic and Minimal; thin expressive brows; bright eye shine at 70% opacity",
+  "emotions": [
+   "happy",
+   "laugh",
+   "angry",
+   "sad",
+   "shocked",
+   "smug",
+   "scared",
+   "determined",
+   "crying",
+   "evil",
+   "sleepy",
+   "wink"
+  ]
+ },
+ "hair": {
+  "women": {
+   "H2": "Wavy middle part",
+   "H3": "Long straight",
+   "H4": "Long curly + bangs",
+   "H8": "Long anime (two-tone)"
   },
-  "hair": {
-    "women": {
-      "H2": "Wavy middle part",
-      "H3": "Long straight",
-      "H4": "Long curly + bangs",
-      "H8": "Long anime (two-tone)"
-    },
-    "men": {
-      "M1": "Fluffy messy (black)",
-      "M2": "Fluffy anime (ash)",
-      "M3": "Curly fluffy (blonde)",
-      "M4": "Wavy full messy (brown)",
-      "M5": "Split two-tone",
-      "M6": "Messy + curly ends"
-    },
-    "hat_hair": "short under-hat hair used automatically with any hat",
-    "extra": {
-      "X1": "Short crop + fade",
-      "X2": "Afro",
-      "X3": "Bob (even chin length)",
-      "X4": "High ponytail",
-      "X5": "Two braids",
-      "X6": "Top bun + bangs"
-    }
+  "men": {
+   "M1": "Fluffy messy (black)",
+   "M2": "Fluffy anime (ash)",
+   "M3": "Curly fluffy (blonde)",
+   "M4": "Wavy full messy (brown)",
+   "M5": "Split two-tone",
+   "M6": "Messy + curly ends"
   },
-  "outfits": {
-    "O1": "White long-sleeve tee + distressed grey denim",
-    "O2": "Grey sketch tee, crossbody bag (fixed strap), cross chain, ripped black jeans",
-    "O3": "Open black puffer over grey tee + blue jeans",
-    "O4": "Red button-up + black rolled jeans + red cap"
-  },
-  "outfit_generators": {
-    "fashion": "turtlenecks, blazers, pinstripe shirts, graphic tees, tailored/plaid/pinstripe trousers, skirts, tape measure, beret, glasses, pin cushion, sketchbook, scissors, hanger",
-    "bakery": "chef jackets, chef hats, check trousers, 3D aprons with flour, CRUMB & CO. polo/hoodie, flat cap, baguette, rolling pin, whisk, croissant, cake box, coffee",
-    "everyday_roles": "casual, student, police, doctor (lab coat/scrubs), office, elderly, builder (hi-vis), sporty",
-    "kids_teens": "bright kid tees/overalls/hoodies/school uniform; teen hoodies, bombers, denim, headphones"
-  },
-  "characters": {
-    "F1-F6": "fashion design cast (make_theme_looks seed 42, indices 0-5)",
-    "B1-B6": "bakery cast: head baker, pastry chef, cashier, baker, delivery, customer (indices 6-11)",
-    "C1-C24": "everyday cast (make_everyday_cast seed 77)",
-    "K1-K12": "kids K1-K6, teens K7-K12 (make_kids_cast seed 909)",
-    "two-version": {
-      "B4a/B4b": "light / dark hair",
-      "C19a/C19b": "light / dark hair",
-      "K11a/K11b": "light / dark hair"
-    }
-  },
-  "rejected": [
-    "downloaded .obj hair (never use)",
-    "face styles A-E and M1",
-    "old hair H1, H5, H6, H7 (replaced by M1-M6)"
-  ],
-  "rare_faces": [
-    "jaw-drop",
-    "sparkle eyes",
-    "dizzy",
-    "rage",
-    "deadpan",
-    "waterfall sob",
-    "flustered",
-    "creepy grin",
-    "knocked out",
-    "heart eyes",
-    "money eyes",
-    "horror",
-    "cat smug",
-    "side-eye"
-  ],
-  "ages": {
-    "adult": 1.0,
-    "teen": 0.86,
-    "kid": 0.7
-  },
-  "rules": [
-    "darker skin tones never get blonde/very light hair (except the approved 'a' variants)",
-    "white/grey hair only for elderly",
-    "hats always use under-hat hair",
-    "no clipping",
-    "no two identical-looking characters in a shot"
-  ],
-  "props": [
-    "sketchbook",
-    "scissors",
-    "hanger",
-    "rolling pin",
-    "croissant",
-    "baguette",
-    "cake box",
-    "whisk",
-    "coffee"
-  ],
-  "headwear_accessories": [
-    "beret",
-    "chef hat",
-    "flat cap",
-    "cap",
-    "headphones",
-    "glasses",
-    "tape measure",
-    "pin cushion",
-    "crossbody bag + chain",
-    "police cap",
-    "hard hat",
-    "headband",
-    "stethoscope",
-    "ID lanyard",
-    "backpack"
-  ],
-  "props_furniture": [
-    "police car",
-    "taxi",
-    "family car (any colour)",
-    "bed + nightstand + lamp",
-    "sofa",
-    "armchair",
-    "dining table + 4 chairs",
-    "desk + PC + office chair",
-    "wardrobe",
-    "bookshelf",
-    "TV unit + console",
-    "fridge",
-    "kitchen counter (sink + hob)",
-    "floor lamp",
-    "door (opens on hinge)",
-    "laptop",
-    "house plant",
-    "wall clock",
-    "wheelie bin"
-  ],
-  "recurring_cards": {
-    "MILO": "mustard keyhole hoodie, M4 brown hair, key necklace, white/red trainers (rig2.make_milo, approved Test 2)",
-    "RAE": "purple hoodie, black X5 two braids, dark jeans, lilac trainers (recurring.make_rae, approved 22 Nov)",
-    "MAYOR": "dark suit, red tie, grey X1 crop, glasses (recurring.make_mayor, approved 22 Nov)",
-    "DAN": "light-blue button shirt, chinos, brown trainers, dark X1 crop (recurring.make_dan, Test 2)",
-    "NEIGHBOUR": "builder: hi-vis over navy tee, grey cargos, boots, yellow hard hat with under-hat hair (recurring.make_neighbour, Part 1)"
-  },
-  "monsters": {
-    "KNOCKER": "10.5-12 studs, starved/hunched, smooth spline limbs, arms past knees, pale claws, tilted skull, black sockets + pinpoint white eyes, red cheek-to-cheek grin of thin teeth (monster.make_knocker, approved 22 Nov). Light him dark: eyes pop, cool rim silhouette, faint red underglow."
-  },
-  "props_batch2": {
-    "hammer": "p2_hammer(grip)",
-    "crate": "p2_crate(loc)",
-    "notebook": "p2_notebook(grip), red",
-    "list_insert": "p2_list_insert(pos): WHO'S LEFT page, names crossed out, ends 'Rae / Milo?'",
-    "newspaper": "p2_newspaper: BLOXBURY DAILY / KNOCKING CONTINUES",
-    "mug": "p2_mug(grip): hollow, coffee inside; sip target (0.2,0.75,3.7) tilt ~25deg",
-    "cafe_table": "p2_cafe_table(loc)",
-    "round_bin": "p2_round_bin(loc)",
-    "door_glow": "p2_door_glow(x,y): soft red-orange strip + point light (Joel's signature closet glow)"
-  },
-  "sets": {
-    "BLOXBURY_TOWN": "road, pavements, 12 houses (Milo's hollow, Rae's purple), 20 street lamps (flicker/die), welcome sign 'Population 47', moving van, Mayor's mansion with no door, fence, trees, hills, day/night world (bloxbury_part1.py prefix + TREES..CAMERA section)",
-    "MILOS_ROOM": "hollow house interior: floorboards, bed, closet with hinge + handle, wall clock texts 2:59/3:00, lowered windows (part1_v2 patch)"
+  "hat_hair": "short under-hat hair used automatically with any hat",
+  "extra": {
+   "X1": "Short crop + fade",
+   "X2": "Afro",
+   "X3": "Bob (even chin length)",
+   "X4": "High ponytail",
+   "X5": "Two braids",
+   "X6": "Top bun + bangs"
   }
+ },
+ "outfits": {
+  "O1": "White long-sleeve tee + distressed grey denim",
+  "O2": "Grey sketch tee, crossbody bag (fixed strap), cross chain, ripped black jeans",
+  "O3": "Open black puffer over grey tee + blue jeans",
+  "O4": "Red button-up + black rolled jeans + red cap"
+ },
+ "outfit_generators": {
+  "fashion": "turtlenecks, blazers, pinstripe shirts, graphic tees, tailored/plaid/pinstripe trousers, skirts, tape measure, beret, glasses, pin cushion, sketchbook, scissors, hanger",
+  "bakery": "chef jackets, chef hats, check trousers, 3D aprons with flour, CRUMB & CO. polo/hoodie, flat cap, baguette, rolling pin, whisk, croissant, cake box, coffee",
+  "everyday_roles": "casual, student, police, doctor (lab coat/scrubs), office, elderly, builder (hi-vis), sporty",
+  "kids_teens": "bright kid tees/overalls/hoodies/school uniform; teen hoodies, bombers, denim, headphones"
+ },
+ "characters": {
+  "F1-F6": "fashion design cast (make_theme_looks seed 42, indices 0-5)",
+  "B1-B6": "bakery cast: head baker, pastry chef, cashier, baker, delivery, customer (indices 6-11)",
+  "C1-C24": "everyday cast (make_everyday_cast seed 77)",
+  "K1-K12": "kids K1-K6, teens K7-K12 (make_kids_cast seed 909)",
+  "two-version": {
+   "B4a/B4b": "light / dark hair",
+   "C19a/C19b": "light / dark hair",
+   "K11a/K11b": "light / dark hair"
+  }
+ },
+ "rejected": [
+  "downloaded .obj hair (never use)",
+  "face styles A-E and M1",
+  "old hair H1, H5, H6, H7 (replaced by M1-M6)"
+ ],
+ "rare_faces": [
+  "jaw-drop",
+  "sparkle eyes",
+  "dizzy",
+  "rage",
+  "deadpan",
+  "waterfall sob",
+  "flustered",
+  "creepy grin",
+  "knocked out",
+  "heart eyes",
+  "money eyes",
+  "horror",
+  "cat smug",
+  "side-eye"
+ ],
+ "ages": {
+  "adult": 1.0,
+  "teen": 0.86,
+  "kid": 0.7
+ },
+ "rules": [
+  "darker skin tones never get blonde/very light hair (except the approved 'a' variants)",
+  "white/grey hair only for elderly",
+  "hats always use under-hat hair",
+  "no clipping",
+  "no two identical-looking characters in a shot"
+ ],
+ "props": [
+  "sketchbook",
+  "scissors",
+  "hanger",
+  "rolling pin",
+  "croissant",
+  "baguette",
+  "cake box",
+  "whisk",
+  "coffee"
+ ],
+ "headwear_accessories": [
+  "beret",
+  "chef hat",
+  "flat cap",
+  "cap",
+  "headphones",
+  "glasses",
+  "tape measure",
+  "pin cushion",
+  "crossbody bag + chain",
+  "police cap",
+  "hard hat",
+  "headband",
+  "stethoscope",
+  "ID lanyard",
+  "backpack"
+ ],
+ "props_furniture": [
+  "police car",
+  "taxi",
+  "family car (any colour)",
+  "bed + nightstand + lamp",
+  "sofa",
+  "armchair",
+  "dining table + 4 chairs",
+  "desk + PC + office chair",
+  "wardrobe",
+  "bookshelf",
+  "TV unit + console",
+  "fridge",
+  "kitchen counter (sink + hob)",
+  "floor lamp",
+  "door (opens on hinge)",
+  "laptop",
+  "house plant",
+  "wall clock",
+  "wheelie bin"
+ ],
+ "recurring_cards": {
+  "MILO": "mustard keyhole hoodie, M4 brown hair, key necklace, white/red trainers (rig2.make_milo, approved Test 2)",
+  "RAE": "purple hoodie, black X5 two braids, dark jeans, lilac trainers (recurring.make_rae, approved 22 Nov)",
+  "MAYOR": "dark suit, red tie, grey X1 crop, glasses (recurring.make_mayor, approved 22 Nov)",
+  "DAN": "light-blue button shirt, chinos, brown trainers, dark X1 crop (recurring.make_dan, Test 2)",
+  "NEIGHBOUR": "builder: hi-vis over navy tee, grey cargos, boots, yellow hard hat with under-hat hair (recurring.make_neighbour, Part 1)",
+  "MUM": "long curly brown H4, sage cardigan over cream top, jeans, tan flats, gold bangle LEFT wrist, Milo's skin tone (recurring.make_mum, approved 22 Nov 13:27). Fake Mum = same card, wrong only through acting."
+ },
+ "monsters": {
+  "KNOCKER": "10.5-12 studs, starved/hunched, smooth spline limbs, arms past knees, pale claws, tilted skull, black sockets + pinpoint white eyes, red cheek-to-cheek grin of thin teeth (monster.make_knocker, approved 22 Nov). Light him dark: eyes pop, cool rim silhouette, faint red underglow."
+ },
+ "props_batch2": {
+  "hammer": "p2_hammer(grip)",
+  "crate": "p2_crate(loc)",
+  "notebook": "p2_notebook(grip), red",
+  "list_insert": "p2_list_insert(pos): WHO'S LEFT page, names crossed out, ends 'Rae / Milo?'",
+  "newspaper": "p2_newspaper: BLOXBURY DAILY / KNOCKING CONTINUES",
+  "mug": "p2_mug(grip): hollow, coffee inside; sip target (0.2,0.75,3.7) tilt ~25deg",
+  "cafe_table": "p2_cafe_table(loc)",
+  "round_bin": "p2_round_bin(loc)",
+  "door_glow": "p2_door_glow(x,y): soft red-orange strip + point light (Joel's signature closet glow)"
+ },
+ "sets": {
+  "BLOXBURY_TOWN": "road, pavements, 12 houses (Milo's hollow, Rae's purple), 20 street lamps (flicker/die), welcome sign 'Population 47', moving van, Mayor's mansion with no door, fence, trees, hills, day/night world (bloxbury_part1.py prefix + TREES..CAMERA section)",
+  "MILOS_ROOM": "hollow house interior: floorboards, bed, closet with hinge + handle, wall clock texts 2:59/3:00, lowered windows (part1_v2 patch)",
+  "MUMS_KITCHEN": "p3_kitchen_set(KO): sunny kitchen 26x18x11, window light, hob, toaster, table, fridge, clock (build at z=400)",
+  "UPSTAIRS_HALLWAY": "p3_hallway_set(HO): night hallway 10x26x11, real wall mirror (left wall), red runner, end door, warm lamp + moon fill",
+  "MILOS_CLOSET_HOLLOW": "p3_hollow_closet(): swaps the solid ClosetBox for a hollow shell (someone can stand inside)"
+ },
+ "props_batch3": {
+  "toaster": "p3_toaster(loc): chrome 2-slot",
+  "bangle": "p3_bangle(P): rounded-square gold ring, no clipping (part of the Mum card)",
+  "list_insert_p2": "p3_list_insert(pos): WHO'S LEFT with Milo's Mum crossed off first",
+  "room": "p3_room(): open-front box room builder",
+  "area": "p3_area(): aimed area light"
+ }
 }
