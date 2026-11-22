@@ -1,6 +1,6 @@
 # prep_p3.py - Part 3 "Don't Say It": cue sheet, pacing, mix, lip-sync envelopes, captions. 24 fps.
 # Lines from _pipeline/data/p3/lines_*.json (align_full + split_lines; milo 12/13 + mum "Bug?" fixed by hand from the
-# energy envelope, scan for in-word gaps/clicks clean 22 Nov). Cues are SEQUENTIAL: dest = previous line end + gap.
+# energy envelope, scan for in-word gaps/clicks clean 22 Nov). "Which Milo..." regenerated (pitch cracks) -> milo_p3_fix.mp3. Cues are SEQUENTIAL: dest = previous line end + gap.
 # Usage: python3 prep_p3.py [repo]  (TIKTOK=1 -> music span <=55 s)  -> OUT_DIR/{env_p3.json, part3_audio.wav, captions_p3.ass}
 import numpy as np, subprocess, json, os, sys, wave, re
 REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -84,7 +84,9 @@ def place_line(who, pre, gap, mode, st, fx, scene):
     global t
     o = ln(who, pre); d = t + gap
     if scene: scenes.append([scene, round(d - min(gap, 0.35), 3)])
-    sig = load(AUD + FILE[who], o["a"], o["b"], FX[fx]) * GAIN[who]
+    f = o.get("file", FILE[who])                                    # regenerated single lines live in their own file
+    g = GAIN[who] if f == FILE[who] else 10 ** ((REF - active_db(AUD + f)) / 20)
+    sig = load(AUD + f, o["a"], o["b"], FX[fx]) * g
     if fx in ("door", "fake_door", "phone"): sig = fake_double(sig)
     k = int(0.01 * SR); sig[:k] *= np.linspace(0, 1, k); sig[-k:] *= np.linspace(1, 0, k)
     placed.append((who, o, d, mode, st, fx, sig)); marks[pre] = (d, d + len(sig) / SR); t = d + len(sig) / SR
