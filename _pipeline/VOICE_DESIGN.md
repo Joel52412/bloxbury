@@ -1,5 +1,5 @@
 # Voice design for new characters (ElevenLabs Voice Design)
-Joel (22 Nov): for every new speaking character, Claude writes the Voice Design prompt, preview text and settings.
+Every new speaking character gets a Voice Design prompt, preview text and settings from Claude.
 
 ## Prompt formula (from ElevenLabs' own best practices)
 1. Language + regional variant FIRST (stops accent drift). "accent" only for regional dialect; "thick" not "strong".
@@ -22,14 +22,9 @@ Settings: guidance ~35%. Test lines after saving: "Bug... don't go down there." 
 Fake Mum = same voice, made "slightly too perfect" in our mix (tiny timing tweaks, faint pitch-shifted double), not in ElevenLabs.
 
 
-## SFX requests (Joel, 22 Nov 15:25)
-**Never fake a real-world sound with synthesised noise** (Part 2's synth pan sizzle read as crackle/static). Joel makes custom SFX in ElevenLabs Sound Effects: for any sound not already in `assets/sfx/`, Claude sends him a request with:
-- **Prompt:** start it with the file key (ElevenLabs names the file from the first words, e.g. `Pan_sizzle,_...#1-<id>.mp3`), then the source, distance, room, texture, and "no music, no voices".
-- **Duration** and **Prompt influence** (0.6–0.7 for literal sounds), and which of the 4 variants to pick by default.
-Joel drops the files in `assets/sfx/` (laptop folder), Claude pushes them and the cue sheet loads them by key + variant. Synthesised audio is only OK for abstract things (low thuds, sub swells).
+## SFX requests
+Real-world sounds always come from Joel's ElevenLabs Sound Effects (synth only for abstract thuds/swells). Request: prompt starting with the file key, then source, distance, room, texture, "no music, no voices"; duration; prompt influence 0.6–0.7. Files arrive as `Key_words_N-<id>.mp3` in `assets/sfx/`; cue sheets match the key prefix + `[_#]N-` and set the level by RMS.
 
-| Key | Used in | Prompt | Duration | Influence |
+| Key | Used | Prompt | Dur | Infl |
 |---|---|---|---|---|
-| `pan_sizzle` ✅ received 15:31 (#1 used, #4 spare; files arrive ~−48 dB, the cue sheet sets the level) | Part 2 kitchen 1.25–7.0 s (under "Morning, Milo!"), level 0.30 | Pan sizzle, butter and pancake batter frying gently in a hot pan, close-up in a quiet home kitchen, steady soft hiss with small fat pops, morning, no music, no voices | 6 s | 0.65 |
-
-ElevenLabs names downloads like `Pan_sizzle_butter_a_1-<id>.mp3` (no `#`): cue sheets match the key prefix + `[_#]<variant>-`.
+| `pan_sizzle` (#1 used, #4 spare) | Part 2 kitchen 1.25–7.0 s, `SIZZLE_DB` −46 | Pan sizzle, butter and pancake batter frying gently in a hot pan, close-up in a quiet home kitchen, steady soft hiss with small fat pops, morning, no music, no voices | 6 s | 0.65 |

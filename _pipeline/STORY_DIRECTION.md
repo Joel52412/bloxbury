@@ -1,6 +1,5 @@
 # Bloxbury story & scare direction playbook
-Joel (22 Nov): "studio grade, better than the slop channels". First drafts must already be at this level.
-Short rules live in CLAUDE.md (Hard rules -> Story and scares). This file holds the reasoning and the method.
+Studio-grade first drafts (Joel). Short rules are in CLAUDE.md; this is the reasoning and method.
 
 ## Research findings (22 Nov) and what we do with them
 - **Completion decides reach.** TikTok ranks by watch completion; reported viral bar has risen from ~50% (2024) to ~70% (2026).
@@ -26,8 +25,3 @@ Short rules live in CLAUDE.md (Hard rules -> Story and scares). This file holds 
 5. Rewatch bait: 1-2 hidden details (e.g. a 4-frame reflection). End on a comment-choice question. Last line -> first line loop.
 6. Continuity bridge: open on (or match-cut from) the previous part's final image so returning viewers feel no jump.
 7. Ad-safe: creepy not gory, nothing graphic in the first 7 s or the thumbnail.
-
-## Sources (22 Nov)
-- SoraStats / dev.to completion-rate analysis; SyncStudio via webscraft (70% bar); hook-engineering (3rd-second stat)
-- socialync open-loops guide; The Conversation / phys.org "Analog uncanny" (2.3B analog horror views); Slashfilm on analog horror
-- University of Turku fear study (dread vs acute fear); Aarhus Recreational Fear Lab (jump scare as misdirection); IFLScience
