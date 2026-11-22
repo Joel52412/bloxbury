@@ -90,7 +90,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Monetisation thresholds:** YouTube Partner Program needs 1,000 subs plus 4,000 watch hours (8,000 from 1 Feb 2027). TikTok rewards need videos over 1 minute.
 - **Keep it ad-safe:** creepy, not gory, and nothing graphic in the first 7 seconds or the thumbnail.
 
-## Status (22 Nov)
+## Status (22 Nov, updated 09:00)
 - **GitHub repo set up** (22 Nov): `Joel52412/bloxbury`, restore tested from a clean clone.
   - Pods now `git clone` the repo with the `GITHUB_RO` secret (working since 22 Nov 00:30). No more base64 chunk uploads.
 - **Mouth test v1:** approved the lip-sync and Rae's motion. Fixed since: Milo's flicker, and a face that vanished before a cut.
@@ -103,9 +103,13 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
     - **Mug is hollow:** open top, a solidified 0.045 wall, coffee lower inside.
     - **Sparkles:** now flat 4-point yellow emissive glints with a hot pale centre, not lit and casting no light. The old white tube/ball crosses looked like objects, and a transparent halo caused a gold rim on the eyes, so the halo is gone.
   - **Approved from stills (22 Nov 01:04):** Joel is happy with the fixes and doesn't need a v2 re-render. **Test 2 is closed**, and its fixes are the template for Part 1.
-- **NEXT: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
-  - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
-  - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.
+- **Part 1 v2 (22 Nov), the redesign. Built, previewed, full render running.**
+  - **Files:** `_pipeline/scripts/part1_v2.py` (scene, 1723 frames, 71.75 s), `rig2.py` (the test2 rig, face and Milo card, shared), `monster.py` (THE KNOCKER). Audio: `_pipeline/audio_tools/prep_p1.py` writes `talk/{env_p1.json, part1_audio.wav, captions_p1.ass}` (copies are in `_pipeline/data`). Assemble with `sh _pipeline/make_part1.sh <frames> <out.mp4>`; it burns in the ASS captions.
+  - **Cue sheet rebuilt** from pocketsphinx word alignment of the current `milo.mp3` (`_pipeline/data/words_p1.json`, made by `align_lines.py`). The old `cues.py` used an older recording and is retired. Spoken knocks are gone (knock SFX instead), the `closet.mp3` duplicates are gone, and the hammer SFX is synced to the swings. Fixed a clipped "closet" (the line now ends at 35.24 s), plus "I thought…" and "Nobody was there". **Check every cut point's loudness** (a 20 ms RMS check) before mixing.
+  - **Cast cards (new, recurring, pending Joel's sign-off):** Rae (purple hoodie, black X5 braids, dark jeans, lilac trainers, red notebook), the Mayor (dark suit, red tie, grey X1, glasses). The neighbour is a builder extra (hi-vis, hard hat). New props: hammer, crate, notebook, and the "WHO'S LEFT" list page (ends "Rae / Milo?").
+  - **THE KNOCKER (Joel approved the look 22 Nov):** about 10.5–12 studs, starved and hunched, smooth spline-tube limbs (not blocky), arms past the knees, long pale claws, tilted skull, black sockets with pinpoint white eyes (emission 40), a red cheek-to-cheek grin of thin teeth. **Joel: keep him in the dark** so the eyes pop, with only a cool rim light for his silhouette and a faint red underglow. Beats: a silhouette outside the window behind Milo on "Then it went quiet" (49.7–51.7 s); eyes in the closet crack on "Milo..."; the door is ripped open with a lunge at the lens on "OUT" (61.32 s, jump-scare sting); hard cut to black.
+  - **Blocking helpers:** `place()` plus `hold_cuts()` (the last pose holds until the cut, then snaps) and `flush_mouths()` (mouth events are sorted, so no double mouths). Milo's house windows are lowered to sill 4 / top 8 so he can look out.
+  - **RunPod lessons (22 Nov):** two Community 4090 hosts on CUDA 13.0 had broken GPUs (`cuInit: Unknown error`; torch reports `cuda.is_available()` False), so **check torch CUDA in the first minute and delete if it's broken**. Secure 4090 (CUDA 13.2) worked. Part 1 full res runs at about **1.5 s per frame per 4090** (much faster than the Test 2 estimate). Previews get from pod to Claude by pushing contact sheets to a temporary `preview-part1-v2` branch (Claude's workspace can't reach the Jupyter proxy).
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
 
 ## Joel's tools
