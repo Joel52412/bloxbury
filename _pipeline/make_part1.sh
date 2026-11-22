@@ -2,7 +2,7 @@
 # Assemble Part 1: frames (0001.png...) + mixed audio + word-timed captions -> mp4.
 # Usage: sh make_part1.sh <frames_dir> <out.mp4>   (needs /home/claude/talk/{part1_audio.wav,captions_p1.ass} from prep_p1.py)
 F=${1:-/workspace/frames}; O=${2:-Bloxbury_Part1.mp4}; T=/home/claude/talk
-W=$(python3 -c "from PIL import Image;print(Image.open('$F/0001.png').size[0])")
+W=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of csv=p=0 $F/0001.png)
 SC=$(python3 -c "print(round($W/1080,4))")
 sed "s/^PlayResX: 1080/PlayResX: $W/; s/^PlayResY: 1920/PlayResY: $(python3 -c "print(int($W*16/9))")/" $T/captions_p1.ass > /tmp/cap_scaled.ass
 python3 - "$SC" <<'PY'
