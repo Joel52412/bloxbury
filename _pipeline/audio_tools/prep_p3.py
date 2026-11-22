@@ -127,7 +127,9 @@ mix[int(BLACK_CUT * SR):int(OUTRO0 * SR)] = 0
 MUTES = [(m["Bug... if"][0] - 0.3, m["I didn't make"][0] - 0.8), (m["So did I"][1] + 0.1, OUTRO0)]
 TIKTOK = bool(os.environ.get("TIKTOK"))
 MUSIC_MUTES = MUTES[:-1] + [(m["So did I"][1] + 0.1, TOTAL)] if TIKTOK else MUTES
-mix += music_bed(REPO, TOTAL, SR, len(mix), part=3, mutes=MUSIC_MUTES)
+# NOMUSIC=1: voices + SFX only, for TikTok uploads where the song is added in-app from TikTok's own library (licensed path)
+NOMUSIC = bool(os.environ.get("NOMUSIC"))
+if not NOMUSIC: mix += music_bed(REPO, TOTAL, SR, len(mix), part=3, mutes=MUSIC_MUTES)
 mix[int(BLACK_CUT * SR):int(OUTRO0 * SR)] = 0
 mix = mix[:int(TOTAL * SR)]; mix = mix / max(np.abs(mix).max(), 1e-6) * 0.92
 with wave.open(OUT + "part3_raw.wav", "wb") as w:
@@ -138,7 +140,7 @@ mj = json.loads(mm[mm.rindex("{"):mm.rindex("}") + 1])
 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", OUT + "part3_raw.wav", "-af",
                 f"loudnorm=I=-14:TP=-1.5:LRA=11:measured_I={mj['input_i']}:measured_TP={mj['input_tp']}:measured_LRA={mj['input_lra']}:"
                 f"measured_thresh={mj['input_thresh']}:offset={mj['target_offset']}:linear=true", "-ar", str(SR),
-                OUT + ("part3_tiktok.wav" if TIKTOK else "part3_audio.wav")], check=True)
+                OUT + ("part3_nomusic.wav" if NOMUSIC else "part3_tiktok.wav" if TIKTOK else "part3_audio.wav")], check=True)
 
 def envelope(sig):
     rms, cen = [], []
