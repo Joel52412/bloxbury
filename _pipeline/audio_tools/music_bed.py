@@ -1,5 +1,5 @@
 # music_bed.py - looped background music bed for a part's mix.
-# Joel (22 Nov): Part 2 uses ONLY the instrumental of "Numbers" (TEMPOREX), looped for the whole part at ~40% volume.
+# Joel (22 Nov): Part 2 uses ONLY the instrumental of "Numbers" (TEMPOREX), looped for the whole part at ~35% volume (was 40%).
 # The instrumental was split from backgorund music/Numbers.mp3 with UVR-MDX-NET-Inst_HQ_3 (vocals removed) and
 # Joel (22 Nov 12:23): loop ONLY the intro, without the whistle (the pitch-slide whistle at ~19.8-20.6 s is not in it).
 # The loop is the intro's 4 bars (0.07-10.28 s, ~94 BPM). Bar 5 has the same chords as bar 1, so bar 4 -> bar 1 is the
@@ -10,12 +10,12 @@
 # Usage inside a prep_pN.py, after voice + SFX are put into `mix` and BEFORE the peak normalise:
 #     from music_bed import music_bed
 #     mix += music_bed(REPO, TOTAL, SR, len(mix))
-# Volume is a straight gain on the source track (0.40 = 40%), the same as a volume slider in an editor.
+# Volume is a straight gain on the source track (0.35 = 35%), the same as a volume slider in an editor.
 # It goes into `mix` only, never `vox`, so lip-sync envelopes are unaffected.
 import numpy as np, subprocess
 
 PART_MUSIC = {
-    2: {"file": "backgorund music/Numbers_instrumental_loop.flac", "vol": 0.40, "fade_in": 0.0, "fade_out": 1.0},
+    2: {"file": "backgorund music/Numbers_instrumental_loop.flac", "vol": 0.35, "fade_in": 0.0, "fade_out": 1.0},
 }
 
 
