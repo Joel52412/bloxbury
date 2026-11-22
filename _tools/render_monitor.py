@@ -84,9 +84,9 @@ def count_local(folder, fs=None, fe=None):
                 newest = max(newest, st.st_mtime)
     return n, newest
 
-def _jupyter_get(pod_id, token, path, timeout=15):
+def _jupyter_get(pod_id, token, path, timeout=30):
     url = "https://%s-8888.proxy.runpod.net/api/contents/%s?content=1&token=%s" % (
-        pod_id, urllib.request.quote(path.strip("/")), token)
+        pod_id.strip(), urllib.request.quote(path.strip("/")), token.strip())
     req = urllib.request.Request(url, headers={"User-Agent": "bloxbury-render-monitor"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read().decode("utf-8"))
@@ -165,7 +165,8 @@ class Job:
                     for k, v in info.items():
                         if not s.get(k):         # what you typed wins over the pod's file
                             s[k] = v
-                    s["_info_loaded"] = True
+                    if info:                     # keep retrying until the pod's render_job.json is readable
+                        s["_info_loaded"] = True
                     fs, fe = s.get("frame_start"), s.get("frame_end")
                 n = count_remote(s["pod_id"], s["token"], s.get("remote_dir", "workspace/frames"), fs, fe)
             else:
