@@ -262,8 +262,8 @@ TORCH_BEAM = bpy.data.objects[TORCH["beam"]]
 NOTE2 = p6_note("NoteB", SO + V((1.1, -1.0, 0.03)), (0, DEG(180), DEG(190)))
 PEN2 = p6_pencil("PencilB", SO + V((0.0, -2.0, 0.07)), (0, 0, DEG(-20)))
 NOTE3 = p6_note("NoteC", SO + V((-1.2, -1.0, 0.03)), (0, 0, DEG(172)))
-TOR2 = p6_torch("TorchB"); TOR2.location = SO + V((2.5, -0.6, 0.17)); TOR2.rotation_euler = (0, 0, DEG(-30)); bpy.data.objects[TOR2["beam"]].data.energy = 0
-PH2 = p6_phone("PhoneB"); PH2.location = SO + V((-2.5, -0.2, 0.62)); PH2.rotation_euler = (DEG(-12), 0, DEG(10))
+TOR2 = p6_torch("TorchB"); TOR2.location = SO + V((1.9, 0.4, 0.17)); TOR2.rotation_euler = (0, 0, DEG(-30)); bpy.data.objects[TOR2["beam"]].data.energy = 0
+PH2 = p6_phone("PhoneB"); PH2.location = SO + V((-1.9, 0.4, 0.62)); PH2.rotation_euler = (DEG(-12), 0, DEG(10))
 
 # ---------------------------------------------------------------- CINEMATIC NIGHT LIGHTING (Joel 22:10)
 # Recipe: one motivated KEY per shot (moon through the side window = cool, hard, with the window's own bar shadows;
@@ -280,7 +280,7 @@ def spot(name, loc, tgt, energy, size_deg, radius, col):
     o.rotation_euler = (V(tgt) - V(loc)).to_track_quat("-Z", "Y").to_euler(); return d
 
 
-MOON_SPOT = spot("MoonSpot", (24.0, -34.0, 13.0), (-2.0, -39.0, 1.5), 0, 38, 0.15, (0.6, 0.72, 1.0))   # through the side window
+MOON_SPOT = spot("MoonSpot", (24.0, -34.0, 13.0), (-2.0, -39.0, 1.5), 0, 38, 0.15, (0.72, 0.8, 1.0))   # through the side window
 MOON_IN = area("MoonIn", (16.0, -35.5, 9.0), (2.0, -38.0, 2.5), 0, 5, (0.62, 0.72, 1.0))
 DOOR_PRAC = area("DoorPrac", (0.0, -31.0, 0.6), (-4.0, -38.0, 3.5), 0, 3, (1.0, 0.72, 0.45))            # gap light, low = under-light
 ROOM_FILL = area("RoomFillA", (0.0, -40.0, 13.0), (0.0, -40.0, 0.0), 0, 10, (0.5, 0.58, 0.9))
@@ -305,6 +305,8 @@ def aim(L, tgt):
 
 def night(**en):
     set_night(0.0); house_lights(0.0, False)
+    mo = [o for o in bpy.data.objects if o.data == MOON_SPOT][0]
+    mo.location = V(en.pop("moon_from", (24.0, -34.0, 13.0)))         # always a line that passes through the side window
     aim(MOON_SPOT, en.pop("moon_at", (-2.0, -39.0, 1.5)))
     key(MILO_LIGHT, "energy", 0.0, en.pop("room", 0))                    # Part 1's warm room bulb: off unless asked
     for L in NIGHT_LIGHTS: L.energy = en.get(L.name, 0)
@@ -324,7 +326,7 @@ def sh_hook():
     sit(milo, (-6.2, -39.6, 0.55), -34)
     arm(milo, "Right", 1, target=tuple(float(v) for v in os.environ.get("HAND", "-1.3,1.6,5.4").split(","))); arm(milo, "Left", 1, target=(-0.6, 1.4, 2.6))
     setface(fm, "scared", "rest_frown")
-    look((-1.8, -33.8, 5.6), (-6.0, -39.4, 4.2), 30, fstop=2.8)
+    look((-2.9, -34.9, 6.2), (-6.1, -39.5, 4.7), 46, fstop=2.8)
 
 
 def sh_door_feet():
@@ -338,17 +340,17 @@ def sh_door():
 
 
 def sh_drawing():
-    night(FairyGlow=180, RoomFillA=30, MoonSpot=6000, moon_at=(-4.0, -44.0, 1.0)); only()
+    night(FairyGlow=55, RoomFillA=10, MoonSpot=2000, moon_at=(-4.0, -44.0, 1.0)); only()
     look((-5.6, -43.8, 6.4), (-7.0, -49.0, 7.0), 45, fstop=4.0)
 
 
 def sh_note_front():
-    night(MoonSpot=7000, RoomFillA=60, DoorPrac=50, moon_at=(4.5, -43.3, 0.4)); only()
+    night(MoonSpot=5200, RoomFillA=80, DoorPrac=80, moon_from=(24.0, -22.0, 18.0), moon_at=(4.5, -43.3, 0.4)); only()
     look((4.6, -41.3, 2.6), (4.4, -43.4, 0.45), 40, fstop=4.0)
 
 
 def sh_note_back():
-    night(MoonSpot=7000, RoomFillA=60, DoorPrac=50, moon_at=(4.5, -43.3, 0.4)); only()
+    night(MoonSpot=5200, RoomFillA=80, DoorPrac=80, moon_from=(24.0, -22.0, 18.0), moon_at=(4.5, -43.3, 0.4)); only()
     NOTE.rotation_euler = (0, DEG(180), DEG(-18)); NOTE.location.z = 0.43
     look((4.6, -41.3, 2.6), (4.4, -43.4, 0.45), 40, fstop=4.0)
 
@@ -385,7 +387,7 @@ def sh_phone():
 
 def sh_props():
     set_day(0.0); only()
-    look(SO + V((0, -4.6, 3.8)), SO + V((0, -0.7, 0.25)), 40)
+    look(SO + V((0, -5.6, 4.6)), SO + V((0, -0.5, 0.3)), 36)
 
 
 add("01_hook_milo_bed", (540, 960), sh_hook)

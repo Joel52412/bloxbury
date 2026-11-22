@@ -266,7 +266,8 @@ def p6_side_window(name="SideWin", x_in=11.0, yc=-35.5, sill=4.4, w=4.0, h=4.0, 
     rb(name + "Head", (0.9, w + 0.72, 0.36), _V6((-0.2, 0, sill + h + 0.18)), fw, r, r=0.05)
     rb(name + "Sill", (1.3, w + 1.2, 0.3), _V6((-0.45, 0, sill - 0.15)), fw, r, r=0.06)
     rb(name + "Apron", (0.2, w + 0.6, 0.6), _V6((-0.08, 0, sill - 0.6)), fw, r, r=0.04)
-    rb(name + "Upper", (0.18, w, h / 2), _V6((0.15, 0, sill + h * 0.75)), sash, r, r=0.03)
+    rb(name + "UTop", (0.2, w, 0.25), _V6((0.15, 0, sill + h - 0.12)), sash, r, r=0.03)          # upper sash = frame, open pane (no glass)
+    rb(name + "UMeet", (0.2, w, 0.2), _V6((0.15, 0, sill + h / 2 + 0.1)), sash, r, r=0.03)
     up = root_of(name + "Lower", (0, 0, 0)); up.parent = r; up.location = (-0.05, 0, sill + h * 0.25 + open_u * h * 0.45)
     r["lower"] = up.name
     for dy in (-w / 2 + 0.1, w / 2 - 0.1): rb(name + "LStile", (0.18, 0.2, h / 2), _V6((0, dy, 0)), sash, up, r=0.03)
