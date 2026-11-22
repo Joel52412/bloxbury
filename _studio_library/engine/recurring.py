@@ -29,3 +29,29 @@ def make_mayor():
 
 
 RECURRING = {"RAE": make_rae, "MAYOR": make_mayor}   # + MILO: rig2.make_milo
+
+
+def make_dan():
+    """DAN (Test 2, approved 22 Nov): light-blue button shirt, chinos, brown trainers, dark X1 crop. Mug: props2.p2_mug."""
+    S = new_set(); skin = (196, 140, 104); rng = RNG(77)
+    d_button_shirt(S, (118, 160, 214), rng, skin)
+    b_trousers(S, (186, 164, 124), rng, kind="chinos")
+    s_shoes(S, "trainers", (90, 70, 56), rng)
+    finish(S, rng)
+    P = build_body("Dan", skin, S)
+    add_hair4(P, "X1", random.Random(3), colour=(36, 26, 22))
+    return P
+
+
+def make_neighbour():
+    """THE NEIGHBOUR (Part 1, approved 22 Nov): builder - hi-vis over navy tee, grey cargos, boots, yellow hard hat (under-hat hair)."""
+    S = new_set(); skin = (124, 86, 62); rng = RNG(733)
+    d_hivis(S, rng, skin, under=lambda S_: d_tee(S_, (52, 74, 124), rng, skin))
+    b_trousers(S, (60, 60, 66), rng, kind="cargo"); s_shoes(S, "boots", (110, 80, 50), rng)
+    finish(S, rng)
+    P = build_body("Neighbour", skin, S)
+    a_hardhat(P, (250, 200, 30)); hat_hair(P, (24, 20, 20), random.Random(4))
+    return P
+
+
+RECURRING.update({"DAN": make_dan, "NEIGHBOUR": make_neighbour})

@@ -130,18 +130,8 @@ def strip_faces(P):
 
 
 # ------------------------------------------------------------------ cast (recurring = fixed cards)
-exec(open(LIB + "recurring.py").read())   # RAE + MAYOR fixed cards (studio library)
-
-
-def make_neighbour():
-    """Neighbour (extra from library parts): builder role, hi-vis + hard hat (under-hat hair)."""
-    S = new_set(); skin = (124, 86, 62); rng = RNG(733)
-    d_hivis(S, rng, skin, under=lambda S_: d_tee(S_, (52, 74, 124), rng, skin))
-    b_trousers(S, (60, 60, 66), rng, kind="cargo"); s_shoes(S, "boots", (110, 80, 50), rng)
-    finish(S, rng)
-    P = build_body("Neighbour", skin, S)
-    a_hardhat(P, (250, 200, 30)); hat_hair(P, (24, 20, 20), random.Random(4))
-    return P
+exec(open(LIB + "recurring.py").read())   # RAE, MAYOR, NEIGHBOUR fixed cards (studio library)
+exec(open(LIB + "props2.py").read())       # props batch 2 (hammer, crate, notebook, list insert, door glow...)
 
 
 milo = make_milo(); rae = make_rae(); mayor = make_mayor(); nb = make_neighbour()
@@ -153,43 +143,11 @@ fm, fr_, fy, fn = (build_face_v2(P) for P in CAST_ALL)
 RIGS = {"milo": fm, "rae": fr_, "mayor": fy, "nb": fn}
 
 # ------------------------------------------------------------------ props (new for this episode: hammer, crate, notebook)
-M_NOTE = pmat("NoteRed", (170, 40, 45), rough=0.7)
-note = empty("Notebook", V((0, 0, 0)), col=COL_PROPS, parent=rae["tiltLeft"])
-rb("NoteCover", (0.7, 0.14, 0.9), V((0, 0.05, 0.1)), M_NOTE, note, r=0.03)
-note.location = (0.0, 0.55, 0.05); note.rotation_euler = (0, 0, 0)
-hammer = empty("Hammer", V((0, 0, 0)), col=COL_PROPS, parent=nb["tiltRight"])
-rb("HammerHandle", (0.2, 0.2, 1.5), V((0, 0.35, 0.55)), M_WOOD, hammer, r=0.05)
-rb("HammerHead", (0.36, 0.85, 0.36), V((0, 0.35, 1.32)), M_METAL, hammer, r=0.05)
-crate = rb("Crate", (2.6, 2.4, 2.0), V((-57, 28.2, 1.0)), wood("CrateWood", (150, 110, 70)), None, r=0.05)
-
-
-def list_img(path):
-    from PIL import Image, ImageDraw, ImageFont
-    im = Image.new("RGB", (600, 800), (244, 238, 220)); d = ImageDraw.Draw(im)
-    for y in range(90, 800, 52): d.line((30, y, 570, y), fill=(170, 190, 220), width=2)
-    d.line((80, 0, 80, 800), fill=(220, 120, 120), width=3)
-    try:
-        fh = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 40)
-        fw = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 34)
-    except Exception: fh = fw = ImageFont.load_default()
-    d.text((100, 28), "WHO'S LEFT", fill=(150, 20, 20), font=fh)
-    names = ["Mr. Hollis", "The Patels", "Jonah", "Mrs. Reed", "Old Tom", "Ellie", "The Grants", "Rae", "Milo?"]
-    for i, nm in enumerate(names):
-        y = 100 + i * 52 + 8
-        d.text((100, y), nm, fill=(30, 30, 60), font=fw)
-        if i < 7:
-            w = d.textlength(nm, font=fw); d.line((96, y + 20, 104 + w, y + 18), fill=(30, 30, 40), width=5)
-    im.save(path)
-
-
-LP = "/tmp/p1_list.png"; list_img(LP)
+note = p2_notebook(rae["tiltLeft"])
+hammer = p2_hammer(nb["tiltRight"])
+crate = p2_crate((-57, 28.2, 1.0))
 NOTE_POS = V((600, 600, 0))
-page = plane("ListPage", 3.0, 4.0, NOTE_POS + V((0, 0, 3.0)), imgmat("ListPage", LP, rough=0.85), None)
-rb("ListCover", (3.4, 0.1, 4.4), NOTE_POS + V((0, -0.09, 3.0)), M_NOTE, None, r=0.04)
-rb("ListBackdrop", (16, 0.2, 14), NOTE_POS + V((0, -0.6, 3.0)), wood("ListDesk", (70, 48, 34)), None, r=0.02)
-ins_light = bpy.data.lights.new("InsertKey", "AREA"); ins_light.energy = 400; ins_light.size = 4
-ilo = bpy.data.objects.new("InsertKey", ins_light); s.collection.objects.link(ilo)
-ilo.location = NOTE_POS + V((2.5, 6, 6)); ilo.rotation_euler = (NOTE_POS + V((0, 0, 3)) - ilo.location).to_track_quat("-Z", "Y").to_euler()
+NP_ = p2_list_insert(NOTE_POS)
 
 # ------------------------------------------------------------------ house interior bits
 FRONT_DOOR = [o for o in bpy.data.objects if o.name.startswith("FrontDoor")][0]
@@ -205,10 +163,7 @@ for w_ in WINDOW_PARTS:
 MILO_GLOW = _mwb.inputs["Emission Strength"]
 # closet: soft red-orange glow strip under the door + light inside + spill on Milo (kept from test 2)
 CL_X, CL_Y = 7.0, -45.85
-strip = rb("GlowStrip", (4.6, 0.3, 0.05), V((CL_X, CL_Y + 0.12, 0.43)), pmat("GlowRO", (255, 90, 30), emit=6.0, emit_rgb=(255, 82, 20)), None)
-strip.scale = (1, 0, 0)
-cglow = bpy.data.lights.new("ClosetGlow", "POINT"); cglow.color = (1.0, 0.32, 0.08); cglow.energy = 0; cglow.shadow_soft_size = 1.5
-cgo = bpy.data.objects.new("ClosetGlow", cglow); s.collection.objects.link(cgo); cgo.location = (CL_X, CL_Y - 0.9, 1.2)
+strip, cglow = p2_door_glow(CL_X, CL_Y)
 spill = bpy.data.lights.new("DoorSpill", "AREA"); spill.color = (1.0, 0.35, 0.1); spill.energy = 0; spill.size = 3
 spo = bpy.data.objects.new("DoorSpill", spill); s.collection.objects.link(spo)
 spo.location = (CL_X - 1, CL_Y + 2.5, 2.0); spo.rotation_euler = (V((0, -36, 4.5)) - spo.location).to_track_quat("-Z", "Y").to_euler()
@@ -600,7 +555,6 @@ shot("I ECU EVER", 20.2, 21.4, [(0, RH + V((-3.8, -1.6, 0.15)), RF, 48), (0.12, 
                                 (1, RH + V((-3.4, -1.4, 0.15)), RF, 54)])
 shot("J two-shot", 21.4, 23.8, [(0, (25.0, -14.0, 5.0), (25.0, -27, 4.0), 28), (1, (25.0, -16.0, 4.9), (25.0, -27, 4.1), 32)])
 shot("K Rae lifts the list", 23.8, 25.0, [(0, RH + V((-5.0, -3.6, 0.0)), RH + V((-0.4, 0, -0.3)), 40), (1, RH + V((-4.6, -3.2, 0.0)), RH + V((-0.4, 0, -0.3)), 44)])
-NP_ = NOTE_POS + V((0, 0, 3.0))
 shot("K2 insert list", 25.0, 26.4, [(0, NP_ + V((0.15, 5.6, 0.5)), NP_ + V((0, 0, 0.4)), 40), (1, NP_ + V((0.05, 3.9, -1.0)), NP_ + V((0, 0, -1.15)), 44)], fstop=5)
 shot("L who's left", 26.4, 27.9, [(0, MH + V((4.3, -2.9, 0.2)), MH, 54), (1, MH + V((3.7, -2.5, 0.2)), MH, 60)])
 shot("M boarding up", 27.9, 30.8, [(0, (-49.5, 17.5, 6.5), (-57, 29, 7.2), 30), (1, (-50.5, 19.0, 6.8), (-57, 29, 7.4), 34)])

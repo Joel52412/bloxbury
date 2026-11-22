@@ -75,7 +75,9 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - **Hair:** H2, H3, H4, H8; M1–M6; X1–X6.
   - **Outfits:** O1–O4, plus role, kids and teen outfits.
   - **Props batch 1:** cars, house furniture, kitchen, door, laptop, plant, clock, bin.
-  - **Recurring cards (22 Nov):** MILO (`rig2.make_milo`), RAE and MAYOR (`_studio_library/engine/recurring.py`; load it after the library).
+  - **Recurring cards (22 Nov):** MILO (`rig2.make_milo`); RAE, MAYOR, DAN and NEIGHBOUR are in `_studio_library/engine/recurring.py` (load it after the library).
+  - **Props batch 2 (22 Nov), `_studio_library/engine/props2.py`:** hammer, crate, notebook, the WHO'S LEFT list insert, the BLOXBURY DAILY newspaper, the hollow mug, a café table, a round bin, and `p2_door_glow` (the signature red-orange closet glow).
+  - **Sets:** BLOXBURY TOWN (the `bloxbury_part1.py` prefix plus the TREES–CAMERA section) and MILO'S ROOM (the hollow house interior, with the window patch in `part1_v2.py`).
   - **Monsters:** THE KNOCKER (`_studio_library/engine/monster.py`, `make_knocker(name, height)`).
 - **Scene template: `test2.py`.** Reuse its parts:
   - **Rig:** `upgrade_rig(P)` adds Chest, HipL/R, Head, and hand grips that keep props level. `arm(P, side, frame, target | euler)`. The shoulder is at (±1.5, 0, 3.5) and the arm is 1.5 long.
@@ -114,7 +116,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - **THE KNOCKER (Joel approved the look 22 Nov):** about 10.5–12 studs, starved and hunched, smooth spline-tube limbs (not blocky), arms past the knees, long pale claws, tilted skull, black sockets with pinpoint white eyes (emission 40), a red cheek-to-cheek grin of thin teeth. **Joel: keep him in the dark** so the eyes pop, with only a cool rim light for his silhouette and a faint red underglow. Beats: a silhouette outside the window behind Milo on "Then it went quiet" (49.7–51.7 s); eyes in the closet crack on "Milo..."; the door is ripped open with a lunge at the lens on "OUT" (61.32 s, jump-scare sting); hard cut to black.
   - **Blocking helpers:** `place()` plus `hold_cuts()` (the last pose holds until the cut, then snaps) and `flush_mouths()` (mouth events are sorted, so no double mouths). Milo's house windows are lowered to sill 4 / top 8 so he can look out.
   - **RunPod lessons (22 Nov):** two Community 4090 hosts on CUDA 13.0 had broken GPUs (`cuInit: Unknown error`; torch reports `cuda.is_available()` False), so **check torch CUDA in the first minute and delete if it's broken**. Secure 4090 (CUDA 13.2) worked. Part 1 full res runs at about **1.5 s per frame per 4090** (much faster than the Test 2 estimate). Previews get from pod to Claude by pushing contact sheets to a temporary `preview-part1-v2` branch (Claude's workspace can't reach the Jupyter proxy).
-- **NEXT: Part 2** (new chat). Start from `part1_v2.py` as the template: the town set, Milo's house interior, cast cards, the Knocker, `prep_p1.py` → copy as `prep_p2.py` for the new script audio. Apply the narration-mouth and calm-camera rules from the start. Rae and the Mayor are library cards now (`recurring.py`).
+- **NEXT: Part 2** (new chat). Start from `part1_v2.py` as the template: the town set, Milo's house interior, cast cards, the Knocker, `prep_p1.py` → copy as `prep_p2.py` for the new script audio. Apply the narration-mouth and calm-camera rules from the start. Every asset used in Part 1 and Test 2 is now in the library (audit 22 Nov 09:40): `recurring.py`, `props2.py`, `monster.py`, plus the sets.
 - **Later:** the auto-pipeline (story prompt in, everything generated, Joel just renders); library batches (outdoor/vehicles, then sets, then an animation move library).
 
 ## Joel's tools
