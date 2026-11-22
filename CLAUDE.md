@@ -2,9 +2,12 @@
 Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3AM Knock**, made in **Blender 5.3 Python** and rendered on **RunPod**. It's a studio workflow: a reusable asset library plus scripted scenes.
 
 ## Start of every chat
-1. Stage from `C:\Users\frimp\Downloads\robloxshorts`: `_pipeline/**`, `_studio_library/engine/*.py`, `series/bloxbury/audio script/*.mp3`.
-2. Run `sh /mnt/user-data/uploads/robloxshorts/_pipeline/restore.sh`. It rebuilds `/home/claude/{bloxbury-blender,studio_library/engine,audio,talk,cloud}` and pip-installs bpy.
-3. After changing any script, copy it back into the folder (device_commit_files).
+1. **Restore from GitHub** (private repo `Joel52412/bloxbury`, mirrors `robloxshorts` minus frames, .blend, .mp4, inspo, voice clones):
+   `add_repo Joel52412/bloxbury (push)`, then `git clone --depth 1 https://github.com/Joel52412/bloxbury /home/claude/bloxbury && sh /home/claude/bloxbury/_pipeline/restore.sh`.
+   `restore.sh` takes the repo root (default: its parent folder) and rebuilds `/home/claude/{bloxbury-blender,studio_library/engine,audio,talk,cloud}` and pip-installs bpy.
+2. **After changing anything:** commit and push to the repo (`git -c push.negotiate=true push`), and copy changed files into `C:\Users\frimp\Downloads\robloxshorts` too if the folder is connected (device_commit_files).
+3. **Laptop folder** is only needed for frames, .blend files or new audio Joel adds. Folders connect per chat: if Joel has said OK, `device_request_folder_access` on `C:\Users\frimp\Downloads\robloxshorts` works; otherwise ask him to use **+ → Add folder**. New audio Joel drops in the folder must be pushed to the repo.
+4. **New stories** go in `series/<story>/` beside `series/bloxbury/`, sharing the engine and library.
 
 ## Hard rules
 - **Library:**
@@ -83,12 +86,15 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Monetisation thresholds:** YouTube Partner Program needs 1,000 subs plus 4,000 watch hours (8,000 from 1 Feb 2027). TikTok rewards need videos over 1 minute.
 - **Keep it ad-safe:** creepy, not gory, and nothing graphic in the first 7 seconds or the thumbnail.
 
-## Status (21 Nov)
+## Status (22 Nov)
+- **GitHub repo set up** (22 Nov): `Joel52412/bloxbury`, restore tested from a clean clone.
+  - **Todo:** Joel makes a fine-grained read-only GitHub token for this repo, saved as RunPod secret `GITHUB_RO`. Then pods `git clone` directly instead of the base64 chunk upload (big usage saving).
+  - Until then the upload uses a minimal bundle (part1 prefix, test2, engine, env2/timing2): about 100 KB base64, 7 chunks.
 - **Mouth test v1:** approved the lip-sync and Rae's motion. Fixed since: Milo's flicker, and a face that vanished before a cut.
 - **Test 2** (`test2.py`, 354 frames, 14.75 s), preview reviewed and fixed:
   - **Shot A:** Milo's outro acted to the line (curious, hype, lean-in, ominous), with the closet glow creeping in.
   - **Shot B:** Dan sips coffee, walks, grabs the *BLOXBURY DAILY: KNOCKING CONTINUES* newspaper, throws it into a bin, then a smug sip.
-  - **Next:** GPU render on 1× 4090 (needs Joel's OK), then audio mux (`test2_audio.wav`), then send.
+  - **Next:** GPU render, then audio mux (`test2_audio.wav`), then send. 22 Nov ~00:10: no Community 4090 or 4080 SUPER stock (capacity listings were stale). Joel OK'd a 4080 SUPER at $0.28/hr as a fallback. Other cards need his OK. `allowedCudaVersions` goes inside `gpu` in create-pod.
 - **Then: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
   - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
   - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.
