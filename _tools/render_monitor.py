@@ -268,7 +268,7 @@ class Job:
 
     def _deliver(self, s, out):
         remote = out.get("file") or ""
-        rel = s.get("download_to") or os.path.join("series", s.get("group_dir", "bloxbury"), os.path.basename(remote))
+        rel = s.get("download_to") or os.path.join("series", s.get("group_dir", "bloxbury"), "exports", os.path.basename(remote))
         dest = rel if os.path.isabs(rel) else os.path.join(ROOT, rel)
         if os.path.exists(dest):                       # never overwrite an earlier version
             b, e = os.path.splitext(dest); dest = "%s_%s%s" % (b, datetime.datetime.now().strftime("%H%M"), e)

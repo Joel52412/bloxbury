@@ -1,11 +1,11 @@
-# big / generated stuff stays on Joel's laptop only
+# Big or regenerable files stay on Joel's laptop only (see CLAUDE.md -> Folder map)
 series/**/frames/
+series/**/exports/
+*.mp4
 *.blend
 *.blend1
-renders/
-inspo/
-voice clones/
+assets/voice_clones/
+assets/inspo/
 _studio_library/approval_sheets/
 _studio_library/Studio_Asset_Library.png
-*.mp4
 __pycache__/

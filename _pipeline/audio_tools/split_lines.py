@@ -1,6 +1,6 @@
 import json,subprocess,numpy as np,sys,os; sys.path.insert(0,os.path.dirname(os.path.abspath(__file__))); from align_full import norm
 import os
-A=os.environ.get("AUD","/home/claude/bloxbury/series/bloxbury/audio script/")
+A=os.environ.get("AUD","/home/claude/bloxbury/series/bloxbury/part2/voice/")
 def env(f):
     x=np.frombuffer(subprocess.run(["ffmpeg","-loglevel","error","-i",A+f,"-ac","1","-ar","16000","-f","s16le","-"],capture_output=True).stdout,np.int16)/32768
     k=160; n=len(x)//k; return 20*np.log10(np.sqrt((x[:n*k].reshape(n,k)**2).mean(1))+1e-9)

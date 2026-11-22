@@ -1,6 +1,6 @@
 # music_bed.py - looped background music bed for a part's mix.
 # Joel (22 Nov): Part 2 uses ONLY the instrumental of "Numbers" (TEMPOREX), looped for the whole part at ~35% volume (was 40%).
-# The instrumental was split from backgorund music/Numbers.mp3 with UVR-MDX-NET-Inst_HQ_3 (vocals removed) and
+# The instrumental was split from assets/music/Numbers.mp3 with UVR-MDX-NET-Inst_HQ_3 (vocals removed) and
 # Joel (22 Nov 12:23): loop ONLY the intro, without the whistle (the pitch-slide whistle at ~19.8-20.6 s is not in it).
 # The loop is the intro's 4 bars (0.07-10.28 s, ~94 BPM). Bar 5 has the same chords as bar 1, so bar 4 -> bar 1 is the
 # song's own chord change. Bar 4's ring-out fades under bar 1's first hit over 150 ms, and a slow, circular level
@@ -15,7 +15,7 @@
 import numpy as np, subprocess
 
 PART_MUSIC = {
-    2: {"file": "backgorund music/Numbers_instrumental_loop.flac", "vol": 0.35, "fade_in": 0.0, "fade_out": 1.0},
+    2: {"file": "assets/music/Numbers_instrumental_loop.flac", "vol": 0.35, "fade_in": 0.0, "fade_out": 1.0},
 }
 
 

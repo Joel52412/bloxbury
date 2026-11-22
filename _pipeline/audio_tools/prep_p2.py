@@ -6,8 +6,8 @@ import numpy as np, subprocess, json, os, sys, wave
 REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.insert(0, REPO + "/_pipeline/audio_tools")
 from music_bed import music_bed
-AUD = REPO + "/series/bloxbury/audio script/"
-SFXD = REPO + "/sound effects/"
+AUD = REPO + "/series/bloxbury/part2/voice/"
+SFXD = REPO + "/assets/sfx/"
 OUT = os.environ.get("OUT_DIR", "/home/claude/talk/"); os.makedirs(OUT, exist_ok=True)
 FPS, SR = 24, 48000
 D = REPO + "/_pipeline/data/p2/"
@@ -144,7 +144,7 @@ put(mix, env_fade(load(sfx("low_horror_drone_#3"), 0, 0.85) * 0.45, 0.05, 0.12),
 # kitchen: pan sizzle only under the opening (Joel 13:15: was too loud and ran too long, read as static).
 # 1.25-7.0 s, ~8 dB quieter, softer top end, mostly crackle, faded out after "Morning, Milo!"
 # Joel 15:25: the synth crackle didn't read as sizzling. Use his ElevenLabs SFX "pan_sizzle" (variant SIZZLE_VAR);
-# until it's in "sound effects/" the kitchen opening has no sizzle at all (better silent than fake).
+# until it's in "assets/sfx/" the kitchen opening has no sizzle at all (better silent than fake).
 SIZZLE_VAR = os.environ.get("SIZZLE_VAR", "1")     # Joel sent #1 and #4 (15:31); #1 is steadier and starts at once
 SIZZLE_DB = float(os.environ.get("SIZZLE_DB", -38))  # RMS before loudnorm: a bed under the voices, not "static"
 try:

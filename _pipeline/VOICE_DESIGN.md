@@ -23,10 +23,10 @@ Fake Mum = same voice, made "slightly too perfect" in our mix (tiny timing tweak
 
 
 ## SFX requests (Joel, 22 Nov 15:25)
-**Never fake a real-world sound with synthesised noise** (Part 2's synth pan sizzle read as crackle/static). Joel makes custom SFX in ElevenLabs Sound Effects: for any sound not already in `sound effects/`, Claude sends him a request with:
+**Never fake a real-world sound with synthesised noise** (Part 2's synth pan sizzle read as crackle/static). Joel makes custom SFX in ElevenLabs Sound Effects: for any sound not already in `assets/sfx/`, Claude sends him a request with:
 - **Prompt:** start it with the file key (ElevenLabs names the file from the first words, e.g. `Pan_sizzle,_...#1-<id>.mp3`), then the source, distance, room, texture, and "no music, no voices".
 - **Duration** and **Prompt influence** (0.6–0.7 for literal sounds), and which of the 4 variants to pick by default.
-Joel drops the files in `sound effects/` (laptop folder), Claude pushes them and the cue sheet loads them by key + variant. Synthesised audio is only OK for abstract things (low thuds, sub swells).
+Joel drops the files in `assets/sfx/` (laptop folder), Claude pushes them and the cue sheet loads them by key + variant. Synthesised audio is only OK for abstract things (low thuds, sub swells).
 
 | Key | Used in | Prompt | Duration | Influence |
 |---|---|---|---|---|

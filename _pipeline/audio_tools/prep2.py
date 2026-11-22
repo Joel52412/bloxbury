@@ -9,7 +9,7 @@ LEAD = 0.25           # outro starts 0.25 s into the clip
 TOT = A_LEN + B_LEN
 N = int(round(TOT * FPS))
 
-raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", "/home/claude/audio/outro.mp3", "-ac", "1", "-ar", str(SR),
+raw = subprocess.run(["ffmpeg", "-loglevel", "error", "-i", "/home/claude/bloxbury/series/bloxbury/part1/voice/outro.mp3", "-ac", "1", "-ar", str(SR),
                       "-f", "s16le", "-"], capture_output=True).stdout
 vox = np.frombuffer(raw, np.int16).astype(np.float32) / 32768
 mix = np.zeros(int(TOT * SR) + SR, np.float32)
