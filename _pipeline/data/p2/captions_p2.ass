@@ -1,0 +1,171 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: W,DejaVu Sans,54,&H00FFFFFF,&H00FFFFFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,120,120,330,1
+Style: R,DejaVu Sans,54,&H003C3CFF,&H003C3CFF,&H00101010,&H80000000,-1,0,0,0,100,100,0,0,1,6,2,2,120,120,330,1
+Style: I,DejaVu Sans,50,&H00D8D8D8,&H00D8D8D8,&H00101010,&H80000000,-1,-1,0,0,100,100,0,0,1,6,2,2,120,120,330,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:01.48,0:00:01.68,W,,0,0,0,,{\c&H0030E0FF&}My{\r} {\alpha&H60&}mum{\rW} {\alpha&H60&}finally{\rW} {\alpha&H60&}came{\rW} {\alpha&H60&}home{\rW} {\alpha&H60&}last{\rW} {\alpha&H60&}night.{\rW}
+Dialogue: 0,0:00:01.68,0:00:01.98,W,,0,0,0,,My {\c&H0030E0FF&}mum{\r} {\alpha&H60&}finally{\rW} {\alpha&H60&}came{\rW} {\alpha&H60&}home{\rW} {\alpha&H60&}last{\rW} {\alpha&H60&}night.{\rW}
+Dialogue: 0,0:00:01.98,0:00:02.49,W,,0,0,0,,My mum {\c&H0030E0FF&}finally{\r} {\alpha&H60&}came{\rW} {\alpha&H60&}home{\rW} {\alpha&H60&}last{\rW} {\alpha&H60&}night.{\rW}
+Dialogue: 0,0:00:02.49,0:00:02.73,W,,0,0,0,,My mum finally {\c&H0030E0FF&}came{\r} {\alpha&H60&}home{\rW} {\alpha&H60&}last{\rW} {\alpha&H60&}night.{\rW}
+Dialogue: 0,0:00:02.73,0:00:02.96,W,,0,0,0,,My mum finally came {\c&H0030E0FF&}home{\r} {\alpha&H60&}last{\rW} {\alpha&H60&}night.{\rW}
+Dialogue: 0,0:00:02.96,0:00:03.21,W,,0,0,0,,My mum finally came home {\c&H0030E0FF&}last{\r} {\alpha&H60&}night.{\rW}
+Dialogue: 0,0:00:03.21,0:00:04.19,W,,0,0,0,,My mum finally came home last {\c&H0030E0FF&}night.{\r}
+Dialogue: 0,0:00:04.24,0:00:04.36,R,,0,0,0,,{\fscx108\fscy108}I{\rR} {\alpha&H60&}wish{\rR} {\alpha&H60&}she{\rR} {\alpha&H60&}hadn't.{\rR}
+Dialogue: 0,0:00:04.36,0:00:04.52,R,,0,0,0,,I {\fscx108\fscy108}wish{\rR} {\alpha&H60&}she{\rR} {\alpha&H60&}hadn't.{\rR}
+Dialogue: 0,0:00:04.52,0:00:04.66,R,,0,0,0,,I wish {\fscx108\fscy108}she{\rR} {\alpha&H60&}hadn't.{\rR}
+Dialogue: 0,0:00:04.66,0:00:05.68,R,,0,0,0,,I wish she {\fscx108\fscy108}hadn't.{\rR}
+Dialogue: 0,0:00:05.68,0:00:06.13,W,,0,0,0,,{\c&H0030E0FF&}Morning,{\r} {\alpha&H60&}Milo!{\rW}
+Dialogue: 0,0:00:06.13,0:00:06.98,W,,0,0,0,,Morning, {\c&H0030E0FF&}Milo!{\r}
+Dialogue: 0,0:00:06.98,0:00:07.20,W,,0,0,0,,{\c&H0030E0FF&}She{\r} {\alpha&H60&}made{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}favourite{\rW} {\alpha&H60&}pancakes.{\rW}
+Dialogue: 0,0:00:07.20,0:00:07.38,W,,0,0,0,,She {\c&H0030E0FF&}made{\r} {\alpha&H60&}my{\rW} {\alpha&H60&}favourite{\rW} {\alpha&H60&}pancakes.{\rW}
+Dialogue: 0,0:00:07.38,0:00:07.49,W,,0,0,0,,She made {\c&H0030E0FF&}my{\r} {\alpha&H60&}favourite{\rW} {\alpha&H60&}pancakes.{\rW}
+Dialogue: 0,0:00:07.49,0:00:07.88,W,,0,0,0,,She made my {\c&H0030E0FF&}favourite{\r} {\alpha&H60&}pancakes.{\rW}
+Dialogue: 0,0:00:07.88,0:00:09.01,W,,0,0,0,,She made my favourite {\c&H0030E0FF&}pancakes.{\r}
+Dialogue: 0,0:00:09.01,0:00:09.19,W,,0,0,0,,{\c&H0030E0FF&}She{\r} {\alpha&H60&}hummed{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}favourite{\rW} {\alpha&H60&}song.{\rW}
+Dialogue: 0,0:00:09.19,0:00:09.58,W,,0,0,0,,She {\c&H0030E0FF&}hummed{\r} {\alpha&H60&}my{\rW} {\alpha&H60&}favourite{\rW} {\alpha&H60&}song.{\rW}
+Dialogue: 0,0:00:09.58,0:00:09.69,W,,0,0,0,,She hummed {\c&H0030E0FF&}my{\r} {\alpha&H60&}favourite{\rW} {\alpha&H60&}song.{\rW}
+Dialogue: 0,0:00:09.69,0:00:10.15,W,,0,0,0,,She hummed my {\c&H0030E0FF&}favourite{\r} {\alpha&H60&}song.{\rW}
+Dialogue: 0,0:00:10.15,0:00:11.02,W,,0,0,0,,She hummed my favourite {\c&H0030E0FF&}song.{\r}
+Dialogue: 0,0:00:11.02,0:00:11.22,W,,0,0,0,,{\c&H0030E0FF&}She{\r} {\alpha&H60&}hugged{\rW} {\alpha&H60&}me{\rW} {\alpha&H60&}for{\rW} {\alpha&H60&}a{\rW} {\alpha&H60&}really,{\rW} {\alpha&H60&}really{\rW} {\alpha&H60&}long{\rW} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:11.22,0:00:11.53,W,,0,0,0,,She {\c&H0030E0FF&}hugged{\r} {\alpha&H60&}me{\rW} {\alpha&H60&}for{\rW} {\alpha&H60&}a{\rW} {\alpha&H60&}really,{\rW} {\alpha&H60&}really{\rW} {\alpha&H60&}long{\rW} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:11.53,0:00:11.69,W,,0,0,0,,She hugged {\c&H0030E0FF&}me{\r} {\alpha&H60&}for{\rW} {\alpha&H60&}a{\rW} {\alpha&H60&}really,{\rW} {\alpha&H60&}really{\rW} {\alpha&H60&}long{\rW} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:11.69,0:00:11.92,W,,0,0,0,,She hugged me {\c&H0030E0FF&}for{\r} {\alpha&H60&}a{\rW} {\alpha&H60&}really,{\rW} {\alpha&H60&}really{\rW} {\alpha&H60&}long{\rW} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:11.92,0:00:11.96,W,,0,0,0,,She hugged me for {\c&H0030E0FF&}a{\r} {\alpha&H60&}really,{\rW} {\alpha&H60&}really{\rW} {\alpha&H60&}long{\rW} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:11.96,0:00:12.45,W,,0,0,0,,She hugged me for a {\c&H0030E0FF&}really,{\r} {\alpha&H60&}really{\rW} {\alpha&H60&}long{\rW} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:12.45,0:00:12.94,W,,0,0,0,,She hugged me for a really, {\c&H0030E0FF&}really{\r} {\alpha&H60&}long{\rW} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:12.94,0:00:13.18,W,,0,0,0,,She hugged me for a really, really {\c&H0030E0FF&}long{\r} {\alpha&H60&}time.{\rW}
+Dialogue: 0,0:00:13.18,0:00:14.12,W,,0,0,0,,She hugged me for a really, really long {\c&H0030E0FF&}time.{\r}
+Dialogue: 0,0:00:14.20,0:00:14.48,W,,0,0,0,,{\c&H0030E0FF&}And{\r} {\alpha&H60&}she{\rW} {\alpha&H60&}called{\rW} {\alpha&H60&}me{\rW} {\alpha&H60&}Milo.{\rW}
+Dialogue: 0,0:00:14.48,0:00:14.61,W,,0,0,0,,And {\c&H0030E0FF&}she{\r} {\alpha&H60&}called{\rW} {\alpha&H60&}me{\rW} {\alpha&H60&}Milo.{\rW}
+Dialogue: 0,0:00:14.61,0:00:14.85,W,,0,0,0,,And she {\c&H0030E0FF&}called{\r} {\alpha&H60&}me{\rW} {\alpha&H60&}Milo.{\rW}
+Dialogue: 0,0:00:14.85,0:00:14.95,W,,0,0,0,,And she called {\c&H0030E0FF&}me{\r} {\alpha&H60&}Milo.{\rW}
+Dialogue: 0,0:00:14.95,0:00:16.17,W,,0,0,0,,And she called me {\c&H0030E0FF&}Milo.{\r}
+Dialogue: 0,0:00:16.48,0:00:16.65,R,,0,0,0,,{\fscx108\fscy108}Mum{\rR} {\alpha&H60&}never{\rR} {\alpha&H60&}calls{\rR} {\alpha&H60&}me{\rR} {\alpha&H60&}Milo.{\rR}
+Dialogue: 0,0:00:16.65,0:00:16.91,R,,0,0,0,,Mum {\fscx108\fscy108}never{\rR} {\alpha&H60&}calls{\rR} {\alpha&H60&}me{\rR} {\alpha&H60&}Milo.{\rR}
+Dialogue: 0,0:00:16.91,0:00:17.22,R,,0,0,0,,Mum never {\fscx108\fscy108}calls{\rR} {\alpha&H60&}me{\rR} {\alpha&H60&}Milo.{\rR}
+Dialogue: 0,0:00:17.22,0:00:17.37,R,,0,0,0,,Mum never calls {\fscx108\fscy108}me{\rR} {\alpha&H60&}Milo.{\rR}
+Dialogue: 0,0:00:17.37,0:00:18.44,R,,0,0,0,,Mum never calls me {\fscx108\fscy108}Milo.{\rR}
+Dialogue: 0,0:00:18.91,0:00:19.19,W,,0,0,0,,{\c&H0030E0FF&}My{\r} {\alpha&H60&}mum's{\rW} {\alpha&H60&}back!{\rW} {\alpha&H60&}But{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not...{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not{\rW} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:19.19,0:00:19.31,W,,0,0,0,,My {\c&H0030E0FF&}mum's{\r} {\alpha&H60&}back!{\rW} {\alpha&H60&}But{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not...{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not{\rW} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:19.31,0:00:19.83,W,,0,0,0,,My mum's {\c&H0030E0FF&}back!{\r} {\alpha&H60&}But{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not...{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not{\rW} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:19.83,0:00:19.96,W,,0,0,0,,My mum's back! {\c&H0030E0FF&}But{\r} {\alpha&H60&}it's{\rW} {\alpha&H60&}not...{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not{\rW} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:19.96,0:00:20.06,W,,0,0,0,,My mum's back! But {\c&H0030E0FF&}it's{\r} {\alpha&H60&}not...{\rW} {\alpha&H60&}it's{\rW} {\alpha&H60&}not{\rW} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:20.06,0:00:20.49,W,,0,0,0,,My mum's back! But it's {\c&H0030E0FF&}not...{\r} {\alpha&H60&}it's{\rW} {\alpha&H60&}not{\rW} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:20.49,0:00:20.70,W,,0,0,0,,My mum's back! But it's not... {\c&H0030E0FF&}it's{\r} {\alpha&H60&}not{\rW} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:20.70,0:00:20.89,W,,0,0,0,,My mum's back! But it's not... it's {\c&H0030E0FF&}not{\r} {\alpha&H60&}her!{\rW}
+Dialogue: 0,0:00:20.89,0:00:21.70,W,,0,0,0,,My mum's back! But it's not... it's not {\c&H0030E0FF&}her!{\r}
+Dialogue: 0,0:00:21.70,0:00:21.92,W,,0,0,0,,{\c&H0030E0FF&}Did{\r} {\alpha&H60&}she{\rW} {\alpha&H60&}knock?{\rW}
+Dialogue: 0,0:00:21.92,0:00:22.16,W,,0,0,0,,Did {\c&H0030E0FF&}she{\r} {\alpha&H60&}knock?{\rW}
+Dialogue: 0,0:00:22.16,0:00:23.32,W,,0,0,0,,Did she {\c&H0030E0FF&}knock?{\r}
+Dialogue: 0,0:00:23.59,0:00:24.25,W,,0,0,0,,{\c&H0030E0FF&}No...{\r} {\alpha&H60&}she{\rW} {\alpha&H60&}had{\rW} {\alpha&H60&}a{\rW} {\alpha&H60&}key.{\rW}
+Dialogue: 0,0:00:24.25,0:00:24.45,W,,0,0,0,,No... {\c&H0030E0FF&}she{\r} {\alpha&H60&}had{\rW} {\alpha&H60&}a{\rW} {\alpha&H60&}key.{\rW}
+Dialogue: 0,0:00:24.45,0:00:24.60,W,,0,0,0,,No... she {\c&H0030E0FF&}had{\r} {\alpha&H60&}a{\rW} {\alpha&H60&}key.{\rW}
+Dialogue: 0,0:00:24.60,0:00:24.65,W,,0,0,0,,No... she had {\c&H0030E0FF&}a{\r} {\alpha&H60&}key.{\rW}
+Dialogue: 0,0:00:24.65,0:00:25.57,W,,0,0,0,,No... she had a {\c&H0030E0FF&}key.{\r}
+Dialogue: 0,0:00:25.57,0:00:25.83,W,,0,0,0,,{\c&H0030E0FF&}Then{\r} {\alpha&H60&}it{\rW} {\alpha&H60&}doesn't{\rW} {\alpha&H60&}need{\rW} {\alpha&H60&}to{\rW} {\alpha&H60&}knock{\rW} {\alpha&H60&}anymore.{\rW}
+Dialogue: 0,0:00:25.83,0:00:26.15,W,,0,0,0,,Then {\c&H0030E0FF&}it{\r} {\alpha&H60&}doesn't{\rW} {\alpha&H60&}need{\rW} {\alpha&H60&}to{\rW} {\alpha&H60&}knock{\rW} {\alpha&H60&}anymore.{\rW}
+Dialogue: 0,0:00:26.15,0:00:26.49,W,,0,0,0,,Then it {\c&H0030E0FF&}doesn't{\r} {\alpha&H60&}need{\rW} {\alpha&H60&}to{\rW} {\alpha&H60&}knock{\rW} {\alpha&H60&}anymore.{\rW}
+Dialogue: 0,0:00:26.49,0:00:26.70,W,,0,0,0,,Then it doesn't {\c&H0030E0FF&}need{\r} {\alpha&H60&}to{\rW} {\alpha&H60&}knock{\rW} {\alpha&H60&}anymore.{\rW}
+Dialogue: 0,0:00:26.70,0:00:26.84,W,,0,0,0,,Then it doesn't need {\c&H0030E0FF&}to{\r} {\alpha&H60&}knock{\rW} {\alpha&H60&}anymore.{\rW}
+Dialogue: 0,0:00:26.84,0:00:27.13,W,,0,0,0,,Then it doesn't need to {\c&H0030E0FF&}knock{\r} {\alpha&H60&}anymore.{\rW}
+Dialogue: 0,0:00:27.13,0:00:28.23,W,,0,0,0,,Then it doesn't need to knock {\c&H0030E0FF&}anymore.{\r}
+Dialogue: 0,0:00:28.58,0:00:29.87,W,,0,0,0,,{\c&H0030E0FF&}Milo...{\r}
+Dialogue: 0,0:00:30.01,0:00:30.20,R,,0,0,0,,{\fscx108\fscy108}your{\rR} {\alpha&H60&}mum{\rR} {\alpha&H60&}was{\rR} {\alpha&H60&}the{\rR} {\alpha&H60&}first{\rR} {\alpha&H60&}name{\rR} {\alpha&H60&}I{\rR} {\alpha&H60&}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:30.20,0:00:30.63,R,,0,0,0,,your {\fscx108\fscy108}mum{\rR} {\alpha&H60&}was{\rR} {\alpha&H60&}the{\rR} {\alpha&H60&}first{\rR} {\alpha&H60&}name{\rR} {\alpha&H60&}I{\rR} {\alpha&H60&}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:30.63,0:00:30.81,R,,0,0,0,,your mum {\fscx108\fscy108}was{\rR} {\alpha&H60&}the{\rR} {\alpha&H60&}first{\rR} {\alpha&H60&}name{\rR} {\alpha&H60&}I{\rR} {\alpha&H60&}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:30.81,0:00:30.88,R,,0,0,0,,your mum was {\fscx108\fscy108}the{\rR} {\alpha&H60&}first{\rR} {\alpha&H60&}name{\rR} {\alpha&H60&}I{\rR} {\alpha&H60&}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:30.88,0:00:31.40,R,,0,0,0,,your mum was the {\fscx108\fscy108}first{\rR} {\alpha&H60&}name{\rR} {\alpha&H60&}I{\rR} {\alpha&H60&}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:31.40,0:00:31.64,R,,0,0,0,,your mum was the first {\fscx108\fscy108}name{\rR} {\alpha&H60&}I{\rR} {\alpha&H60&}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:31.64,0:00:31.72,R,,0,0,0,,your mum was the first name {\fscx108\fscy108}I{\rR} {\alpha&H60&}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:31.72,0:00:32.19,R,,0,0,0,,your mum was the first name I {\fscx108\fscy108}crossed{\rR} {\alpha&H60&}off.{\rR}
+Dialogue: 0,0:00:32.19,0:00:33.20,R,,0,0,0,,your mum was the first name I crossed {\fscx108\fscy108}off.{\rR}
+Dialogue: 0,0:00:33.29,0:00:33.65,R,,0,0,0,,{\fscx108\fscy108}Three{\rR} {\alpha&H60&}weeks{\rR} {\alpha&H60&}ago.{\rR}
+Dialogue: 0,0:00:33.65,0:00:33.99,R,,0,0,0,,Three {\fscx108\fscy108}weeks{\rR} {\alpha&H60&}ago.{\rR}
+Dialogue: 0,0:00:33.99,0:00:35.05,R,,0,0,0,,Three weeks {\fscx108\fscy108}ago.{\rR}
+Dialogue: 0,0:00:35.24,0:00:35.56,W,,0,0,0,,{\c&H0030E0FF&}So{\r} {\alpha&H60&}who's{\rW} {\alpha&H60&}in{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}kitchen?{\rW}
+Dialogue: 0,0:00:35.56,0:00:35.88,W,,0,0,0,,So {\c&H0030E0FF&}who's{\r} {\alpha&H60&}in{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}kitchen?{\rW}
+Dialogue: 0,0:00:35.88,0:00:35.97,W,,0,0,0,,So who's {\c&H0030E0FF&}in{\r} {\alpha&H60&}my{\rW} {\alpha&H60&}kitchen?{\rW}
+Dialogue: 0,0:00:35.97,0:00:36.10,W,,0,0,0,,So who's in {\c&H0030E0FF&}my{\r} {\alpha&H60&}kitchen?{\rW}
+Dialogue: 0,0:00:36.10,0:00:37.01,W,,0,0,0,,So who's in my {\c&H0030E0FF&}kitchen?{\r}
+Dialogue: 0,0:00:37.01,0:00:37.33,W,,0,0,0,,{\c&H0030E0FF&}Check{\r} {\alpha&H60&}a{\rW} {\alpha&H60&}mirror.{\rW}
+Dialogue: 0,0:00:37.33,0:00:37.36,W,,0,0,0,,Check {\c&H0030E0FF&}a{\r} {\alpha&H60&}mirror.{\rW}
+Dialogue: 0,0:00:37.36,0:00:38.27,W,,0,0,0,,Check a {\c&H0030E0FF&}mirror.{\r}
+Dialogue: 0,0:00:38.27,0:00:38.75,W,,0,0,0,,{\c&H0030E0FF&}Mirrors{\r} {\alpha&H60&}don't{\rW} {\alpha&H60&}lie.{\rW}
+Dialogue: 0,0:00:38.75,0:00:39.02,W,,0,0,0,,Mirrors {\c&H0030E0FF&}don't{\r} {\alpha&H60&}lie.{\rW}
+Dialogue: 0,0:00:39.02,0:00:40.04,W,,0,0,0,,Mirrors don't {\c&H0030E0FF&}lie.{\r}
+Dialogue: 0,0:00:40.32,0:00:40.45,W,,0,0,0,,{\c&H0030E0FF&}It{\r} {\alpha&H60&}looked{\rW} {\alpha&H60&}like{\rW} {\alpha&H60&}Mum.{\rW}
+Dialogue: 0,0:00:40.45,0:00:40.70,W,,0,0,0,,It {\c&H0030E0FF&}looked{\r} {\alpha&H60&}like{\rW} {\alpha&H60&}Mum.{\rW}
+Dialogue: 0,0:00:40.70,0:00:40.87,W,,0,0,0,,It looked {\c&H0030E0FF&}like{\r} {\alpha&H60&}Mum.{\rW}
+Dialogue: 0,0:00:40.87,0:00:41.73,W,,0,0,0,,It looked like {\c&H0030E0FF&}Mum.{\r}
+Dialogue: 0,0:00:42.21,0:00:42.76,W,,0,0,0,,{\c&H0030E0FF&}Then{\r} {\alpha&H60&}Mum{\rW} {\alpha&H60&}stopped{\rW} {\alpha&H60&}smiling.{\rW}
+Dialogue: 0,0:00:42.76,0:00:42.97,W,,0,0,0,,Then {\c&H0030E0FF&}Mum{\r} {\alpha&H60&}stopped{\rW} {\alpha&H60&}smiling.{\rW}
+Dialogue: 0,0:00:42.97,0:00:43.35,W,,0,0,0,,Then Mum {\c&H0030E0FF&}stopped{\r} {\alpha&H60&}smiling.{\rW}
+Dialogue: 0,0:00:43.35,0:00:44.50,W,,0,0,0,,Then Mum stopped {\c&H0030E0FF&}smiling.{\r}
+Dialogue: 0,0:00:44.63,0:00:44.80,R,,0,0,0,,{\fscx108\fscy108}Her{\rR} {\alpha&H60&}reflection{\rR} {\alpha&H60&}didn't.{\rR}
+Dialogue: 0,0:00:44.80,0:00:45.55,R,,0,0,0,,Her {\fscx108\fscy108}reflection{\rR} {\alpha&H60&}didn't.{\rR}
+Dialogue: 0,0:00:45.55,0:00:46.48,R,,0,0,0,,Her reflection {\fscx108\fscy108}didn't.{\rR}
+Dialogue: 0,0:00:47.63,0:00:48.85,W,,0,0,0,,{\c&H0030E0FF&}Milo...{\r}
+Dialogue: 0,0:00:49.09,0:00:49.34,R,,0,0,0,,{\fscx108\fscy108}who{\rR} {\alpha&H60&}told{\rR} {\alpha&H60&}you{\rR} {\alpha&H60&}about{\rR} {\alpha&H60&}the{\rR} {\alpha&H60&}mirror?{\rR}
+Dialogue: 0,0:00:49.34,0:00:49.74,R,,0,0,0,,who {\fscx108\fscy108}told{\rR} {\alpha&H60&}you{\rR} {\alpha&H60&}about{\rR} {\alpha&H60&}the{\rR} {\alpha&H60&}mirror?{\rR}
+Dialogue: 0,0:00:49.74,0:00:49.88,R,,0,0,0,,who told {\fscx108\fscy108}you{\rR} {\alpha&H60&}about{\rR} {\alpha&H60&}the{\rR} {\alpha&H60&}mirror?{\rR}
+Dialogue: 0,0:00:49.88,0:00:50.17,R,,0,0,0,,who told you {\fscx108\fscy108}about{\rR} {\alpha&H60&}the{\rR} {\alpha&H60&}mirror?{\rR}
+Dialogue: 0,0:00:50.17,0:00:50.26,R,,0,0,0,,who told you about {\fscx108\fscy108}the{\rR} {\alpha&H60&}mirror?{\rR}
+Dialogue: 0,0:00:50.26,0:00:51.45,R,,0,0,0,,who told you about the {\fscx108\fscy108}mirror?{\rR}
+Dialogue: 0,0:00:52.02,0:00:52.15,W,,0,0,0,,{\c&H0030E0FF&}I{\r} {\alpha&H60&}locked{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}door.{\rW}
+Dialogue: 0,0:00:52.15,0:00:52.42,W,,0,0,0,,I {\c&H0030E0FF&}locked{\r} {\alpha&H60&}my{\rW} {\alpha&H60&}door.{\rW}
+Dialogue: 0,0:00:52.42,0:00:52.53,W,,0,0,0,,I locked {\c&H0030E0FF&}my{\r} {\alpha&H60&}door.{\rW}
+Dialogue: 0,0:00:52.53,0:00:53.33,W,,0,0,0,,I locked my {\c&H0030E0FF&}door.{\r}
+Dialogue: 0,0:00:53.33,0:00:54.33,I,,0,0,0,,{\fscx108\fscy108}Milo!{\rI} {\alpha&H60&}Dinner's{\rI} {\alpha&H60&}ready.{\rI} {\alpha&H60&}Come{\rI} {\alpha&H60&}downstairs.{\rI}
+Dialogue: 0,0:00:54.33,0:00:54.62,I,,0,0,0,,Milo! {\fscx108\fscy108}Dinner's{\rI} {\alpha&H60&}ready.{\rI} {\alpha&H60&}Come{\rI} {\alpha&H60&}downstairs.{\rI}
+Dialogue: 0,0:00:54.62,0:00:55.25,I,,0,0,0,,Milo! Dinner's {\fscx108\fscy108}ready.{\rI} {\alpha&H60&}Come{\rI} {\alpha&H60&}downstairs.{\rI}
+Dialogue: 0,0:00:55.25,0:00:55.43,I,,0,0,0,,Milo! Dinner's ready. {\fscx108\fscy108}Come{\rI} {\alpha&H60&}downstairs.{\rI}
+Dialogue: 0,0:00:55.43,0:00:56.80,I,,0,0,0,,Milo! Dinner's ready. Come {\fscx108\fscy108}downstairs.{\rI}
+Dialogue: 0,0:00:56.82,0:00:57.00,W,,0,0,0,,{\c&H0030E0FF&}Then{\r} {\alpha&H60&}a{\rW} {\alpha&H60&}voice{\rW} {\alpha&H60&}came{\rW} {\alpha&H60&}from{\rW} {\alpha&H60&}inside{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}closet.{\rW}
+Dialogue: 0,0:00:57.00,0:00:57.05,W,,0,0,0,,Then {\c&H0030E0FF&}a{\r} {\alpha&H60&}voice{\rW} {\alpha&H60&}came{\rW} {\alpha&H60&}from{\rW} {\alpha&H60&}inside{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}closet.{\rW}
+Dialogue: 0,0:00:57.05,0:00:57.44,W,,0,0,0,,Then a {\c&H0030E0FF&}voice{\r} {\alpha&H60&}came{\rW} {\alpha&H60&}from{\rW} {\alpha&H60&}inside{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}closet.{\rW}
+Dialogue: 0,0:00:57.44,0:00:57.66,W,,0,0,0,,Then a voice {\c&H0030E0FF&}came{\r} {\alpha&H60&}from{\rW} {\alpha&H60&}inside{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}closet.{\rW}
+Dialogue: 0,0:00:57.66,0:00:57.81,W,,0,0,0,,Then a voice came {\c&H0030E0FF&}from{\r} {\alpha&H60&}inside{\rW} {\alpha&H60&}my{\rW} {\alpha&H60&}closet.{\rW}
+Dialogue: 0,0:00:57.81,0:00:58.26,W,,0,0,0,,Then a voice came from {\c&H0030E0FF&}inside{\r} {\alpha&H60&}my{\rW} {\alpha&H60&}closet.{\rW}
+Dialogue: 0,0:00:58.26,0:00:58.36,W,,0,0,0,,Then a voice came from inside {\c&H0030E0FF&}my{\r} {\alpha&H60&}closet.{\rW}
+Dialogue: 0,0:00:58.36,0:00:59.38,W,,0,0,0,,Then a voice came from inside my {\c&H0030E0FF&}closet.{\r}
+Dialogue: 0,0:00:59.70,0:01:00.65,I,,0,0,0,,{\fscx108\fscy108}Bug...{\rI}
+Dialogue: 0,0:01:00.65,0:01:01.02,I,,0,0,0,,{\fscx108\fscy108}don't{\rI} {\alpha&H60&}go{\rI} {\alpha&H60&}down{\rI} {\alpha&H60&}there.{\rI}
+Dialogue: 0,0:01:01.02,0:01:01.14,I,,0,0,0,,don't {\fscx108\fscy108}go{\rI} {\alpha&H60&}down{\rI} {\alpha&H60&}there.{\rI}
+Dialogue: 0,0:01:01.14,0:01:01.39,I,,0,0,0,,don't go {\fscx108\fscy108}down{\rI} {\alpha&H60&}there.{\rI}
+Dialogue: 0,0:01:01.39,0:01:02.31,I,,0,0,0,,don't go down {\fscx108\fscy108}there.{\rI}
+Dialogue: 0,0:01:02.33,0:01:02.63,R,,0,0,0,,{\fscx108\fscy108}I{\rR} {\alpha&H60&}heard{\rR} {\alpha&H60&}it{\rR} {\alpha&H60&}too.{\rR}
+Dialogue: 0,0:01:02.63,0:01:02.87,R,,0,0,0,,I {\fscx108\fscy108}heard{\rR} {\alpha&H60&}it{\rR} {\alpha&H60&}too.{\rR}
+Dialogue: 0,0:01:02.87,0:01:03.01,R,,0,0,0,,I heard {\fscx108\fscy108}it{\rR} {\alpha&H60&}too.{\rR}
+Dialogue: 0,0:01:03.01,0:01:04.13,R,,0,0,0,,I heard it {\fscx108\fscy108}too.{\rR}
+Dialogue: 0,0:01:04.33,0:01:05.30,W,,0,0,0,,{\c&H0030E0FF&}Mum?{\r}
+Dialogue: 0,0:01:09.43,0:01:10.62,I,,0,0,0,,{\fscx108\fscy108}Bug?...{\rI}
+Dialogue: 0,0:01:10.68,0:01:10.88,R,,0,0,0,,{\fscx108\fscy108}Who{\rR} {\alpha&H60&}are{\rR} {\alpha&H60&}you{\rR} {\alpha&H60&}talking{\rR} {\alpha&H60&}to?{\rR}
+Dialogue: 0,0:01:10.88,0:01:10.93,R,,0,0,0,,Who {\fscx108\fscy108}are{\rR} {\alpha&H60&}you{\rR} {\alpha&H60&}talking{\rR} {\alpha&H60&}to?{\rR}
+Dialogue: 0,0:01:10.93,0:01:11.10,R,,0,0,0,,Who are {\fscx108\fscy108}you{\rR} {\alpha&H60&}talking{\rR} {\alpha&H60&}to?{\rR}
+Dialogue: 0,0:01:11.10,0:01:11.52,R,,0,0,0,,Who are you {\fscx108\fscy108}talking{\rR} {\alpha&H60&}to?{\rR}
+Dialogue: 0,0:01:11.52,0:01:12.40,R,,0,0,0,,Who are you talking {\fscx108\fscy108}to?{\rR}
+Dialogue: 0,0:01:13.25,0:01:13.57,W,,0,0,0,,{\c&H0030E0FF&}Two{\r} {\alpha&H60&}mums.{\rW} {\alpha&H60&}One{\rW} {\alpha&H60&}door.{\rW}
+Dialogue: 0,0:01:13.57,0:01:14.16,W,,0,0,0,,Two {\c&H0030E0FF&}mums.{\r} {\alpha&H60&}One{\rW} {\alpha&H60&}door.{\rW}
+Dialogue: 0,0:01:14.16,0:01:14.47,W,,0,0,0,,Two mums. {\c&H0030E0FF&}One{\r} {\alpha&H60&}door.{\rW}
+Dialogue: 0,0:01:14.47,0:01:15.33,W,,0,0,0,,Two mums. One {\c&H0030E0FF&}door.{\r}
+Dialogue: 0,0:01:15.33,0:01:15.56,W,,0,0,0,,{\c&H0030E0FF&}Which{\r} {\alpha&H60&}one{\rW} {\alpha&H60&}would{\rW} {\alpha&H60&}you{\rW} {\alpha&H60&}open?{\rW}
+Dialogue: 0,0:01:15.56,0:01:15.72,W,,0,0,0,,Which {\c&H0030E0FF&}one{\r} {\alpha&H60&}would{\rW} {\alpha&H60&}you{\rW} {\alpha&H60&}open?{\rW}
+Dialogue: 0,0:01:15.72,0:01:15.83,W,,0,0,0,,Which one {\c&H0030E0FF&}would{\r} {\alpha&H60&}you{\rW} {\alpha&H60&}open?{\rW}
+Dialogue: 0,0:01:15.83,0:01:16.05,W,,0,0,0,,Which one would {\c&H0030E0FF&}you{\r} {\alpha&H60&}open?{\rW}
+Dialogue: 0,0:01:16.05,0:01:16.85,W,,0,0,0,,Which one would you {\c&H0030E0FF&}open?{\r}
+Dialogue: 0,0:01:16.85,0:01:17.22,W,,0,0,0,,{\c&H0030E0FF&}Comment{\r} {\alpha&H60&}below...{\rW} {\alpha&H60&}Part{\rW} {\alpha&H60&}Three{\rW} {\alpha&H60&}depends{\rW} {\alpha&H60&}on{\rW} {\alpha&H60&}it.{\rW}
+Dialogue: 0,0:01:17.22,0:01:17.75,W,,0,0,0,,Comment {\c&H0030E0FF&}below...{\r} {\alpha&H60&}Part{\rW} {\alpha&H60&}Three{\rW} {\alpha&H60&}depends{\rW} {\alpha&H60&}on{\rW} {\alpha&H60&}it.{\rW}
+Dialogue: 0,0:01:17.75,0:01:17.98,W,,0,0,0,,Comment below... {\c&H0030E0FF&}Part{\r} {\alpha&H60&}Three{\rW} {\alpha&H60&}depends{\rW} {\alpha&H60&}on{\rW} {\alpha&H60&}it.{\rW}
+Dialogue: 0,0:01:17.98,0:01:18.34,W,,0,0,0,,Comment below... Part {\c&H0030E0FF&}Three{\r} {\alpha&H60&}depends{\rW} {\alpha&H60&}on{\rW} {\alpha&H60&}it.{\rW}
+Dialogue: 0,0:01:18.34,0:01:18.89,W,,0,0,0,,Comment below... Part Three {\c&H0030E0FF&}depends{\r} {\alpha&H60&}on{\rW} {\alpha&H60&}it.{\rW}
+Dialogue: 0,0:01:18.89,0:01:19.08,W,,0,0,0,,Comment below... Part Three depends {\c&H0030E0FF&}on{\r} {\alpha&H60&}it.{\rW}
+Dialogue: 0,0:01:19.08,0:01:19.82,W,,0,0,0,,Comment below... Part Three depends on {\c&H0030E0FF&}it.{\r}
