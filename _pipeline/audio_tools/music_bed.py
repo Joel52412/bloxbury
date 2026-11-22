@@ -4,7 +4,7 @@
 # Joel (22 Nov 12:23): loop ONLY the intro, without the whistle (the pitch-slide whistle at ~19.8-20.6 s is not in it).
 # The loop is the intro's 4 bars (0.07-10.28 s, ~94 BPM). Bar 5 has the same chords as bar 1, so bar 4 -> bar 1 is the
 # song's own chord change. Bar 4's ring-out fades under bar 1's first hit over 150 ms, and a slow, circular level
-# rider (only lifts dips, max +9 dB) fills the thin end of bar 4, so every 0.25 s stays within about -15 to -25 dB.
+# rider (0.15 s window, only lifts dips, max +12 dB) fills the thin end of bar 4, so every 0.25 s stays within about -15 to -25 dB.
 # Stored as FLAC (Numbers_instrumental_loop.flac, 10.21 s) because MP3 padding would put tiny gaps between repeats.
 #
 # Usage inside a prep_pN.py, after voice + SFX are put into `mix` and BEFORE the peak normalise:
