@@ -4,10 +4,11 @@ Reframe: Part 2 ended with fake Mum saying "Bug?" Hours earlier it didn't know t
 **It learns every word it hears.** Second reframe: the closet voice we all trusted in Part 2 is the one that gets the word.
 
 ## Beat sheet (~70 s)
-0. Bridge 0-3 s: open on Part 2's final beat. Black, three soft knocks, light under Milo's bedroom door, two shadow feet.
-   Fake Mum (through door): "Bug?" / Milo N: "It called me Bug."  (hook line + picture)
-1. 3-11 s  "Last night it didn't know that word. Then it heard Mum say it." Milo clamps a hand over his mouth.
-   Open Q: what else has it heard?  Rule stated: it learns every word it hears.
+0. HOOK 0-3 s (fixed after the viral plane video, 21:23): NO black, NO recap. Frame 0 is a readable, lit picture:
+   Milo on his bed, hand clamped over his mouth, shadow feet in the light under the door. Voice starts by 0.3 s with an
+   impossible claim: "I haven't said a single word in three hours." Cut every ~1.5-2 s for the first 6 s.
+1. 2-11 s  Door + shadow feet: "Because the thing outside my door learns every word it hears." / soft knocks / Mum: "Bug?"
+   "Last night, it didn't know that word. Then it heard Mum say it." (recap lands here, after the hook)
 2. 11-21 s Closet crack, Mum's bracelet hand. Whisper: "Don't say anything. Not one word."
    Pattern break: Mum's three rules: brush your teeth / lock your door / never say our secret word out loud.
    Rewatch bait 1: the word LIGHTHOUSE is hidden on Milo's crayon drawing on the wall (props4 drawing, generated image).
@@ -23,7 +24,7 @@ Reframe: Part 2 ended with fake Mum saying "Bug?" Hours earlier it didn't know t
 7. 62-66 s Silence. Rae's phone buzzes. Milo's own voice on speaker: "Rae, it's me. Don't let him in." -> hard cut to black.
    (the one earned startle = a quiet line in his own voice, no sting)
 8. 66-72 s Outro to camera (lip-sync): "One of us is on the porch. One of us is on the phone. Which Milo would you let in?"
-Loop: ends on three soft knocks on Rae's door -> first frame's three knocks.
+Loop: "Which Milo would you let in?" -> "I haven't said a single word in three hours."
 
 ## Decisions (Joel 21:22)
 - Secret word LIGHTHOUSE. Comment-payoff line IN. Mimic = Milo's voice + phone FX in the mix (no new voice).
@@ -37,9 +38,10 @@ through town; Rae's front door + hall (night, torch); Rae's phone (screen = gene
 ## Full script — N = narration (no mouth), D = in-scene dialogue (lip-sync), C = to camera (lip-sync)
 | Shot | Who | Line |
 |---|---|---|
-| 0 Black, three knocks, light under door | Mum D (through door) | Bug? |
-| 0 | Milo N | It called me Bug. |
-| 1 Milo on bed, hand over mouth | Milo N | Last night, it didn't know that word. / Then it heard Mum say it. / It learns every word it hears. |
+| 0 Milo on bed, hand over mouth (lit, frame 0) | Milo N | I haven't said a single word in three hours. |
+| 1 Door, shadow feet under it | Milo N | Because the thing outside my door learns every word it hears. |
+| 1 Soft knocks | Mum D (through door) | Bug? |
+| 1 Close on Milo | Milo N | Last night, it didn't know that word. / Then it heard Mum say it. |
 | 2 Closet crack, bracelet hand | Real Mum D (whisper) | Don't say anything. / Not one word. |
 | 2 Drawing on wall (LIGHTHOUSE hidden) | Milo N | Mum had three rules. / Brush your teeth. / Lock your door. / And never, ever say our secret word out loud. |
 | 3 Door, shadow feet (MUSIC OUT) | Mum D | Bug... if it's really you in there... / tell me our word. |
@@ -57,13 +59,13 @@ through town; Rae's front door + hall (night, torch); Rae's phone (screen = gene
 ## ElevenLabs blocks (paste-ready, one per voice; Milo's block includes the mimic phone lines)
 ### Milo (existing voice)
 ```
-[scared, hushed] It called me Bug.
+[whispering, scared] I haven't said a single word in three hours.
+
+[whispering, slow dread] Because the thing outside my door learns every word it hears.
 
 [whispering, shaky] Last night, it didn't know that word.
 
 [whispering] Then it heard Mum say it.
-
-[slow, dread] It learns every word it hears.
 
 [quiet, remembering] Mum had three rules.
 
