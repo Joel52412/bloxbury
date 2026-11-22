@@ -12,7 +12,7 @@ Update Status, then condense every .md (this file, `_pipeline/*.md`, scripts' no
 ```
 _pipeline/        scripts/ (scenes, director.py), audio_tools/ (prep_pN.py cue sheets), data/pN/ (env, captions, mix), pod_*.sh, make_*.sh
 _studio_library/  engine/ (library .py), manifest.json, approval_sheets/
-_tools/           Render Monitor
+_tools/           Render Monitor, library_audit.py, sets_audit.py, audit_sheet.py
 assets/           music/  sfx/  voice_clones/ (laptop)  inspo/ (laptop)
 series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)  youtube/make_youtube.sh
 ```
@@ -24,7 +24,7 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 2. **Voices:** paste-ready ElevenLabs blocks, one per voice: one line per paragraph, [emotion] tags, no numbers; main character narrates. New speaking character → Voice Design prompt (`_pipeline/VOICE_DESIGN.md`). Request ALL the part's SFX now (same file).
 3. **Audio:** align (`align_full.py`), split (`split_lines.py`), scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` in the cue sheet or ask for a regen), then `prep_pN.py`: pacing, level matching, voice FX, music bed + dropouts, SFX, loudnorm −14 LUFS, word-timed captions, lip-sync env (line modes N/D/C/O).
 4. **Audio animatic** (dark frame + captions + scene labels + timecode) → Joel judges pacing.
-5. **Asset sheet** `partN_assets.py`, rendered here: every new character/set/prop (sets at z=400, studio cyc for cards), NEW vs APPROVED panel. Review stills first. No pod until Joel OKs.
+5. **Asset sheet** `partN_assets.py`, rendered here (detail bar applies): every new character/set/prop (sets at z=400, studio cyc for cards), NEW vs APPROVED panel. Review stills first. No pod until Joel OKs.
 6. **After OK:** save to library (`recurring.py` cards, `propsN.py`, manifest, studio.py), switch the asset script to library versions.
 7. **Scene** `partN.py` from the previous part: build here (~10 s) until `check_faces` and `check_shots` pass; render one still per shot here (216×384) into a contact sheet → Joel. Then price OK → GPU render → pod auto-finish → Render Monitor downloads to `exports/` → pod deletes itself.
 8. **TikTok:** `TIKTOK=1 prep_pN.py`, then `make_tiktok.sh <part.mp4> <tiktok.wav> <Bloxbury_PartN_TikTok.mp4>` (keeps 94% picture with black borders: TikTok's zoom crops them off. Joel 16:05).
@@ -37,6 +37,7 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - **Casting:** recurring characters have fixed cards; extras are random library mixes; monsters made fresh, saved only if approved.
 - **Animation:** fluid Roblox-fight style (anticipation, overshoot, settle, smear frames, motion blur, idle motion), never stop-motion. Faces match meaning and pitch. Anime lip-sync. Sparkles twinkle subtly, never flicker. **Narration = voiceover: mouth does not move**; lip-sync only for in-scene dialogue or talking straight to camera (outro).
 - **Camera:** calm, eased moves; shake only as a small jolt on the one big hit. Shots via `cinema.py` `cine()`/`insert()` (subject + size + move), never raw coords for character shots. Dolly, never zoom (fixed lens per shot); moves ≤25% size change, land at ~80% then settle; eyes upper third, looking room; vary size/move between cuts (hold, push, pull reveal, drift, sink); inserts land ON the key detail. `check_framing` (OFF/CROP/DRIFT/SAME) must pass. Joel 22 Nov: zooms that end on nothing / cropped faces = fail.
+- **Detail bar (Joel 21:11):** nothing ships as a plain block. Every new asset gets 3+ readable sub-details at its shot size (trim/edges, a working part, a surface break, a story/life detail); pictures/screens/labels use generated images, never flat colour. Cheap only: bevelled boxes, shared materials, emission glows, no glass/volumes; measure render cost before/after (≤5%). Asset sheets: new assets + `_tools/library_audit.py` / `sets_audit.py` front-view renders, current vs new.
 - **Sets:** dress what the camera sees (walls behind faces) with `props4.py` (two-tone walls, frames, shelves, coats, sconces, calendar/drawing rewatch bait). Cheap: boxes, shared mats, emission glows, max one practical light per room, no glass/volume (+~2% render time measured).
 - **QA:** check_faces (one mouth every frame, no closed eyes before a cut); check_shots (no camera in a mesh, nothing blocking the aim point or lens; deliberate cases in `allow=`); shot stills sheet reviewed; after GPU render, black/blank frame check.
 - **24 fps.** Captions small, lower-middle, clear of faces, word-timed (pocketsphinx).
@@ -58,9 +59,9 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - Spot pods: GraphQL only, can't be created here.
 
 ## Engine
-- Load order: `bloxbury_part1.py` prefix (to `# Milo starts at the fence`), charlib, stylelab, hair2, hair3, faces2, garments, garments2, hair4, faces3, faces4, props, studio, then recurring, props2, props3, props4, monster.
+- Load order: `bloxbury_part1.py` prefix (to `# Milo starts at the fence`), charlib, stylelab, hair2, hair3, faces2, garments, garments2, hair4, faces3, faces4, props, studio, then recurring, props2, props3, props4, props5 (+ `detail_town(houses)` after the town), monster.
 - Registry `studio.py`: CAST tags F1–F6, B1–B6, C1–C24, K1–K12, `studio_character(tag)`.
-- Approved: faces M2 (+12 emotions, faces4.RARE); hair H2 H3 H4 H8, M1–M6, X1–X6; outfits O1–O4 + role/kids/teen; props batches 1–4 (4 = set dressing: `dress_kitchen/hallway/bedroom` + wall/room pieces); sets Bloxbury Town, Milo's room, kitchen, hallway (mirror), hollow closet; cards MILO (`rig2.make_milo`), RAE, MAYOR, DAN, NEIGHBOUR, MUM (`recurring.py`); THE KNOCKER (`monster.make_knocker`).
+- Approved: faces M2 (+12 emotions, faces4.RARE); hair H2 H3 H4 H8, M1–M6, X1–X6; outfits O1–O4 + role/kids/teen; props batches 1–5 (4 = set dressing `dress_kitchen/hallway/bedroom` + wall/room pieces; 5 = town detail `detail_town`/`detail_house`; batch-2 props upgraded); sets Bloxbury Town, Milo's room, kitchen, hallway (mirror), hollow closet; cards MILO (`rig2.make_milo`), RAE, MAYOR, DAN, NEIGHBOUR, MUM (`recurring.py`); THE KNOCKER (`monster.make_knocker`).
 - Scene template: `part2.py` (+ `rig2.py`: `upgrade_rig`, `arm`, `build_face_v2`, `expr`, `blink`, `lipsync`, `accents`; walk cycle; smears = shoulder Z ×1.35 for 2 frames; motion blur 0.5 position START; `cam_key` with make_compatible).
 - Helpers/lessons: `place()` + `hold_cuts()` + `flush_mouths()`; use `idle_here()` (idle() keys absolute z); aim shots BEFORE parking characters; close-ups via `ots()`; emission sockets keyed with `key()`; Blender 5 needs `kf()`, `apply_interp()`, `_fcurves()`; DOF keyed on `cam.data`; no coplanar faces; check held-prop contact numerically; cups hollow. Glossy-only objects (`visible_glossy`) for mirror/reflection tricks.
 - `cinema.py` sets the 1080×1920 resolution before any maths (sensor fit uses the long side). Sizes = head fraction of frame height: ECU .40, CU .28, MCU .19, MS .12; small sets need short lenses (26–36) or the camera ends up in a wall.
@@ -70,8 +71,8 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - **Part 1** (71.75 s, `part1_v2.py`, `prep_p1.py`): Milo hears knocks at 3AM; the Knocker (tall, starved, black sockets with pinpoint white eyes, red thin-tooth grin; always kept in the dark with a cool rim light) is in his closet; lunge at the lens on "OUT", cut to black. Rae keeps the WHO'S LEFT list.
 - **Part 2 "She Came Home"** (80 s, 1921 frames, `part2.py`, `prep_p2.py`, script in `series/bloxbury/part2/`): Mum is back making pancakes but calls him "Milo" (she never does). Rae: Mum was crossed off the list three weeks ago; "mirrors don't lie". The hallway mirror's twin keeps smiling and turns. Real Mum whispers from the closet "I heard it too"; fake Mum knocks: "Who are you talking to?" Outro: "Two mums. One door. Which one would you open?" Music: Numbers instrumental loop (`assets/music`), 35%.
 
-## Status (22 Nov 20:50)
+## Status (22 Nov 21:15)
 - Part 1 and Part 2 delivered. `exports/Bloxbury_Part2_TikTok.mp4` final; YouTube master needs `_pipeline/data/p2/part2_audio.wav` swapped in when stitching.
-- NEW: `cinema.py` (camera grammar + framing check) and set dressing (library `props4.py`, approved 20:40). `part2.py` re-shot with both (all checks pass); Part 2 NOT re-rendered yet — Joel to decide (~1921 frames, 3× 4090 ≈ 16 min).
+- Approved today: `cinema.py` camera grammar; `props4.py` set dressing; `props5.py` town detail + batch-2 prop upgrades (sheet `approval_sheets/Library_detail_pass.jpg`). `part2.py` uses all of it (all checks pass); Part 2 NOT re-rendered — Joel to decide (~1921 frames, 3× 4090 ≈ 16 min).
 - TODO: wire `make_tiktok.sh` into `pod_finish.sh`.
-- **NEXT: Part 3** (template `part2.py`, uses cine + props4 dressing).
+- **NEXT: Part 3** (template `part2.py`: cine shots, props4 dressing, props5 town, detail bar for every new asset).

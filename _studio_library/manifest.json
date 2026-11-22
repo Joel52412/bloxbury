@@ -1,6 +1,6 @@
 {
  "studio": "Joel's Roblox shorts studio - approved asset library",
- "version": "2026-11-22d",
+ "version": "2026-11-22e",
  "approved_by": "Joel",
  "face_style": {
   "M2": "midway between Classic and Minimal; thin expressive brows; bright eye shine at 70% opacity",
@@ -93,13 +93,16 @@
   "teen": 0.86,
   "kid": 0.7
  },
- "rules": [
-  "darker skin tones never get blonde/very light hair (except the approved 'a' variants)",
-  "white/grey hair only for elderly",
-  "hats always use under-hat hair",
-  "no clipping",
-  "no two identical-looking characters in a shot"
- ],
+ "rules": {
+  "old": [
+   "darker skin tones never get blonde/very light hair (except the approved 'a' variants)",
+   "white/grey hair only for elderly",
+   "hats always use under-hat hair",
+   "no clipping",
+   "no two identical-looking characters in a shot"
+  ],
+  "detail_bar": "No plain blocks: every asset needs 3+ readable sub-details at its normal shot size (trim/edges, a functional part, a surface/texture break, a story or life detail). Images, not flat colours. Cheap: bevelled boxes, shared materials, emission glows, no glass/volumes; measure render cost before/after (target <=5%)."
+ },
  "props": [
   "sketchbook",
   "scissors",
@@ -211,5 +214,24 @@
    "dress_hallway": "upstairs hallway (HO)",
    "dress_bedroom": "Milo's room"
   }
+ },
+ "props_batch5": {
+  "file": "engine/props5.py",
+  "approved": "Joel 22 Nov 2026 21:11",
+  "render_cost": "+~4% on town shots",
+  "detail_town": "detail_town(houses) after the town is built: every house gets window frames, cross bars, sills, shutters, curtains, flower boxes; panelled door (knob, letterbox parented to the door), steps, mat, porch light, house number; corner boards, plinth, fascia, gutter, downpipe, chimney; yard path, bushes, flower bed, mailbox",
+  "detail_house": "detail_house(root, seed, yard=True, hollow=False) for any single house (reads its own Door/Window parts)"
+ },
+ "props_batch2_upgrade": {
+  "approved": "Joel 22 Nov 2026 21:11",
+  "crate": "slats, corner posts, top boards",
+  "notebook": "pages, spine, elastic band, label",
+  "round_bin": "ribs, rim, folded bag, sticker",
+  "cafe_table": "edge band, 4-leg cross foot + pads, napkin holder, salt & pepper",
+  "hammer": "grip, steel face, claw"
+ },
+ "props_batch4_upgrade": {
+  "picture": "generated art (land/sea/portrait/family/abstract) instead of flat colour",
+  "floor_clutter": "hoodie with sleeves + hood"
  }
 }

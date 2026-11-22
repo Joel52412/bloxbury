@@ -26,7 +26,48 @@ def wall_root(name, loc, n):
 
 
 # ------------------------------------------------------------------ wall pieces (local: wall at y=0, front at -y)
-def picture(name, loc, n, z, w=1.6, h=2.0, img=None, rgb=(120, 150, 170), frame=(60, 40, 30)):
+def art_img(path, kind, rgb=(120, 150, 170), seed=0):
+    """Tiny generated pictures so frames never show a flat colour: 'land' (hills + sun), 'sea', 'portrait'
+    (Roblox-style head + shoulders on a tinted backdrop), 'family' (two/three figures), 'abstract' (colour blocks)."""
+    from PIL import Image, ImageDraw
+    rnd = random.Random(seed); W_, H_ = 240, 300; im = Image.new("RGB", (W_, H_), rgb); d = ImageDraw.Draw(im)
+    sk = tuple(min(255, c + 60) for c in rgb)
+    if kind in ("land", "sea"):
+        d.rectangle((0, 0, W_, H_), fill=(150, 195, 235) if kind == "land" else (170, 205, 240))
+        d.ellipse((150, 40, 205, 95), fill=(250, 220, 120))
+        if kind == "land":
+            d.ellipse((-80, 150, 200, 380), fill=(110, 170, 90)); d.ellipse((90, 170, 360, 400), fill=(80, 140, 75))
+            for k in range(3): x = rnd.randint(30, 200); d.rectangle((x, 175, x + 6, 200), fill=(90, 60, 40)); d.ellipse((x - 14, 150, x + 20, 185), fill=(60, 120, 60))
+        else:
+            d.rectangle((0, 170, W_, H_), fill=(60, 120, 180)); d.rectangle((0, 240, W_, H_), fill=(230, 210, 160))
+            d.polygon([(70, 165), (100, 110), (100, 165)], fill=(250, 250, 250)); d.line((100, 110, 100, 170), fill=(80, 60, 40), width=3)
+    elif kind in ("portrait", "family"):
+        d.rectangle((0, 0, W_, H_), fill=sk)
+        figs = [(120, 1.0)] if kind == "portrait" else [(75, 0.8), (165, 0.8)] + ([(120, 0.55)] if rnd.random() < 0.7 else [])
+        for x, sc in figs:
+            skin = rnd.choice([(255, 215, 175), (225, 170, 120), (160, 110, 75), (110, 72, 50)])
+            top = rnd.choice([(200, 80, 70), (70, 110, 180), (90, 150, 100), (230, 180, 60), (120, 90, 160)])
+            hy = int(200 - 90 * sc)
+            d.rectangle((x - int(55 * sc), hy + int(48 * sc), x + int(55 * sc), H_), fill=top)
+            d.rounded_rectangle((x - int(32 * sc), hy - int(30 * sc), x + int(32 * sc), hy + int(34 * sc)), 10, fill=skin)
+            d.rectangle((x - int(34 * sc), hy - int(36 * sc), x + int(34 * sc), hy - int(16 * sc)), fill=rnd.choice([(40, 30, 25), (90, 60, 35), (20, 20, 22)]))
+            for ex in (-12, 12): d.ellipse((x + int(ex * sc) - 3, hy, x + int(ex * sc) + 3, hy + 7), fill=(20, 20, 20))
+            d.arc((x - int(12 * sc), hy + 8, x + int(12 * sc), hy + 22), 20, 160, fill=(20, 20, 20), width=2)
+    else:
+        for k in range(5):
+            c = rnd.choice([(220, 90, 70), (240, 200, 80), (70, 120, 190), (240, 240, 230), (40, 40, 50), (90, 170, 140)])
+            x0, y0 = rnd.randint(-40, 180), rnd.randint(-40, 240); d.rectangle((x0, y0, x0 + rnd.randint(60, 160), y0 + rnd.randint(60, 160)), fill=c)
+    im.save(path); return path
+
+
+_ART = ["land", "family", "portrait", "sea", "abstract"]
+
+
+def picture(name, loc, n, z, w=1.6, h=2.0, img=None, rgb=(120, 150, 170), frame=(60, 40, 30), kind=None, seed=None):
+    """Framed picture. With no img a small painting/photo is generated (kind: land/sea/portrait/family/abstract)."""
+    if img is None:
+        sd = seed if seed is not None else sum(map(ord, name))
+        img = art_img("/tmp/d_art_%s.png" % name, kind or _ART[sd % len(_ART)], rgb, sd)
     r = wall_root(name, loc, n)
     rb(name + "F", (w, 0.12, h), _DV((0, -0.06, z)), dmat("frame%s" % (frame,), frame, rough=0.6), r, r=0.03)
     if img: plane(name + "P", w - 0.3, h - 0.3, _DV((0, -0.125, z)), imgmat(name + "Img", img, rough=0.8), r, rot=(0, 0, math.pi))
@@ -152,7 +193,12 @@ def floor_clutter(name, loc, seed=2):
     rnd = random.Random(seed); r = root_of(name, _DV(loc)); r.rotation_euler = (0, 0, rnd.uniform(0, 6.28))
     rb(name + "Bag", (1.3, 0.8, 1.6), _DV((0, 0, 0.8)), dmat("bag", (40, 90, 150), rough=0.85), r, r=0.25)
     rb(name + "Pocket", (0.9, 0.2, 0.7), _DV((0, -0.45, 0.55)), dmat("bag2", (30, 60, 110), rough=0.85), r, r=0.12)
-    rb(name + "Hood", (2.0, 1.4, 0.25), _DV((1.8, 0.4, 0.13)), dmat("hood", (120, 120, 130), rough=0.95), r, r=0.12, rot=(0, 0, 0.5))
+    hm = dmat("hood", (120, 120, 130), rough=0.95)                       # dropped hoodie: body, both sleeves, hood
+    rb(name + "Hood", (1.7, 1.3, 0.22), _DV((1.9, 0.4, 0.12)), hm, r, r=0.1, rot=(0, 0, 0.5))
+    rb(name + "SlvL", (0.5, 1.5, 0.2), _DV((1.0, 1.3, 0.11)), hm, r, r=0.1, rot=(0, 0, 1.2))
+    rb(name + "SlvR", (0.5, 1.4, 0.2), _DV((2.9, -0.3, 0.11)), hm, r, r=0.1, rot=(0, 0, -0.3))
+    rb(name + "HoodUp", (0.9, 0.7, 0.35), _DV((2.4, 1.15, 0.2)), hm, r, r=0.16, rot=(0, 0, 0.5))
+    rb(name + "Pkt", (0.7, 0.4, 0.05), _DV((1.75, 0.1, 0.25)), dmat("hood2", (100, 100, 110), rough=0.95), r, r=0.04, rot=(0, 0, 0.5))
     for k in range(2):
         rb(name + "Bk", (0.9, 0.7, 0.15), _DV((-1.4, 0.6 + k * 0.1, 0.08 + k * 0.15)), dmat("book%s" % k, ((170, 50, 50), (230, 190, 60))[k], rough=0.7), r, r=0.02, rot=(0, 0, k * 0.4))
     return r

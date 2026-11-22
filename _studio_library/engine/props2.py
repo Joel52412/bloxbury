@@ -5,22 +5,45 @@ from mathutils import Vector as _Vp
 
 
 def p2_hammer(parent, name="Hammer"):
-    """Claw-less hammer held in a hand grip (parent = P["tiltRight"])."""
+    """Claw hammer held in a hand grip (parent = P["tiltRight"]): wooden handle with a rubber grip, steel head + claw."""
     h = empty(name, _Vp((0, 0, 0)), col=COL_PROPS, parent=parent)
     rb(name + "Handle", (0.2, 0.2, 1.5), _Vp((0, 0.35, 0.55)), M_WOOD, h, r=0.05)
-    rb(name + "Head", (0.36, 0.85, 0.36), _Vp((0, 0.35, 1.32)), M_METAL, h, r=0.05)
+    rb(name + "Grip", (0.24, 0.24, 0.55), _Vp((0, 0.35, 0.12)), pmat("HammerGrip", (190, 50, 40), rough=0.8), h, r=0.08)
+    rb(name + "Head", (0.36, 0.62, 0.36), _Vp((0, 0.48, 1.32)), M_METAL, h, r=0.05)
+    rb(name + "Face", (0.3, 0.12, 0.3), _Vp((0, 0.82, 1.32)), pmat("HammerSteel", (170, 172, 178), metal=0.9, rough=0.25), h, r=0.04)
+    for dx in (-0.08, 0.08):
+        rb(name + "Claw", (0.09, 0.42, 0.14), _Vp((dx, 0.08, 1.24)), M_METAL, h, r=0.03, rot=(math.radians(-25), 0, 0))
     return h
 
 
 def p2_crate(loc, name="Crate", size=(2.6, 2.4, 2.0)):
-    """Wooden crate to stand on (top at loc.z + size.z / 2)."""
-    return rb(name, size, _Vp(loc), wood(name + "Wood", (150, 110, 70)), None, r=0.05)
+    """Wooden slatted crate to stand on (top at loc.z + size.z / 2). Returns the core block."""
+    loc = _Vp(loc); sx, sy, sz = size
+    core = rb(name, (sx - 0.12, sy - 0.12, sz - 0.12), loc, wood(name + "Dark", (110, 78, 48)), None, r=0.04)
+    slat = wood(name + "Wood", (165, 122, 78)); edge = wood(name + "Edge", (128, 90, 56))
+    n = 3; gap = 0.08; hs = (sz - (n + 1) * gap) / n
+    for i in range(n):                                   # side slats on all four faces
+        z = loc.z - sz / 2 + gap + hs / 2 + i * (hs + gap)
+        for y in (-sy / 2, sy / 2): rb(name + "SlatF", (sx - 0.3, 0.1, hs), _Vp((loc.x, loc.y + y, z)), slat, None, r=0.02)
+        for x in (-sx / 2, sx / 2): rb(name + "SlatS", (0.1, sy - 0.3, hs), _Vp((loc.x + x, loc.y, z)), slat, None, r=0.02)
+    for x in (-1, 1):
+        for y in (-1, 1):                                # corner posts
+            rb(name + "Post", (0.26, 0.26, sz), _Vp((loc.x + x * (sx / 2 - 0.08), loc.y + y * (sy / 2 - 0.08), loc.z)), edge, None, r=0.03)
+    for i in range(4):                                   # top boards
+        rb(name + "Top", (sx, (sy - 0.15) / 4 - 0.05, 0.1), _Vp((loc.x, loc.y - sy / 2 + 0.1 + (i + 0.5) * (sy - 0.15) / 4, loc.z + sz / 2 - 0.02)), slat, None, r=0.02)
+    return core
 
 
 def p2_notebook(parent, name="Notebook", colour=(170, 40, 45)):
-    """Small red notebook held in a grip (parent = P["tiltLeft"])."""
+    """Small red notebook held in a grip (parent = P["tiltLeft"]): cover, cream page block, black elastic band, label."""
     n = empty(name, _Vp((0, 0, 0)), col=COL_PROPS, parent=parent)
-    rb(name + "Cover", (0.7, 0.14, 0.9), _Vp((0, 0.05, 0.1)), pmat(name + "Mat", colour, rough=0.7), n, r=0.03)
+    cm = pmat(name + "Mat", colour, rough=0.7)
+    rb(name + "Cover", (0.7, 0.04, 0.9), _Vp((0, 0.0, 0.1)), cm, n, r=0.015)
+    rb(name + "Back", (0.7, 0.04, 0.9), _Vp((0, 0.12, 0.1)), cm, n, r=0.015)
+    rb(name + "Spine", (0.05, 0.16, 0.9), _Vp((-0.34, 0.06, 0.1)), cm, n, r=0.02)
+    rb(name + "Pages", (0.64, 0.09, 0.84), _Vp((0.01, 0.06, 0.1)), pmat("NotePages", (242, 234, 212), rough=0.9), n, r=0.01)
+    rb(name + "Band", (0.05, 0.18, 0.92), _Vp((0.24, 0.06, 0.1)), pmat("NoteBand", (25, 25, 28), rough=0.6), n, r=0.02)
+    rb(name + "Label", (0.36, 0.02, 0.16), _Vp((-0.03, -0.02, 0.3)), pmat("NoteLabel", (240, 236, 220), rough=0.8), n, r=0.01)
     n.location = (0.0, 0.55, 0.05)
     return n
 
@@ -104,15 +127,30 @@ def p2_mug(parent, name="Mug", colour=(196, 52, 46)):
 def p2_cafe_table(loc, name="Cafe"):
     loc = _Vp(loc); tw = wood(name + "Wood", (130, 88, 56)); blk = pmat(name + "Black", (30, 30, 34), rough=0.4)
     rcyl(name + "Top", 1.6, 0.16, loc + _Vp((0, 0, 2.45)), tw, None)
+    rcyl(name + "Edge", 1.66, 0.1, loc + _Vp((0, 0, 2.36)), blk, None, bevel=0.03)
     rcyl(name + "Stem", 0.16, 2.3, loc + _Vp((0, 0, 1.2)), blk, None, bevel=0.0)
-    rcyl(name + "Foot", 0.9, 0.1, loc + _Vp((0, 0, 0.06)), blk, None)
+    rcyl(name + "Collar", 0.26, 0.2, loc + _Vp((0, 0, 2.25)), blk, None)
+    for a in (45, 135):                                  # 4-leg cross foot with pads
+        rb(name + "Foot", (1.9, 0.22, 0.14), loc + _Vp((0, 0, 0.08)), blk, None, r=0.05, rot=(0, 0, math.radians(a)))
+    for a in (45, 135, 225, 315):
+        rcyl(name + "Pad", 0.14, 0.06, loc + _Vp((0.9 * math.cos(math.radians(a)), 0.9 * math.sin(math.radians(a)), 0.03)), blk, None, seg=12)
+    # condiments: napkin holder + salt & pepper (sit on the far edge, clear of mugs)
+    rb(name + "Napkin", (0.5, 0.22, 0.35), loc + _Vp((0.5, 0.95, 2.71)), pmat("NapkinSteel", (190, 192, 198), metal=0.8, rough=0.3), None, r=0.03)
+    rb(name + "NapkinP", (0.42, 0.14, 0.3), loc + _Vp((0.5, 0.95, 2.8)), pmat("Napkin", (250, 250, 248), rough=0.9), None, r=0.02)
+    for dx, c in ((-0.15, (245, 245, 245)), (0.15, (50, 50, 55))):
+        rcyl(name + "Shaker", 0.1, 0.3, loc + _Vp((-0.1 + dx, 1.0, 2.68)), pmat("Shaker%d" % c[0], c, rough=0.3), None, seg=12)
     return loc + _Vp((0, 0, 2.53))      # table-top height
 
 
 def p2_round_bin(loc, name="Bin"):
-    loc = _Vp(loc)
-    rcyl(name, 0.85, 2.1, loc + _Vp((0, 0, 1.05)), pmat(name + "Grey", (70, 74, 80), rough=0.35, metal=0.4), None, bevel=0.03)
+    """Street litter bin: ribbed steel drum, rolled rim, black bag folded over the edge."""
+    loc = _Vp(loc); g = pmat(name + "Grey", (70, 74, 80), rough=0.35, metal=0.4)
+    rcyl(name, 0.85, 2.1, loc + _Vp((0, 0, 1.05)), g, None, bevel=0.03)
+    for z in (0.35, 1.05, 1.75): rcyl(name + "Rib", 0.88, 0.1, loc + _Vp((0, 0, z)), g, None, bevel=0.03)
+    rcyl(name + "Rim", 0.92, 0.14, loc + _Vp((0, 0, 2.08)), pmat(name + "RimM", (50, 52, 56), metal=0.5, rough=0.3), None, bevel=0.05)
+    rcyl(name + "Bag", 0.9, 0.3, loc + _Vp((0, 0, 1.92)), pmat(name + "Bag", (22, 22, 24), rough=0.4, coat=0.5), None, bevel=0.06)
     rcyl(name + "In", 0.75, 0.05, loc + _Vp((0, 0, 2.08)), pmat(name + "Dark", (18, 18, 20), rough=0.9), None, bevel=0.0)
+    rb(name + "Sticker", (0.6, 0.04, 0.4), loc + _Vp((0, -0.87, 1.4)), pmat(name + "Stk", (60, 130, 70), rough=0.6), None, r=0.02)
     return loc + _Vp((0, 0, 2.3))       # drop point
 
 
