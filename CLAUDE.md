@@ -61,7 +61,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
   - Then `nohup sh /workspace/bloxbury/_pipeline/pod_setup.sh > setup.log &`. It installs apt packages and Blender 5.3 (note: no `-q` on `ensurepip`), and lays files out under `/home/claude`.
   - RunPod secret `GITHUB_RO` (id `we7rf4p3y8`) holds Joel's fine-grained token "robloxrepo" for this repo. It's currently over-scoped (read+write); a read-only one is a todo.
 - **Multi-GPU:** `sh /workspace/bloxbury/_pipeline/pod_render.sh test2.py <NF> /workspace/frames` runs one Blender per GPU (`CUDA_VISIBLE_DEVICES`, `FS`/`FE` split). Logs go to `render_gpuN.log`.
-- **Download:** Joel uses `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. Delete the pod after he confirms.
+- **Download:** **always give Joel the full download link** with the token in it: `https://<pod>-8888.proxy.runpod.net/files/workspace/<file>?token=<jupyter token>`. If Jupyter shows a login page, he pastes the token there. Delete the pod after he confirms.
 - **Long jobs:** use `nohup`; `exec-pod` calls max out at 25 s.
 - **Render monitor:** write `/workspace/render_job.json` (`name`, `group`, `total`, `frame_start`, `frame_end`, `cost_per_hr`, `pod_started` = the pod's createdAt, which shows spend) and give Joel the pod id and Jupyter token.
 
@@ -96,7 +96,7 @@ Joel makes Roblox-style animated horror Shorts. The series is **BLOXBURY: The 3A
 - **Test 2** (`test2.py`, 354 frames, 14.75 s), preview reviewed and fixed:
   - **Shot A:** Milo's outro acted to the line (curious, hype, lean-in, ominous), with the closet glow creeping in.
   - **Shot B:** Dan sips coffee, walks, grabs the *BLOXBURY DAILY: KNOCKING CONTINUES* newspaper, throws it into a bin, then a smug sip.
-  - **22 Nov 00:53: GPU render done** on 2× Secure 4090 (pod `xvv54gga9g41ck`, $1.78/hr; about 16 min render). QA passed: no missing, black or blank frames, and the only brightness jump is the A→B cut at frame 163. `Bloxbury_Test2.mp4` (14.75 s, 1080×1920, 24 fps, with `test2_audio.wav`) is on the pod at `/workspace`. **Waiting on Joel's review; delete the pod once he has downloaded it.**
+  - **Done (22 Nov 00:55):** rendered on 2× Secure 4090 in about 16 min, QA passed, and Joel downloaded `Bloxbury_Test2.mp4`. Pod deleted; total pod cost about $1.40, mostly idle time while sorting the token. **Waiting on Joel's notes on the video.**
 - **Then: the Part 1 redesign.** Same story, library cast, 24 fps, the new rig, small word-timed captions, director shots, **keep the soft red-orange closet glow**.
   - Fix the cue sheet: no duplicated `closet.mp3` lines, a knock SFX instead of spoken knocks, check the 32.2 s hammer SFX.
   - Line timings are in `_pipeline/audio_tools/cues_milo.txt`.
