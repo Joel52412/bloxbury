@@ -4,7 +4,7 @@ One folder per story. A thread reads CLAUDE.md + ONE story's STORY.md, never the
 ## Start a new story (one-off, spin-off or new series)
 1. `cp -r stories/_template stories/<name>` (lowercase, no spaces). Pick a unique 2-3 letter **id tag** (check `ls stories/*/data`): parts are `<tag>1`, `<tag>2`... A one-off is just `<tag>1`.
 2. Fill `STORY.md` (premise, genre, cast, world, status). Keep it under ~400 words; rules belong in CLAUDE.md, not here.
-3. Write the script into `part1/` (workflow step 1). Voices go to `part1/voice/<who>_<tag>1.mp3`.
+3. Write the script into `part1/` (~1 minute, max 1:10) (workflow step 1). Voices go to `part1/voice/<who>_<tag>1.mp3`.
 4. Audio: `align_full.py` / `split_lines.py` → `data/<tag>1/lines_<who>.json`; copy `prep_template.py` to `audio/prep_<tag>1.py`.
 5. Scene: copy `scene_template.py` to `scripts/<tag>1.py`. `restore.sh` and `pod_setup.sh` pick up every story's `scripts/` and `data/` automatically.
 6. Exports land in `stories/<name>/exports/` on the laptop (`download_to` in render_job.json).

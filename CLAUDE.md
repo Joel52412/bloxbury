@@ -27,17 +27,17 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 ```
 - Part ids are unique across ALL stories (restore copies everything flat): Bloxbury `p1..pN`, a new story picks a 2-3 letter tag (`gb1`, `gb2`...). Scene/prep file names carry the id.
 - Joel's files go straight to their place (music, sfx keep ElevenLabs names + all variants, voice → `stories/<story>/partN/voice`).
-- Lean: no demo/test/preview files left behind (send them in chat). TikTok mixes are regenerated. Delete frames once an export is checked.
+- Lean: no demo/test/preview files left behind (send them in chat). Mixes are stored only as FLAC (`*.wav` gitignored). Delete frames once an export is checked.
 
 ## Episode workflow (one part or a one-off)
 1. **Story:** research, beat sheet + script → `stories/<story>/partN/`. Joel tweaks.
 2. **Voices:** paste-ready ElevenLabs blocks, one per voice: one line per paragraph, [emotion] tags, no numbers; main character narrates. Request ALL the part's SFX now.
-3. **Audio:** `align_full.py`, `split_lines.py`, scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` or ask for a regen), then `prep_<id>.py` on `mix.Mix` (cue/voice/sfx/silence/music/finish): loudnorm −16 LUFS / −2 dBTP, music ~20 dB under voices and ducked ~7 dB under speech, word-timed captions, lip-sync env with viseme codes.
+3. **Audio:** `align_full.py` (faster-whisper `small.en` mapped onto the script words; `ALIGN=sphinx` fallback), `split_lines.py`, scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` or ask for a regen), then `prep_<id>.py` on `mix.Mix` (cue/voice/sfx/silence/music/finish): loudnorm −16 LUFS / −2 dBTP, music ~20 dB under voices and ducked ~7 dB under speech, word-timed captions, lip-sync env with viseme codes.
 4. **Audio animatic** (`make_animatic.py`) → Joel judges pacing.
 5. **Asset sheet** `<id>_assets.py` for every new character/set/prop (detail bar), low-res checks here, then final-quality stills on a pod (`pod_stills.sh`, 1× Secure 4090, ~$0.10) only after Joel OKs.
 6. **After OK:** save to the library (cards, propsN.py, manifest, studio.py), switch the asset script to library versions.
 7. **Scene** `<id>.py` on the scene kit: build here until `check_faces` + `check_shots` pass; animate only with `motion.py`; one still per shot (216×384) → Joel. Then `check_motion` OK and **motion clips** of the 4-6 busiest moments (216×384, SAMPLES=4, batches <15 min) → Joel. Then **motion preview (hard gate):** whole part `RX=540 RY=960 SAMPLES=6` on 1× Secure 4090 (~$0.15) → Joel watches with sound and says yes → final GPU render. `_tools/motion_audit.py` on preview AND final (with `shots_<id>.json`): fix every POP/JUDDER/FREEZE.
-8. **TikTok:** `TIKTOK=1 prep_<id>.py`, `make_tiktok.sh <part.mp4> <tiktok.wav> <out.mp4>` (94% picture with black borders).
+8. **TikTok:** `TIKTOK=1 prep_<id>.py`, copy `<stem>_tiktok.flac` to `data/<id>/` (pods make the cut via `tiktok_audio`), or by hand `make_tiktok.sh <part.mp4> <tiktok.flac> <out.mp4>` (94% picture with black borders).
 9. Audit assets used; push anything new to the library.
 
 ## Hard rules
@@ -52,6 +52,7 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 - **Sets:** dress what the camera sees (`props4.py`); max one practical light per room.
 - **QA:** check_faces, check_shots (deliberate cases in `allow=`), shot stills reviewed, black/blank frame check after GPU render.
 - **24 fps. Captions:** `captions.write_ass()`: bold yellow Poppins, ONE word at a time with a pop, y=66%; red = monster/fake, white = off-screen.
+- **Length (Joel 23 Nov):** every video ~1 minute, max 1:10.
 - **Hook:** frame 0 lit and readable; voice by 0.3 s with a strange claim a new viewer gets; something visibly wrong by ~3.5 s; cuts every 1.5–2 s for the first 6 s; recaps after the hook.
 - **Story:** studio-grade first drafts; new open question every 8–10 s; pattern breaks; 1–2 rewatch details; last line loops to first; end on a choice question. (Horror: dread over loud stings, max one earned startle.)
 - **SFX:** never synthesise real-world sounds; request ElevenLabs SFX from Joel (key-first prompt, duration, influence); level by RMS (files arrive ~−48 dB).
@@ -63,6 +64,6 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 - **RunPod:** asset sheets, motion preview, final (1080×1920, 32 samples, OptiX, `lookdev.cinematic_look()` grade). Before any pod: give $/hr, time and total cost per option (fastest in stock first, incl. 2×/3× GPUs); Joel must OK. Tell Joel when a render starts (pod ID, links, ETA, cost). Only delete pods made in this chat. Never print keys or tokens.
 
 ## Studio status (23 Nov)
-- Parts 1-3 of BLOXBURY delivered; motion, lip-sync (visemes) and the shared scene kit + audio kit are on main.
-- Stories folder split (core + one folder per story) in review.
-- TODO: wire `make_tiktok.sh` into `pod_finish.sh`; GHCR render image private (use runpod/pytorch).
+- Parts 1-3 of BLOXBURY delivered. On main: motion fixes, speech-driven lip-sync + `talk_face`, shared scene kit + audio kit, pod hardening (watchdog, x264 export, auto TikTok + motion audit, FLAC mixes).
+- Stories folder split (lean core + one folder per story) in review.
+- TODO: GHCR render image private (use runpod/pytorch).

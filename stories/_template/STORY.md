@@ -10,7 +10,7 @@
 `scripts/<tag>N.py`, `audio/prep_<tag>N.py`, `data/<tag>N/`, `partN/` (script, voice), `exports/` (laptop). Id tag: `<tag>`.
 
 ## Parts
-- **Part 1 "<title>"** (<length>): <one-line summary once delivered>.
+- **Part 1 "<title>"** (<length>: ~60 s, max 70 s): <one-line summary once delivered>.
 
 ## Status (<date>)
 - <where it is in the workflow, what's next>

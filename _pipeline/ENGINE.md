@@ -20,7 +20,7 @@ finish_part(life=True, allow=(...), motion_chars={...}, quiet=(...))   # blinks,
 ## Rig + motion
 - `rig2.py`: `upgrade_rig`, `arm`, `build_face_v2`, `expr`, `blink`, `lipsync`, `accents`; walk cycle; smears = shoulder Z ×1.35 for 2 frames; motion blur 0.5 position START; `cam_key` with make_compatible.
 - `motion.py` only: gesture/look/lean (wind-up + overshoot + settle), `run`, `sit_down`/`seated`, `life()` windows on every visible character, `bake_life()` at the end. `EXPR_RAMP` 4 frames; `accents` nods and `shake` jolts eased per frame; shake only as a small jolt on the one big hit.
-- Lip-sync: `rig2.lipsync` reads env viseme codes (closed on M/B/P, teeth on F/V, 2-frame holds, mouth 1 frame ahead of the sound); loudness flap is only a fallback for envs without `vis_all`. Sparkles twinkle subtly, never flicker.
+- Lip-sync: `rig2.lipsync` reads env viseme codes (closed on M/B/P, teeth on F/V, 2-frame holds, mouth 1 frame ahead of the sound); loudness flap is only a fallback for envs without `vis_all`. `accents()` also drives `talk_face`: brows lift on stressed syllables, eyes widen once on the loudest word (own BrowAcc/EyeAcc layers, so `expr()` never fights it; tune `BROW_LIFT`/`EYE_WIDEN`). Sparkles twinkle subtly, never flicker.
 - Before calling a render smooth: diff consecutive frames of the export (3-frame autocorrelation, freezes, single-frame spikes) = `motion_audit.py`.
 
 ## Helpers / lessons
