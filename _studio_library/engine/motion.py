@@ -37,36 +37,74 @@ def pose_arm(P, side, fr, target=None, euler=None):
     a, c = _arm_ae(side, target, euler); _arm_key(P, side, fr, a, c, interp="CONSTANT"); _ST[(id(P), side)] = (a, c)
 
 
+# ------------------------------------------------------------------ EASED MOVES (Joel 23 Nov 10:14: "they start quick and stop quick")
+# Every beat is written frame by frame from ONE smooth curve: slow-in, slow-out (smootherstep), with the wind-up and the
+# overshoot built into the curve (a soft "back" ease), so nothing ever starts or stops on a dime. A new beat starts from
+# wherever the body REALLY is (evaluated), so overlapping beats blend instead of jumping. dur <= 5 = a deliberately quick
+# action (slap, flip); anything longer is stretched by PACE so normal moves breathe.
+PACE = 1.5
+
+
+def _ease(u, ant, over):
+    """0..1 -> 0..1 slow-in / slow-out, dipping back by ~ant at the start and passing the end by ~over."""
+    u = max(0.0, min(1.0, u))
+    e = u * u * u * (u * (u * 6 - 15) + 10)                       # smootherstep: zero velocity AND acceleration at both ends
+    dip = -ant * math.sin(math.pi * min(1.0, u / 0.3)) if u < 0.3 else 0.0          # gentle wind-up in the first 30%
+    bump = over * math.sin(math.pi * (u - 0.55) / 0.45) if u > 0.55 else 0.0       # rises past the target, settles back
+    return e + dip + bump
+
+
+def _dur(dur):
+    return dur if dur <= 5 else int(round(dur * PACE))
+
+
+def _cur(ob, path, n, fr):
+    """The channel's real value at frame fr (falls back to the current property)."""
+    vals = list(getattr(ob, path))[:n]
+    for fc in _fcurves(ob):
+        if fc.data_path == path and fc.array_index < n: vals[fc.array_index] = fc.evaluate(fr)
+    return vals
+
+
+def _clear(ob, path, f0, f1):
+    for fc in _fcurves(ob):
+        if fc.data_path == path:
+            for kp in [k for k in fc.keyframe_points if f0 <= k.co.x <= f1][::-1]: fc.keyframe_points.remove(kp)
+
+
+def _beat(ob, path, fr, v1, dur, ant, over, mirror=None):
+    """Write one eased beat on ob.path (3-vector) from its real value at fr to v1 over dur frames."""
+    v0 = _cur(ob, path, 3, fr)
+    _clear(ob, path, fr + 1, fr + dur + 1)
+    if mirror is not None: _clear(mirror, path, fr + 1, fr + dur + 1)
+    kf(ob, path, fr, tuple(v0))
+    if mirror is not None: kf(mirror, path, fr, tuple(-x for x in v0))
+    for i in range(1, dur + 1):
+        k = _ease(i / dur, ant, over)
+        v = tuple(a + (b - a) * k for a, b in zip(v0, v1))
+        kf(ob, path, fr + i, v)
+        if mirror is not None: kf(mirror, path, fr + i, tuple(-x for x in v))
+
+
 def gesture(P, side, fr, target=None, euler=None, dur=8, ant=0.08, over=0.06, hold_from=None):
-    """Arm move that STARTS at fr: wind-up (2 f), eased travel, overshoot, settle at fr+dur. Smear on big fast moves."""
-    a1, c1 = _arm_ae(side, target, euler)
-    a0, c0 = _last(P, side, (math.radians(4), math.radians(-6 if side == "Left" else 6)))
-    _arm_key(P, side, (hold_from if hold_from is not None else fr) - 1, a0, c0)
-    _arm_key(P, side, fr + 2, a0 - (a1 - a0) * ant, c0 - (c1 - c0) * ant)
-    _arm_key(P, side, fr + 2 + int(dur * 0.55), a1 + (a1 - a0) * over, c1 + (c1 - c0) * over)
-    _arm_key(P, side, fr + 2 + dur, a1, c1)
-    if abs(a1 - a0) + abs(c1 - c0) > math.radians(70) and dur <= 6:
-        sh = P[side]; m = fr + 2 + int(dur * 0.3)
-        kf(sh, "scale", m - 1, (1, 1, 1)); kf(sh, "scale", m, (1, 1, 1.3)); kf(sh, "scale", m + 2, (1, 1, 1))
+    """Arm move that STARTS at fr with slow-in, eased travel, a small overshoot and a slow settle."""
+    a1, c1 = _arm_ae(side, target, euler); d = _dur(dur)
+    _beat(P[side], "rotation_euler", fr, (a1, 0, c1), d, ant, over, mirror=P["grip" + side])
     _ST[(id(P), side)] = (a1, c1)
-    return fr + 2 + dur
+    return fr + d
 
 
 def _rot_beat(P, part, fr, rot, dur, over, ant):
-    r0 = _last(P, part, (0.0, 0.0, 0.0)); r1 = tuple(math.radians(v) for v in rot)
-    ob = P[part]
-    kf(ob, "rotation_euler", fr - 1, r0)
-    kf(ob, "rotation_euler", fr + 2, tuple(a - (b - a) * ant for a, b in zip(r0, r1)))
-    kf(ob, "rotation_euler", fr + 2 + int(dur * 0.6), tuple(b + (b - a) * over for a, b in zip(r0, r1)))
-    kf(ob, "rotation_euler", fr + 2 + dur, r1)
+    r1 = tuple(math.radians(v) for v in rot)
+    _beat(P[part], "rotation_euler", fr, r1, _dur(dur), ant, over)
     _ST[(id(P), part)] = r1
 
 
-def look(P, fr, x=0, y=0, z=0, dur=8, over=0.07, ant=0.04):
+def look(P, fr, x=0, y=0, z=0, dur=8, over=0.05, ant=0.03):
     _rot_beat(P, "neck", fr, (x, y, z), dur, over, ant)
 
 
-def lean(P, fr, x=0, y=0, z=0, dur=10, over=0.06, ant=0.05):
+def lean(P, fr, x=0, y=0, z=0, dur=10, over=0.04, ant=0.03):
     _rot_beat(P, "chest", fr, (x, y, z), dur, over, ant)
 
 
@@ -256,3 +294,25 @@ def smear(name, point_fn, fa, fb, show, width=0.35, col=(1.0, 0.92, 0.82), alpha
     for fc in _fcurves(o):
         for k in fc.keyframe_points: k.interpolation = "CONSTANT"
     return o
+
+
+def check_motion(chars, shots, f_end, parts=("Left", "Right", "neck", "chest"), max_jerk=8.0, quiet=()):
+    """POP check: within a shot, an angle channel must not jump in speed from one frame to the next (sudden start/stop).
+    jerk = |v(f) - v(f-1)| in degrees/frame. Reports the worst offenders; deliberate quick actions go in quiet=(frames)."""
+    import bpy
+    cut = set()
+    for _, a, b in shots: cut.update((a - 1, a, a + 1, b, b + 1))
+    probs = []
+    for name, P in chars.items():
+        for part in parts:
+            for fc in _fcurves(P[part]):
+                if fc.data_path != "rotation_euler": continue
+                v = [math.degrees(fc.evaluate(f)) for f in range(1, f_end + 1)]
+                for f in range(3, f_end - 1):
+                    if any(abs(f - c) <= 2 for c in cut) or any(abs(f - q) <= 4 for q in quiet): continue
+                    j = abs((v[f] - v[f - 1]) - (v[f - 1] - v[f - 2]))
+                    if j > max_jerk: probs.append((round(j, 1), name, part, fc.array_index, f + 1))
+    probs.sort(reverse=True)
+    print("MOTION CHECK", "OK" if not probs else "%d pops (worst first)" % len(probs))
+    for p in probs[:12]: print("    POP %.1f deg/f^2 %s %s[%d] at frame %d" % p)
+    return probs
