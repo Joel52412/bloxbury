@@ -318,30 +318,34 @@ def smear(name, point_fn, fa, fb, show, width=0.35, col=(1.0, 0.92, 0.82), alpha
     return o
 
 
-def check_motion(chars, shots, f_end, parts=("Left", "Right", "neck", "chest"), max_jerk=8.0, chatter=0.6, quiet=()):
-    """Motion QA on every rotation channel, frame by frame (cut frames skipped; deliberate quick actions in quiet=(frames)).
-    POP     - speed jumps from one frame to the next by > max_jerk deg/f^2 (sudden start/stop).
-    CHATTER - the acceleration flips sign 3+ times in 4 frames with > `chatter` deg/f^2: a stutter/judder no smooth move
-              makes (23 Nov: the life layer keyed every 3rd frame over per-frame keys -> Part 3 looked jagged).
+def check_motion(chars, shots, f_end, parts=("Left", "Right", "neck", "chest", "head"), max_jerk=8.0, chatter=0.6, quiet=(),
+                 root_jerk=0.35, root_chatter=0.03):
+    """Motion QA on every animated channel, frame by frame (cut frames skipped; deliberate quick actions in quiet=(frames)).
+    Rotations of `parts` in degrees, the root's location in studs (walks/runs/sits).
+    POP     - speed jumps from one frame to the next by > max_jerk deg/f^2 (root: root_jerk studs/f^2) - sudden start/stop.
+    CHATTER - the acceleration flips sign 3+ times in 4 frames above `chatter` (root: root_chatter): a stutter no smooth
+              move makes (23 Nov: a layer keyed on a coarser frame grid than the keys under it -> jagged Part 3).
     Returns pops + chatters; anything returned = not ready for a preview."""
     cut = set()
     for _, a, b in shots: cut.update((a - 1, a, a + 1, b, b + 1))
     probs = []; chat = []
     for name, P in chars.items():
-        for part in parts:
+        chans = [(part, "rotation_euler", math.degrees, max_jerk, chatter) for part in parts if part in P]
+        chans.append(("root", "location", float, root_jerk, root_chatter))
+        for part, path, conv, mj, ch in chans:
             for fc in _fcurves(P[part]):
-                if fc.data_path != "rotation_euler": continue
-                v = [math.degrees(fc.evaluate(f)) for f in range(1, f_end + 1)]
+                if fc.data_path != path: continue
+                v = [conv(fc.evaluate(f)) for f in range(1, f_end + 1)]
                 acc = [0.0, 0.0] + [(v[f] - v[f - 1]) - (v[f - 1] - v[f - 2]) for f in range(2, len(v))]
                 last = -99
                 for f in range(3, len(v) - 1):
                     if any(abs(f + 1 - c) <= 2 for c in cut) or any(abs(f + 1 - q) <= 4 for q in quiet): continue
-                    if abs(acc[f]) > max_jerk: probs.append((round(abs(acc[f]), 1), name, part, fc.array_index, f + 1))
+                    if abs(acc[f]) > mj: probs.append((round(abs(acc[f]), 2), name, part + "." + path[:3], fc.array_index, f + 1))
                     w = acc[f - 3:f + 1]
-                    if f - last > 6 and all(abs(x) > chatter for x in w) and all(w[k] * w[k + 1] < 0 for k in range(3)):
-                        chat.append((round(max(abs(x) for x in w), 1), name, part, fc.array_index, f + 1)); last = f
+                    if f - last > 6 and all(abs(x) > ch for x in w) and all(w[k] * w[k + 1] < 0 for k in range(3)):
+                        chat.append((round(max(abs(x) for x in w), 2), name, part + "." + path[:3], fc.array_index, f + 1)); last = f
     probs.sort(reverse=True); chat.sort(reverse=True)
     print("MOTION CHECK", "OK" if not probs and not chat else "%d pops, %d chatters (worst first)" % (len(probs), len(chat)))
-    for p in probs[:12]: print("    POP %.1f deg/f^2 %s %s[%d] at frame %d" % p)
-    for p in chat[:12]: print("    CHATTER %.1f deg/f^2 %s %s[%d] at frame %d" % p)
+    for p in probs[:12]: print("    POP %.2f %s %s[%d] at frame %d" % p)
+    for p in chat[:12]: print("    CHATTER %.2f %s %s[%d] at frame %d" % p)
     return probs + chat

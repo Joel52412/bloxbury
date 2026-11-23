@@ -1240,14 +1240,17 @@ def push_in(t0, t1, pos, target, studs, lens=22):
 
 
 def shake(t0, dur, pos, target, strength_deg):
+    """Small jolt on the ONE big hit: smooth decaying wobble keyed every frame (23 Nov: the old random jitter every
+    2 frames with LINEAR keys read as a stutter)."""
     base = look(pos, target)
-    frames = int(dur * FPS)
-    for i in range(0, frames, 2):
-        left = 1 - i / frames
-        a = math.radians(strength_deg) * left
-        jitter = Quaternion((1, random.uniform(-a, a), random.uniform(-a, a), random.uniform(-a, a))).normalized()
-        cam_key(t0 + i / FPS, pos, base @ jitter, "LINEAR", (target - pos).length)
-    cam_key(t0 + dur, pos, base, "CONSTANT", (target - pos).length)
+    frames = max(2, int(dur * FPS)); ph = random.uniform(0, 6.28)
+    for i in range(frames + 1):
+        u = i / frames; env = math.sin(math.pi * min(1.0, u / 0.15)) if u < 0.15 else (1 - u) ** 2
+        a = math.radians(strength_deg) * env
+        t = i / FPS
+        q = Quaternion((1, a * math.sin(31 * t + ph), a * math.sin(23 * t + 2 * ph), a * 0.5 * math.sin(17 * t + 1))).normalized()
+        cam_key(t0 + t, pos, base @ q, "BEZIER", (target - pos).length)
+    cam_key(t0 + dur + 1.0 / FPS, pos, base, "CONSTANT", (target - pos).length)
 
 
 # Captions + black frame ride on the camera
