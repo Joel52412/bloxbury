@@ -2,9 +2,10 @@
 Save as `stories/heightmog/part1/voice/<who>_hm1.mp3` (kai, mayor, guys). Music: `assets/music/Numbers_piano.mp3`.
 
 ## New voices (ElevenLabs Voice Design, guidance ~35%)
+Paste only the Prompt into the Prompt box and the Preview text into the Preview Text box.
 ### KAI (narrator + in-scene lines)
-Prompt:
-American English, General American accent. A boy around 11 years old with a bright, slightly nasal, mid-high voice. Studio-quality recording. A deadpan, sarcastic kid narrator. Dry, confident and a little fed up. He talks quickly and matter-of-factly, landing every joke with a flat, unimpressed delivery, and can drop into a silly, forced deep voice.
+Prompt (ElevenLabs blocks child voices, so design an adult and pitch it up ~+3 semitones, formants kept, in our mix):
+American English, General American accent. A petite young man in his early 20s with a light, high, boyish, slightly nasal voice. Studio-quality recording. A deadpan, sarcastic narrator. Dry, confident and a little fed up. He talks quickly and matter-of-factly, landing every joke with a flat, unimpressed delivery, and can drop into a silly, forced deep voice.
 Preview text:
 Okay, so here's the thing about my town. Nobody listens to me. Not my teacher, not my mom, not even the dog. Honestly? I'm used to it. But one day, I'm going to be the one giving the orders. You'll see.
 Test line: "Taxes... cancelled." (forced deep voice)
