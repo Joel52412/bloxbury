@@ -78,6 +78,6 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 ## Status (23 Nov 21:25)
 - Parts 1-3 delivered. Part 3 v2 (`Bloxbury_Part3_v2.mp4`) looked jagged: life layer keyed every 3rd frame (8 Hz judder), easing started/stopped mid-speed, shoe shadows popped on at 0:03.96, slap crossed the face in 1 frame, inserts froze. Fixed in motion.py / part3.py / cinema.py (branch `claude/project-thread-e9iybj`, copied to the laptop). Joel saw the local before/after clips ("much better") and said no re-render needed (23 Nov 20:55).
 - Library: props 1-6 + lookdev approved; `LIGHTING.md`, captions, hook rules in force.
-- Lip-sync now driven by the speech (`visemes.py` + `rig2.lipsync`, merged as PR #3) + `talk_face` brows/eyes (PR #4); Part 3 env regenerated with viseme codes. New preps: copy prep_p3's `viseme_tracks` line.
+- Lip-sync now driven by the speech (`visemes.py` + `rig2.lipsync`, merged as PR #3) + `talk_face` brows/eyes (PR #5); Part 3 env regenerated with viseme codes. New preps: copy prep_p3's `viseme_tracks` line.
 - TODO: wire `make_tiktok.sh` into `pod_finish.sh`; GHCR render image private (use runpod/pytorch).
 - **NEXT:** Part 4 (built on the fixed motion.py) (open thread: where is real Mum? who has Milo's voice?).
