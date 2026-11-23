@@ -76,7 +76,7 @@ series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)
 - **Part 2 "She Came Home"** (80 s, 1921 frames, `part2.py`, `prep_p2.py`, script in `series/bloxbury/part2/`): Mum is back making pancakes but calls him "Milo" (she never does). Rae: Mum was crossed off the list three weeks ago; "mirrors don't lie". The hallway mirror's twin keeps smiling and turns. Real Mum whispers from the closet "I heard it too"; fake Mum knocks: "Who are you talking to?" Outro: "Two mums. One door. Which one would you open?" Music: Numbers instrumental loop (`assets/music`), 35%.
 
 ## Status (23 Nov 21:00)
-- Parts 1-3 delivered. Part 3 v2 (`Bloxbury_Part3_v2.mp4`) looked jagged: life layer keyed every 3rd frame (8 Hz judder), easing started/stopped mid-speed, shoe shadows popped on at 0:03.96, slap crossed the face in 1 frame, inserts froze. Fixed in motion.py / part3.py / cinema.py (branch `claude/project-thread-e9iybj`); motion preview on a pod waits for Joel's OK.
+- Parts 1-3 delivered. Part 3 v2 (`Bloxbury_Part3_v2.mp4`) looked jagged: life layer keyed every 3rd frame (8 Hz judder), easing started/stopped mid-speed, shoe shadows popped on at 0:03.96, slap crossed the face in 1 frame, inserts froze. Fixed in motion.py / part3.py / cinema.py (branch `claude/project-thread-e9iybj`, copied to the laptop). Joel saw the local before/after clips ("much better") and said no re-render needed (23 Nov 20:55).
 - Library: props 1-6 + lookdev approved; `LIGHTING.md`, captions, hook rules in force.
 - TODO: wire `make_tiktok.sh` into `pod_finish.sh`; GHCR render image private (use runpod/pytorch).
-- **NEXT:** Part 3 motion preview -> re-render; then Part 4 (open thread: where is real Mum? who has Milo's voice?).
+- **NEXT:** Part 4 (built on the fixed motion.py) (open thread: where is real Mum? who has Milo's voice?).
