@@ -5,6 +5,7 @@ U="${1:-$(cd "$(dirname "$0")/.." && pwd)}"
 H=/home/claude
 mkdir -p $H/bloxbury-blender $H/studio_library/engine $H/talk $H/tools
 cp $U/_studio_library/engine/*.py $H/studio_library/engine/
+cp -r $U/_studio_library/mocap $H/studio_library/ 2>/dev/null     # mocap clips (engine/mocap.py)
 cp $U/_pipeline/scripts/*.py $H/bloxbury-blender/
 cp $U/_pipeline/audio_tools/prep2.py $H/talk/
 find $U/_pipeline/data -maxdepth 1 -type f -exec cp {} $H/talk/ \;
