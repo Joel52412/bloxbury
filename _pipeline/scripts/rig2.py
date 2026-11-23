@@ -247,8 +247,89 @@ def mouth(rig, frame, key):
     vis(rig["mouths"][key], frame, True); rig["cur_m"] = key
 
 
-def lipsync(rig, f0, f1, segs):
-    """segs: list of (frame, rest_mouth, style). Mouth shapes from loudness + brightness; holds 2+ frames (no flicker)."""
+# ------------------------------------------------------------------ lip-sync from the speech itself (visemes.py codes)
+# One code per frame from the prep script's phone alignment: X rest, M closed (M B P), T teeth-on-lip (F V), U pucker,
+# O round, A open, E spread, H half. Mapped onto the existing mouth shapes per speaking style; loudness picks between the
+# full and the softer shape so unstressed syllables don't gape.
+VIS_MOUTH = {
+    "calm":    {"M": "M", "T": "teeth", "U": "small_o", "O": "O", "A": "A", "E": "E", "H": "half"},
+    "excited": {"M": "M", "T": "teeth", "U": "small_o", "O": "O", "A": "grin_open", "E": "grin_open", "H": "half"},
+    "whisper": {"M": "M", "T": "half", "U": "small_o", "O": "small_o", "A": "half", "E": "half", "H": "half"},
+}
+VIS_SOFT = {"A": "H", "E": "H", "O": "U"}       # quiet frame -> next-smaller shape
+VIS_KEEP = {"H": 0, "X": 1, "T": 2, "U": 3, "E": 4, "O": 5, "A": 6, "M": 7}     # merge order for 1-frame shapes
+VIS_OPEN = {"X": 0, "M": 0, "U": 1, "T": 1, "H": 2, "E": 2, "O": 3, "A": 4}
+LIP_LEAD = 1            # mouths land one frame before the sound (animators' rule; reads as in sync)
+
+
+def vis_clean(codes):
+    """Readable 24 fps mouth timing: every shape holds 2+ frames (no chatter), closures (M) are never dropped,
+    wide-open shapes get a half-open in-between coming from / going to closed."""
+    c = list(codes)
+    for _ in range(len(c)):                                 # merge one 1-frame run at a time, least important first
+        runs = []; i = 0
+        while i < len(c):
+            j = i
+            while j + 1 < len(c) and c[j + 1] == c[i]: j += 1
+            runs.append((c[i], i, j)); i = j + 1
+        single = [k for k, (code, i, j) in enumerate(runs) if i == j and 0 < k < len(runs) - 1]
+        if not single: break
+        done = False
+        for k in sorted(single, key=lambda k: VIS_KEEP[runs[k][0]]):
+            code, i, _ = runs[k]; prv, nxt = runs[k - 1], runs[k + 1]
+            if code == "M":                                 # 1-frame closure: steal a frame from a neighbour with 3+
+                donor = max((r for r in (prv, nxt) if r[0] != "X" and r[2] - r[1] >= 2), key=lambda r: r[2] - r[1], default=None)
+                if donor is None: continue
+                c[i - 1 if donor is prv else i + 1] = "M"; done = True; break
+            best = min((prv, nxt), key=lambda r: (abs(VIS_OPEN[r[0]] - VIS_OPEN[code]), -(r[2] - r[1])))
+            c[i] = best[0]; done = True; break
+        if not done: break
+    for i in range(1, len(c) - 3):                          # closed -> A A A A  becomes  closed -> H A A A
+        if VIS_OPEN[c[i - 1]] == 0 and c[i:i + 4] == ["A"] * 4: c[i] = "H"
+    for i in range(3, len(c) - 1):                          # A A A A -> closed  becomes  A A A H -> closed
+        if VIS_OPEN[c[i + 1]] == 0 and c[i - 3:i + 1] == ["A"] * 4: c[i] = "H"
+    return "".join(c)
+
+
+def lipsync(rig, f0, f1, segs, who=None):
+    """segs: list of (frame, rest_mouth, style). Uses the speech-driven codes in ENV (from visemes.py via the prep script)
+    when present, else falls back to the old loudness/brightness flap."""
+    vis = ENV.get("vis", {}).get(who) if who else ENV.get("vis_all")
+    if not vis: return _lipsync_env(rig, f0, f1, segs)
+    rms = ENV.get("rms") or [1.0] * len(vis)
+    peak = max(rms[max(0, f0 - 1):f1] or [1]) or 1
+    lo = max(1, f0 - 1); hi = min(len(vis), f1 + LIP_LEAD)
+    sty = lambda fr: [sg for sg in segs if sg[0] <= fr][-1] if any(sg[0] <= fr for sg in segs) else segs[0]
+    raw = []                                                # raw[k] is frame lo + k
+    for i in range(lo - 1, hi + 1):
+        c = vis[i] if i < len(vis) else "X"
+        if c in VIS_SOFT and sty(i + 1 - LIP_LEAD)[2] != "excited" and i < len(rms) and rms[i] / peak < 0.3:
+            c = VIS_SOFT[c]                                 # quiet syllable -> softer shape
+        raw.append(c)
+    codes = vis_clean(raw)
+    log = rig.setdefault("lip_log", [])
+    for fr in range(max(1, f0 - LIP_LEAD), f1 + 1):         # the lead may open the mouth a frame before the line window
+        _, rest, style = sty(fr)
+        k = fr + LIP_LEAD - lo
+        c = codes[k] if 0 <= k < len(codes) else "X"
+        m = rest if c == "X" else VIS_MOUTH.get(style, VIS_MOUTH["calm"])[c]
+        if m != rig["cur_m"]: mouth(rig, fr, m); log.append((fr, m))
+
+
+def check_lipsync(rigs):
+    """QA: mouths that show for a single frame (chatter) or swap more than 8 times a second. Returns problems."""
+    probs = []
+    for nm_, rig in rigs.items():
+        log = sorted(set(rig.get("lip_log", [])))
+        for (fa, ma), (fb, mb) in zip(log, log[1:]):
+            if fb - fa == 1 and ma != "M" and not (ma == "half" and mb in ("A", "grin_open")): probs.append((nm_, "1-frame mouth", fa, ma))
+        for i in range(len(log) - 8):
+            if log[i + 8][0] - log[i][0] < 24: probs.append((nm_, "chatter >8 swaps/s", log[i][0])); break
+    return probs
+
+
+def _lipsync_env(rig, f0, f1, segs):
+    """Legacy (pre 23 Nov): mouth shapes from loudness + brightness; used only when the env has no viseme track."""
     rms, cen = ENV["rms"], ENV["cen"]
     peak = max(rms[f0 - 1:f1]) or 1
     held = 0
