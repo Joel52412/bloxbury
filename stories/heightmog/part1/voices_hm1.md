@@ -12,10 +12,10 @@ Okay, so here's the thing about my town. Nobody listens to me. Not my teacher, n
 Test line: "Taxes... cancelled." (forced deep voice)
 
 ### MAYOR (top guy in the coat)
-Prompt:
-American English, General American accent. A short man in his 40s with a booming, deep, chesty voice that sounds slightly forced. Studio-quality recording. A pompous small-town mayor. Arrogant, theatrical and self-important. He speaks slowly and grandly, stretching words for effect, like every sentence is a speech.
+Prompt (no politics words: ElevenLabs blocks "mayor"/"citizens"/"taxes" in Voice Design):
+American English, General American accent. A short man in his 40s with a booming, deep, chesty voice that sounds slightly forced. Studio-quality recording. A pompous cartoon show-off. Arrogant, theatrical and self-important. He speaks slowly and grandly, stretching words for effect, like every sentence is a big announcement.
 Preview text:
-Citizens! Today is a great day for our town. I have made a decision, and my decision is final. Taxes... are going up. You may now applaud. Louder. Thank you.
+Ladies and gentlemen! Today is a great day. I have made a decision, and my decision is final. Lunch... is now cancelled. You may now applaud. Louder. Thank you.
 Test line: "...Please don't tell." (voice cracks small and squeaky; if it can't crack enough, we pitch it up in the mix)
 
 ### GUYS (middle + bottom guy, one voice)
