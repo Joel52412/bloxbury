@@ -4,7 +4,7 @@
 #         python3 preview_local.py partN.py --all      keep going batch after batch (each its own process), then join
 #         python3 preview_local.py partN.py --join     only join + audit what is there
 # Env: RX RY SAMPLES (216/384/4), BUDGET seconds per batch (720), OUT frames dir (/home/claude/talk/preview_pN).
-# Resumable: a killed batch only loses the frame it was on. Measured 23 Nov here: ~1.1 s/frame (Part 3 = ~37 min, 3 batches).
+# Resumable: a killed batch only loses the frame it was on. Measured 23 Nov here: Part 3 (2023 frames) in 30 min, 3 batches, 0.7-1.0 s/frame.
 import json, os, re, subprocess, sys, time
 SCRIPT = sys.argv[1]; N = re.search(r"(\d+)", os.path.basename(SCRIPT)).group(1)
 TALK = os.environ.get("OUT_DIR", "/home/claude/talk/"); HERE = os.path.dirname(os.path.abspath(__file__))
@@ -60,7 +60,10 @@ def batch():
 def join():
     if missing(): raise SystemExit(f"{len(missing())} frames still missing - run more batches first")
     mp4 = f"{TALK}Part{N}_preview.mp4"
-    subprocess.run(["sh", f"{HERE}/make_part.sh", OUT, mp4, f"{TALK}part{N}_audio.wav", f"{TALK}captions_p{N}.ass"], check=True)
+    # own join (not make_part.sh): libass scales the 1080x1920 captions, \pos included, to the 432x768 upscale
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", "24", "-i", f"{OUT}/%04d.png", "-i", f"{TALK}part{N}_audio.wav",
+                    "-vf", f"scale=432:768:flags=lanczos,ass={TALK}captions_p{N}.ass:fontsdir={HERE}/../assets/fonts,format=yuv420p",
+                    "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-b:a", "160k", "-shortest", mp4], check=True)
     shots = f"{TALK}shots_p{N}.json"
     a = [sys.executable, os.path.abspath(f"{HERE}/../_tools/motion_audit.py"), mp4] + ([shots] if os.path.exists(shots) else [])
     print(subprocess.run(a, capture_output=True, text=True).stdout)
