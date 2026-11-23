@@ -1,12 +1,12 @@
 #!/bin/sh
 # Render a scene on EVERY GPU of the pod from ONE shared frame queue (Blender placeholders: each GPU claims the next
 # free frame), so a slow GPU never holds the finish back. pod_balance.sh restarts any GPU whose Blender exits early.
-# Usage: sh pod_render.sh part2.py 1921 /workspace/frames
+# Usage: sh pod_render.sh part2.py 1921 /workspace/frames      Motion preview: RX=540 RY=960 SAMPLES=6 sh pod_render.sh ...
 S=$1; N=$2; OUT=${3:-/workspace/frames}; mkdir -p $OUT
 find $OUT -name "*.png" -size 0 -delete 2>/dev/null    # resume-safe: drop placeholders of frames cut off by a stop
 G=$(nvidia-smi -L | wc -l); i=0
 while [ $i -lt $G ]; do
-  CUDA_VISIBLE_DEVICES=$i ENGINE=GPU RENDER=1 RX=1080 RY=1920 OUT=$OUT FS=1 FE=$N \
+  CUDA_VISIBLE_DEVICES=$i ENGINE=GPU RENDER=1 RX=${RX:-1080} RY=${RY:-1920} SAMPLES=${SAMPLES:-32} OUT=$OUT FS=1 FE=$N \
     nohup /workspace/blender/blender -b --python /home/claude/bloxbury-blender/$S > /workspace/render_gpu$i.log 2>&1 &
   echo "GPU $i: shared queue 1-$N"; i=$((i+1)); sleep 3          # stagger starts so they don't all claim frame 1
 done

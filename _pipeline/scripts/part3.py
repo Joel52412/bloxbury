@@ -379,167 +379,270 @@ exec(open(SCR + "cinema.py").read())          # camera grammar: cine() / insert(
 
 
 # ================================================================== SHOTS (times from env_p3 scenes; captions/lines from prep_p3)
-ALLOW = ()
-MB = V((-6.2, -39.6, 0.55)); MYAW = -34                      # Milo on the bed edge, facing the door
+# ANIMATION PASS v2 (Joel 23:49): every move goes through motion.py (wind-up, overshoot, settle, smears), the life layer
+# keeps every visible character breathing/drifting/trembling, real run + creep, real sitting, real writing, quick phone flip.
+exec(open(LIB + "motion.py").read())
+ALLOW = ("E2 the fence gap",)      # he ducks UNDER the top rail: the rail crossing his head is the point
+MB = V((-6.2, -39.6, 0.4)); MYAW = -34; BED_TOP = 2.4               # Milo on the bed edge, facing the door
 FWD = V((math.sin(DEG(-MYAW)), math.cos(DEG(-MYAW)), 0)); LEFT = V((-FWD.y, FWD.x, 0))
 DOOR_LOW = V((0.0, -30.8, 0.9)); DOOR_MID = V((0.0, -30.7, 5.0))
 CLOSET = V((4.6, -45.6, 3.4))
 HOOK_LIGHT = dict(MoonSpot=45000, DoorPrac=30, RoomFillA=8, FairyRim=140, moon_from=(24.0, -32.8, 9.7), moon_at=(-6.2, -39.6, 4.9),
                   cookie_at=(-6.2, -39.6, 4.8))
+MOUTH_T = (-1.3, 1.6, 5.4)                                          # right hand clamped over the mouth
 for P in CAST: arms_down(P, 1)
 sway(0, SC["escape"][0] + 2)
+CUTS_T = []                                                         # life windows follow the cuts
 
-# ---------------- 0  HOOK 0.00-3.15: lit + readable from frame 0; voice at 0.1 s; cut at ~1.6 s
-sit(milo, 1, MB, MYAW)
-arm(milo, "Right", 1, target=(-1.3, 1.6, 5.4)); arm(milo, "Left", 1, target=(-0.6, 1.4, 2.6))   # hand clamped over his mouth
+
+def live(P, t0, t1, mood):
+    life(P, FT(t0), FT(t1) - 1, mood)
+
+
+# ---------------- 0  HOOK 0.00-3.15
+seated(milo, 1, MB, MYAW, BED_TOP)
+pose_arm(milo, "Right", 1, target=MOUTH_T); pose_arm(milo, "Left", 1, target=(-0.6, 1.4, 2.6))
 expr(fm, 1, "scared"); mouth(fm, 1, "rest_frown")
-idle(milo, 1, FT(SC["door_feet"][1]), amp=0.01, base_z=MB.z)
 light_shot(0.0, **HOOK_LIGHT)
 cine("H1 hand over mouth", 0.0, 1.6, milo, u=FWD + LEFT * 0.45, size="CU", move="push", amt=1.15, lens=46, sx=0.04)
+look(milo, FT(0.5), -4, 0, 6, dur=10)                               # a tiny flinch toward the door
+gesture(milo, "Right", FT(0.9), target=(-1.25, 1.75, 5.5), dur=6, ant=0.3)   # presses the hand harder
 cine("H2 three hours", 1.6, 3.15, milo, u=FWD * 0.8 - LEFT * 0.6, size="MS", move="drift", amt=6, lens=30, sy=0.16, sx=0.1)
+gesture(milo, "Left", FT(1.9), target=(-0.4, 1.7, 2.4), dur=10)      # pulls his knees in
+look(milo, FT(2.3), 6, 0, -10, dur=12)
+live(milo, 0, 9.97, "scared")
 blinks(fm, 0.0, 10.0, every=2.6)
 
-# ---------------- 1  DOOR + FEET 3.15-9.97: the feet arrive at 3.45 (something wrong by ~3.5 s), knocks ~7.7, "Bug?" 8.77
-gap_feet(GAP, False, 1); gap_feet(GAP, True, FT(3.45)); gap_feet(GAP, False, FT(SC["closet_crack"][0]))
-gap_feet(GAP, True, FT(SC["door_ask"][0])); gap_feet(GAP, False, FT(SC["milo_push"][1]))
+# ---------------- 1  DOOR + FEET 3.15-9.97: the feet WALK INTO the light at 3.45 (something wrong by ~3.5 s)
+gap_feet(GAP, False, 1)
+FEET_OBJ = [o for o in GAP["feet"]]
+for o in FEET_OBJ:
+    x0 = o.location.x
+    kf(o, "location", 1, (x0 + 5.0, o.location.y, o.location.z), interp="CONSTANT")
+    kf(o, "location", FT(3.4), (x0 + 5.0, o.location.y, o.location.z)); kf(o, "location", FT(3.95), (x0 - 0.12, o.location.y, o.location.z))
+    kf(o, "location", FT(4.1), (x0, o.location.y, o.location.z))
+for o in FEET_OBJ: vis_obj(o, 1, False); vis_obj(o, FT(3.4), True)
+vis_obj(GAP["spill_feet"], 1, False); vis_obj(GAP["spill"], 1, True)
+vis_obj(GAP["spill_feet"], FT(3.95), True); vis_obj(GAP["spill"], FT(3.95), False)
+for t, on in ((SC["closet_crack"][0], False), (SC["door_ask"][0], True), (SC["milo_push"][1], False)):
+    for o in FEET_OBJ: vis_obj(o, FT(t), on)
+    vis_obj(GAP["spill_feet"], FT(t), on); vis_obj(GAP["spill"], FT(t), not on)
 light_shot(3.15, MoonSpot=5000, RoomFillA=25, moon_at=(-1.5, -31.0, 2.0))
 shot("D1 insert: the gap", 3.15, 5.1, [(0, V((1.7, -37.6, 1.2)), DOOR_LOW, 32), (0.8, V((1.55, -36.6, 1.15)), DOOR_LOW, 32)], fstop=3.5)
 light_shot(5.1, **HOOK_LIGHT)
 cine("D2 he stares at the door", 5.1, 7.55, milo, u=FWD + LEFT * 0.2, size="MCU", move="push", amt=1.2, lens=40, sx=-0.06)
+lean(milo, FT(5.3), 7, 0, 0, dur=14)                                # shrinks back from the door
+look(milo, FT(6.4), -3, 0, 4, dur=8)
 light_shot(7.55, MoonSpot=9000, RoomFillA=70)
 shot("D3 knocks / Bug?", 7.55, SC["door_feet"][1], [(0, V((0.6, -41.5, 5.2)), DOOR_MID, 30), (0.85, V((0.55, -40.6, 5.1)), DOOR_MID, 30)])
-for tk in (7.78, 8.02, 8.26):                                                    # the door shivers on each soft knock
+for tk in (7.78, 8.02, 8.26):                                       # the door shivers on each soft knock
     kf(FRONT_DOOR, "rotation_euler", FT(tk) - 1, FD_ROT); kf(FRONT_DOOR, "rotation_euler", FT(tk), (FD_ROT[0], FD_ROT[1], FD_ROT[2] + DEG(0.5)))
     kf(FRONT_DOOR, "rotation_euler", FT(tk) + 3, FD_ROT)
 
-# ---------------- milo_close 9.97-15.35: "Last night it didn't know that word / Then it heard Mum say it"
+# ---------------- milo_close 9.97-15.35
 light_shot(SC["milo_close"][0], **HOOK_LIGHT)
-expr(fm, FT(10.0), "scared"); expr(fm, FT(13.2), "shocked")
-neck(milo, FT(10.0), 0, 0, 0); neck(milo, FT(13.0), 0, 0, 0); neck(milo, FT(14.2), 0, 0, -38)     # turns to the closet
+expr(fm, FT(10.0), "scared"); expr(fm, FT(12.9), "notice"); expr(fm, FT(13.4), "shocked")
+lean(milo, FT(10.0), 3, 0, 0, dur=8)
+look(milo, FT(10.1), 0, 0, 0, dur=6)
+look(milo, FT(13.5), -6, 0, -40, dur=10, over=0.2)                  # snaps toward the closet on "Mum"
 cine("C1 it didn't know that word", SC["milo_close"][0], SC["milo_close"][1], milo, u=FWD + LEFT * 0.35, size="CU", move="push", amt=1.2, lens=55, sx=0.05)
+live(milo, 9.97, 15.35, "scared")
 blinks(fm, 10.0, 15.3, every=2.8, ph=0.5)
 
-# ---------------- closet_crack 15.35-19.85: moonlight finds her hand + bracelet in the crack
+# ---------------- closet_crack 15.35-19.85: her hand slides out of the dark into the moonlight
 C0 = SC["closet_crack"][0]
 kf(CLOSET_HINGE, "rotation_euler", 1, (0, 0, 0), interp="CONSTANT")
-kf(CLOSET_HINGE, "rotation_euler", FT(C0), (0, 0, DEG(-5))); kf(CLOSET_HINGE, "rotation_euler", FT(C0 + 1.2), (0, 0, DEG(-9)))
+kf(CLOSET_HINGE, "rotation_euler", FT(C0), (0, 0, DEG(-3))); kf(CLOSET_HINGE, "rotation_euler", FT(C0 + 1.0), (0, 0, DEG(-10))); kf(CLOSET_HINGE, "rotation_euler", FT(C0 + 1.4), (0, 0, DEG(-9)))
 at(real, FT(C0), V((6.5, -47.9, 0.4)), 0)
-arm(real, "Left", FT(C0), target=(-2.0, 2.2, 2.6)); arm(real, "Right", FT(C0), euler=(4, 6))
+pose_arm(real, "Left", FT(C0), euler=(10, -6)); pose_arm(real, "Right", FT(C0), euler=(4, 6))
+gesture(real, "Left", FT(C0 + 0.6), target=(-2.0, 2.2, 2.6), dur=26, ant=0.05, over=0.06)   # slow reach, barely any overshoot
+gesture(real, "Left", FT(17.8), target=(-2.1, 2.3, 2.9), dur=10, ant=0.2)                    # a small "stop" on "Not one word"
 expr(freal, FT(C0), "scared"); mouth(freal, FT(C0), "rest_frown")
 light_shot(C0, ClosetIn=320, MoonSpot=4000, RoomFillA=15, moon_from=(24.0, -22.0, 18.0), moon_at=(4.6, -45.0, 2.5), cookie_at=(4.6, -45.0, 2.5))
 shot("K1 the crack: her hand", C0, SC["closet_crack"][1], [(0, V((1.3, -39.2, 4.3)), CLOSET, 46), (0.8, V((2.0, -40.9, 4.2)), CLOSET + V((0, -0.1, 0)), 46)], fstop=2.4)
+live(real, C0, SC["closet_crack"][1], "tense")
 park(real, FT(SC["closet_crack"][1]))
 
-# ---------------- rules_drawing 19.85-28.73: Mum's three rules; the drawing (LIGHTHOUSE hidden in the beam)
+# ---------------- rules_drawing 19.85-28.73
 R0 = SC["rules_drawing"][0]
 light_shot(R0, **HOOK_LIGHT)
-neck(milo, FT(R0), 0, 0, -38); neck(milo, FT(R0 + 1.2), 0, 0, 30)                                  # looks up at his drawing
+snap_rot(milo, "neck", FT(R0), -6, 0, -40)
+look(milo, FT(R0 + 0.3), -14, 0, 34, dur=14)                        # looks up at his drawing
+gesture(milo, "Right", FT(R0 + 0.5), target=(-0.3, 1.4, 2.8), dur=16, ant=0.06)   # the hand finally leaves his mouth
 expr(fm, FT(R0), "sad")
 cine("R1 Mum had three rules", R0, 22.1, milo, u=FWD * 0.3 + LEFT, size="MCU", move="hold", lens=36, sx=0.1)
+live(milo, R0, 22.1, "calm")
 DRW = V((-7.0, -48.94, 7.0))
 light_shot(22.1, FairyGlow=70, RoomFillA=8, exposure=-0.2)
-insert("R2 the drawing", 22.1, SC["rules_drawing"][1], DRW, DRW + V((0.75, 0, 0.62)), (0, 1, 0), 3.4, 1.7, lens=45, land=0.8)   # whole page -> the beam
+insert("R2 the drawing", 22.1, SC["rules_drawing"][1], DRW, DRW + V((0.75, 0, 0.62)), (0, 1, 0), 3.4, 1.7, lens=45, land=0.8)
 
-# ---------------- door_ask 28.73-34.49 (MUSIC OUT): "Bug... if it's really you in there... tell me our word."
+# ---------------- door_ask 28.73-34.49 (MUSIC OUT)
 A0 = SC["door_ask"][0]
 light_shot(A0, MoonSpot=5000, RoomFillA=12, moon_at=(-1.5, -31.0, 2.0))
-shot("A1 the feet wait", A0, 31.4, [(0, V((1.4, -36.4, 1.0)), DOOR_LOW, 28), (1.0, V((1.4, -36.1, 1.0)), DOOR_LOW, 28)], fstop=3.5)   # near-static: dread
+shot("A1 the feet wait", A0, 31.4, [(0, V((1.4, -36.4, 1.0)), DOOR_LOW, 28), (1.0, V((1.4, -36.1, 1.0)), DOOR_LOW, 28)], fstop=3.5)
+for o in FEET_OBJ:                                                  # one foot shifts its weight while she asks
+    kf(o, "location", FT(30.0), o.location.copy()); kf(o, "location", FT(30.3), o.location + V((0, 0, 0.08))); kf(o, "location", FT(30.6), o.location.copy())
 light_shot(31.4, **HOOK_LIGHT)
-neck(milo, FT(29.0), 0, 0, 0)
+snap_rot(milo, "neck", FT(31.4), 0, 0, 0); pose_arm(milo, "Right", FT(31.4), target=(-0.3, 1.4, 2.8))
+gesture(milo, "Right", FT(31.5), target=MOUTH_T, dur=4, ant=0.25, over=0.15)     # SLAPS the hand back over his mouth (smear)
 expr(fm, FT(31.4), "shocked")
 cine("A2 tell me our word", 31.4, SC["door_ask"][1], milo, u=FWD + LEFT * 0.5, size="ECU", move="sink", amt=6, lens=70, sx=0.0, sy=0.1)
+live(milo, 31.4, SC["door_ask"][1], "scared")
 
-# ---------------- milo_push 34.49-37.86: "It wasn't checking me. It was learning."
+# ---------------- milo_push 34.49-37.86: the plan
 light_shot(SC["milo_push"][0], **HOOK_LIGHT)
 expr(fm, FT(34.6), "scared"); expr(fm, FT(36.5), "ominous")
-arm(milo, "Right", FT(36.0), target=(-1.3, 1.6, 5.4)); arm(milo, "Right", FT(36.8), euler=(6, 6))     # the hand comes down: a plan
+gesture(milo, "Right", FT(36.0), target=(-0.2, 1.3, 2.6), dur=10, ant=0.1)     # the hand comes down: a decision
+look(milo, FT(36.7), 18, 0, 0, dur=10)                                          # looks down: the floor, the pencil
+lean(milo, FT(36.6), -8, 0, 0, dur=10)
 cine("P1 it was learning", SC["milo_push"][0], SC["milo_push"][1], milo, u=FWD - LEFT * 0.3, size="MCU", move="push", amt=1.25, lens=50, sx=-0.08)
+live(milo, SC["milo_push"][0], SC["milo_push"][1], "tense")
 blinks(fm, 34.5, 37.8, every=2.0)
 
-# ---------------- note 37.86-46.47: writes LIGHTHOUSE, pushes it into the crack, it comes back: WINDOW. RAE'S. GO.
+# ---------------- note 37.86-46.47: he sits ON the floor, picks up the pencil, WRITES it letter by letter, pushes it in
 N0 = SC["note"][0]
-MF = V((4.4, -41.4, 0.42))
-sit(milo, FT(N0), MF, 180)                                     # on the floor facing the closet
-arm(milo, "Right", FT(N0), target=(0.4, 1.9, 0.9)); arm(milo, "Left", FT(N0), target=(-0.8, 1.6, 1.4))
-for k, fr in enumerate(range(FT(39.9), FT(42.6), 3)):          # writing: small pencil strokes
-    arm(milo, "Right", fr, target=(0.4 + 0.12 * math.sin(k * 1.7), 1.9 + 0.05 * math.cos(k * 2.3), 0.9))
-kf(PENCIL, "location", FT(N0), V((3.95, -42.75, 0.46)), interp="CONSTANT")
-vis_obj(NOTE_BLANK, 1, True); vis_obj(NOTE_BLANK, FT(42.45), False)
-expr(fm, FT(N0), "nervous"); expr(fm, FT(42.6), "scared")
+MF = V((4.4, -41.4, 0.4))
+standing(milo, FT(N0)); snap_rot(milo, "neck", FT(N0), 0, 0, 0); snap_rot(milo, "chest", FT(N0), 0, 0, 0)
+at(milo, FT(N0), MF, 180); pose_arm(milo, "Right", FT(N0), euler=(6, 6)); pose_arm(milo, "Left", FT(N0), euler=(6, -6))
+sit_down(milo, FT(N0 + 0.1), FT(N0 + 0.9), MF, 180, 0.4)
+gesture(milo, "Left", FT(N0 + 0.6), target=(-0.9, 1.5, 1.6), dur=8)              # steadies himself / holds the page
+gesture(milo, "Right", FT(38.9), target=(0.7, 1.7, 0.7), dur=7)                   # reaches for the pencil
+# the pencil: on the floor until he picks it up, then in his hand (tilt follows the arm)
+HP = p6_pencil("PencilHand", (0, 0, 0), (0, 0, 0)); HP.parent = milo["tiltRight"]; HP.location = (0.1, 0.35, -0.45); HP.rotation_euler = (DEG(-60), 0, DEG(90))
+vis_obj(HP, 1, False); vis_obj(HP, FT(39.4), True); vis_obj(PENCIL, 1, True); vis_obj(PENCIL, FT(39.4), False)
+vis_obj(PENCIL, FT(43.8), True); vis_obj(HP, FT(43.8), False)
+kf(PENCIL, "location", FT(43.8), V((4.0, -42.2, 0.46)), interp="CONSTANT")
+# scribble: quick little strokes while the pencil SFX plays (40.97-42.57)
+k = 0
+for fr in range(FT(40.95), FT(42.6), 2):
+    tx = 0.25 + 0.42 * ((k * 0.37) % 1.0); ty = 1.85 + 0.08 * math.sin(k * 2.1)
+    _arm_key(milo, "Right", fr, *arm_angles("Right", (tx, ty, 0.6 + 0.07 * (k % 2)))); k += 1
+_ST[(id(milo), "Right")] = arm_angles("Right", (0.5, 1.9, 0.65))
+look(milo, FT(39.0), 32, 0, 0, dur=8)                                             # eyes on the page
+# letters appear one by one under the pencil
+from PIL import Image as _Im2, ImageDraw as _Dr2
+_fk = _font(F_KID, 118); _word = ("LIGHT", "HOUSE"); LETTERS = []
+for n in range(1, 11):
+    im = _Im2.open("/tmp/p6_note_blank.png").convert("RGBA"); d = _Dr2.Draw(im)
+    a = "LIGHTHOUSE"[:n]
+    _wobbly(d, im, (88, 250), a[:5], _fk, (70, 70, 78, 255), seed=3)
+    if n > 5: _wobbly(d, im, (100, 380), a[5:], _fk, (70, 70, 78, 255), seed=4)
+    pth = "/tmp/p6_note_k%02d.png" % n; im.save(pth)
+    pl = plane("NoteK%02d" % n, 1.1, 1.42, V((0, 0, 0.021 + n * 0.0004)), imgmat("NoteK%02dM" % n, pth, rough=0.9), NOTE, rot=(DEG(90), 0, 0))
+    LETTERS.append(pl)
+lt = [41.0 + i * 0.155 for i in range(10)]
+for i, pl in enumerate(LETTERS):
+    vis_obj(pl, 1, False); vis_obj(pl, FT(lt[i]), True)
+    if i < 9: vis_obj(pl, FT(lt[i + 1]), False)
+vis_obj(LETTERS[-1], FT(42.75), False)                                            # the real (underlined) front takes over
+vis_obj(NOTE_BLANK, 1, True); vis_obj(NOTE_BLANK, FT(42.75), False)
+expr(fm, FT(N0), "nervous"); expr(fm, FT(40.9), "scared"); expr(fm, FT(42.6), "ominous")
 light_shot(N0, exposure=1.35, MoonSpot=9000, RoomFillA=170, DoorPrac=140, moon_from=(24.0, -22.0, 18.0), moon_at=(4.5, -43.3, 0.4), cookie_at=(4.5, -43.3, 0.4))
 cine("N1 so I didn't say it", N0, 40.0, milo, u=V((0.5, 1, 0)), size="MS", move="drift", amt=6, lens=26, sy=0.2, sx=-0.12)
-insert("N2 he writes it down", 40.0, 42.75, NOTE_XY + V((0, 0, 0.02)), NOTE_XY + V((0, 0, 0.02)), (0.9, 0.15, 1), 2.4, 1.9, lens=40, land=0.85, fstop=4.0)   # from his right side, clear of his head
-# slide: into the crack (42.77-43.77), silence, back out FLIPPED (44.67-45.97)
+insert("N2 he writes it down", 40.0, 42.75, NOTE_XY + V((0, 0, 0.02)), NOTE_XY + V((0, 0, 0.02)), (0.9, 0.15, 1), 2.4, 1.9, lens=40, land=0.85, fstop=4.0)
+# slide: his hand pushes it into the crack (42.77-43.77), silence, it slides back FLIPPED (44.67-45.97)
 IN_PT = V((4.75, -45.55, 0.43)); OUT_PT = V((4.45, -43.9, 0.43))
+gesture(milo, "Right", FT(42.7), target=(0.3, 2.4, 0.55), dur=10, ant=0.2, over=0.06)
 kf(NOTE, "location", FT(42.75), NOTE_XY); kf(NOTE, "location", FT(43.75), IN_PT)
 kf(NOTE, "rotation_euler", FT(42.75), (0, 0, DEG(-12))); kf(NOTE, "rotation_euler", FT(43.75), (0, 0, DEG(-4)))
 kf(NOTE, "location", FT(44.6), IN_PT, interp="CONSTANT"); kf(NOTE, "rotation_euler", FT(44.6), (0, DEG(180), DEG(176)), interp="CONSTANT")
-kf(NOTE, "location", FT(44.67), IN_PT); kf(NOTE, "location", FT(45.95), OUT_PT)
-arm(milo, "Right", FT(42.75), target=(0.4, 1.9, 0.9)); arm(milo, "Right", FT(43.6), target=(0.3, 2.3, 0.7)); arm(milo, "Right", FT(44.2), euler=(20, 10))
-shot("N3 into the crack", 42.75, 44.55, [(0, V((3.0, -41.6, 1.6)), V((4.6, -45.3, 0.6)), 32), (0.85, V((3.1, -42.0, 1.55)), V((4.6, -45.4, 0.6)), 32)], fstop=3.2)
+kf(NOTE, "location", FT(44.67), IN_PT); kf(NOTE, "location", FT(45.8), OUT_PT + V((0.03, 0.12, 0))); kf(NOTE, "location", FT(45.97), OUT_PT)
+kf(NOTE, "rotation_euler", FT(45.8), (0, DEG(180), DEG(173))); kf(NOTE, "rotation_euler", FT(45.97), (0, DEG(180), DEG(176)))
+gesture(milo, "Right", FT(44.0), target=(0.3, 1.6, 1.2), dur=8)                   # pulls his hand back... waits
+lean(milo, FT(44.7), -12, 0, 0, dur=10)                                           # leans in as it comes back
+shot("N3 into the crack", 42.75, 44.55, [(0, V((6.8, -42.4, 1.5)), V((4.7, -45.3, 0.6)), 32), (0.85, V((6.6, -42.8, 1.45)), V((4.7, -45.4, 0.6)), 32)], fstop=3.2)
 insert("N4 WINDOW. RAE'S. GO.", 44.55, SC["note"][1], OUT_PT + V((0, -0.5, 0.02)), OUT_PT + V((0, 0, 0.02)), (0, 0, 1), 2.6, 1.7, lens=40, land=0.85, fstop=4.0)
+live(milo, N0, SC["note"][1], "tense")
 blinks(fm, N0, 44.5, every=2.7)
 
-# ---------------- escape 46.47-52.50: the window, the fence gap (Knocker in his window: 4 frames), the run to Rae's
+# ---------------- escape 46.47-52.50
 E0 = SC["escape"][0]
-stand(milo, FT(E0))
-at(milo, FT(E0), V((9.2, -35.5, 0.4)), -90); arms_down(milo, FT(E0))
-arm(milo, "Right", FT(E0), target=(0.6, 1.8, 6.0)); arm(milo, "Left", FT(E0), target=(-0.6, 1.8, 6.0))     # both hands lift the sash
-kf(SW_LOWER, "location", 1, (SW_LOWER.location.x, SW_LOWER.location.y, SW_Z0), interp="CONSTANT")
-kf(SW_LOWER, "location", FT(E0), (SW_LOWER.location.x, SW_LOWER.location.y, SW_Z0))
-kf(SW_LOWER, "location", FT(E0 + 1.4), (SW_LOWER.location.x, SW_LOWER.location.y, SW_Z0 + 1.6))
+standing(milo, FT(E0)); snap_rot(milo, "chest", FT(E0), 0, 0, 0); snap_rot(milo, "neck", FT(E0), 0, 0, 0)
+WIN = V((9.2, -35.5, 0.4))
+at(milo, FT(E0), WIN, -90); pose_arm(milo, "Right", FT(E0), euler=(6, 6)); pose_arm(milo, "Left", FT(E0), euler=(6, -6))
+kf(milo["root"], "location", FT(E0 + 0.2), WIN); kf(milo["root"], "location", FT(E0 + 0.45), WIN + V((0, 0, -0.25)))   # dips (wind-up)
+kf(milo["root"], "location", FT(E0 + 0.75), WIN + V((0, 0, 0.08))); kf(milo["root"], "location", FT(E0 + 0.95), WIN)
+gesture(milo, "Right", FT(E0 + 0.3), target=(0.6, 1.8, 6.0), dur=7, ant=0.25)
+gesture(milo, "Left", FT(E0 + 0.35), target=(-0.6, 1.8, 6.0), dur=7, ant=0.25)
+SX, SY = SW_LOWER.location.x, SW_LOWER.location.y
+kf(SW_LOWER, "location", 1, (SX, SY, SW_Z0), interp="CONSTANT"); kf(SW_LOWER, "location", FT(E0 + 0.55), (SX, SY, SW_Z0))
+kf(SW_LOWER, "location", FT(E0 + 1.1), (SX, SY, SW_Z0 + 1.75)); kf(SW_LOWER, "location", FT(E0 + 1.3), (SX, SY, SW_Z0 + 1.6))   # sticks, then gives
+lean(milo, FT(E0 + 1.4), -16, 0, 0, dur=10); look(milo, FT(E0 + 1.5), -8, 0, 0, dur=8)        # leans out into the night
 expr(fm, FT(E0), "nervous")
 light_shot(E0, MoonSpot=9000, RoomFillA=60, MoonIn=420, moon_from=(24.0, -32.8, 9.0), moon_at=(8.0, -35.5, 4.0), cookie_at=(8.0, -35.5, 4.0))
 cine("E1 the window", E0, 48.5, milo, u=V((-1, -0.35, 0)), size="MS", move="push", amt=1.2, lens=30, sy=0.12)
+live(milo, E0, 48.5, "tense")
 TE1 = 48.5
+_CUTS.append((milo["root"], FT(TE1)))
 light_shot(TE1, YardMoon=0, WinGlow=260, room=300, Sodium=14000, YardRim=650, exposure=0.3, sun=0.18, lamps=(2600, (1.0, 0.6, 0.28)))
-at(milo, FT(TE1), V((21.5, -36.8, 0.0)), -90); arms_down(milo, FT(TE1))
-walk(milo, FT(TE1), FT(50.6), V((21.5, -36.8, 0.0)), V((26.0, -37.0, 0.0)), steps=3, leg=28)     # ducks through the gap
+snap_rot(milo, "chest", FT(TE1), 0, 0, 0)
+run(milo, FT(TE1), FT(50.55), [(20.5, -36.8), (23.0, -37.0), (26.2, -37.1)], z=0.0, stride=1.7, leg=26, arm_sw=22, lean_deg=24, bounce=0.06, accel=0.3)   # CREEP through the gap, low
 kf(KR, "location", FT(49.3), V((8.6, -35.5, 0.4)), interp="CONSTANT"); kf(KR, "rotation_euler", FT(49.3), (0, 0, DEG(-90)), interp="CONSTANT")
 kf(KR, "location", FT(49.3) + 4, FAR, interp="CONSTANT"); kf(KR, "location", 1, FAR, interp="CONSTANT")
 expr(fm, FT(TE1), "scared")
-shot("E2 the fence gap", TE1, 50.6, [(0, V((33.0, -43.5, 4.4)), V((21.8, -36.8, 3.6)), 26), (1, V((33.4, -42.6, 4.4)), V((26.0, -37.0, 3.6)), 26)])   # pans with him through the gap; his window stays in frame
+shot("E2 the fence gap", TE1, 50.6, [(0, V((33.0, -43.5, 5.4)), V((21.0, -36.8, 3.0)), 26), (1, V((33.4, -42.6, 5.4)), V((26.0, -37.0, 3.0)), 26)])
 TE2 = 50.6
+_CUTS.append((milo["root"], FT(TE2)))
 light_shot(TE2, RunKey=30000, exposure=0.3, sun=0.18, lamps=(2600, (1.0, 0.6, 0.28)))
-walk(milo, FT(TE2), FT(SC["escape"][1]), V((29.0, -35.0, 0.0)), V((44.0, -27.5, 0.0)), steps=5, leg=36)
-shot("E3 the run", TE2, SC["escape"][1], [(0, V((36.0, -12.0, 5.5)), V((30.0, -34.0, 3.0)), 24), (1, V((38.5, -13.0, 5.2)), V((43.0, -28.5, 3.0)), 24)])   # pans with him: a tracking shot
+RUN_PATH = [(28.0, -35.6), (31.5, -30.5), (35.0, -26.6), (40.0, -25.4), (46.5, -25.2)]   # round the FRONT of Rae's house, never through it
+run(milo, FT(TE2), FT(SC["escape"][1]) - 6, RUN_PATH, z=0.0, stride=2.9, leg=52, arm_sw=62, lean_deg=16, bounce=0.3, accel=0.15)
+shot("E3 the run", TE2, SC["escape"][1], [(0, V((34.0, -10.5, 5.2)), V((29.0, -34.5, 3.0)), 24), (0.45, V((35.8, -11.0, 5.1)), V((35.0, -26.6, 3.0)), 24), (1, V((38.0, -11.5, 5.0)), V((44.0, -25.3, 3.0)), 24)])
 
-# ---------------- rae_door 52.50-60.70: "Milo? You just called me. You said the word. Lighthouse."
+# ---------------- rae_door 52.50-60.70: the door swings in, the torch snaps up into his face
 D0 = SC["rae_door"][0]
 RAE = RO + V((0.5, -0.2, 0.5)); MILO_P = RO + V((-1.6, -6.2, 0.5))
-at(rae, FT(D0), RAE, 190); at(milo, FT(D0), MILO_P, 8)
-arm(rae, "Right", FT(D0), target=(0.6, 1.6, 3.4)); arm(rae, "Left", FT(D0), euler=(4, -6))
-idle_here(rae, FT(D0), FT(SC["phone"][1]), amp=0.012, ph=1.0); idle_here(milo, FT(D0), FT(SC["phone"][1]))
-arm(milo, "Right", FT(D0), target=(-1.3, 1.6, 5.4)); arm(milo, "Left", FT(D0), euler=(4, -6))              # hand still over his mouth
-expr(frae, FT(D0), "nervous"); expr(frae, FT(56.7), "scared"); expr(frae, FT(59.0), "ominous")
-expr(fm, FT(D0), "scared"); expr(fm, FT(59.2), "shocked")
-for t in (52.85, 54.52, 56.76, 59.10): say(line(t), frae, "rest_flat", "whisper" if t > 59 else "calm", nod=2.5, P=rae)
+standing(milo, FT(D0)); snap_rot(milo, "chest", FT(D0), 0, 0, 0); snap_rot(milo, "neck", FT(D0), 0, 0, 0)
+at(rae, FT(D0), RAE + V((0, 1.2, 0)), 190); at(milo, FT(D0), MILO_P, 8)
+kf(rae["root"], "location", FT(D0 + 0.35), RAE + V((0, 1.2, 0))); kf(rae["root"], "location", FT(D0 + 0.8), RAE + V((0, -0.1, 0))); kf(rae["root"], "location", FT(D0 + 1.0), RAE)   # steps into the doorway
+kf(RAE_HINGE, "rotation_euler", 1, (0, 0, DEG(20)), interp="CONSTANT"); kf(RAE_HINGE, "rotation_euler", FT(D0), (0, 0, DEG(20)))
+kf(RAE_HINGE, "rotation_euler", FT(D0 + 0.45), (0, 0, DEG(74))); kf(RAE_HINGE, "rotation_euler", FT(D0 + 0.7), (0, 0, DEG(66))); kf(RAE_HINGE, "rotation_euler", FT(D0 + 0.9), (0, 0, DEG(68)))
+pose_arm(rae, "Right", FT(D0), euler=(10, 8)); pose_arm(rae, "Left", FT(D0), euler=(4, -6))
+gesture(rae, "Right", FT(D0 + 0.25), target=(0.6, 1.6, 3.6), dur=6, ant=0.2, over=0.15)     # torch snaps up at him
+pose_arm(milo, "Right", FT(D0), target=MOUTH_T); pose_arm(milo, "Left", FT(D0), euler=(4, -6))
+lean(milo, FT(D0 + 0.4), 8, 0, 0, dur=6, over=0.25); look(milo, FT(D0 + 0.4), 6, 0, 14, dur=6)   # flinches from the light
+gesture(milo, "Left", FT(D0 + 0.45), target=(-0.8, 1.6, 4.8), dur=5, ant=0.1)                 # shields his eyes...
+gesture(milo, "Left", FT(D0 + 1.6), euler=(6, -6), dur=10)                                    # ...then lowers it
+expr(frae, FT(D0), "nervous"); expr(frae, FT(54.4), "notice"); expr(frae, FT(56.7), "scared"); expr(frae, FT(59.0), "ominous")
+expr(fm, FT(D0), "scared"); expr(fm, FT(56.8), "nervous"); expr(fm, FT(59.2), "shocked")
+for t in (52.85, 54.52, 56.76, 59.10): say(line(t), frae, "rest_flat", "whisper" if t > 59 else "calm", nod=4.5, P=rae)
+look(rae, FT(54.4), 4, 0, -8, dur=10); look(rae, FT(56.7), -2, 0, 6, dur=10); look(rae, FT(58.9), 8, 0, 0, dur=12)
+lean(rae, FT(58.8), -8, 0, 0, dur=14)                                                          # leans in for "Lighthouse"
 light_shot(D0, RaeMoon=140, RaeRim=520, MiloKeyR=60)
 cine("RD1 Milo? You just called me", D0, 55.9, rae, toward=milo, ang=24, size="MCU", move="drift", amt=6, lens=36, sx=-0.08)
 cine("RD2 You said the word", 55.9, 58.95, rae, toward=milo, ang=30, size="CU", move="push", amt=1.2, lens=55, sx=-0.06)
-cine("RD3 Lighthouse.", 58.95, SC["rae_door"][1], milo, toward=rae, ang=-28, size="CU", move="hold", lens=60, sx=0.08)     # the word lands on HIS face
+cine("RD3 Lighthouse.", 58.95, SC["rae_door"][1], milo, toward=rae, ang=-28, size="CU", move="hold", lens=60, sx=0.08)
+lean(milo, FT(59.3), 5, 0, 0, dur=8, over=0.3)                                                 # the word hits him
+live(rae, D0, SC["phone"][1], "tense"); live(milo, D0, SC["phone"][1], "scared")
 blinks(frae, D0, 76.9, every=3.4, ph=1.1)
 
-# ---------------- milo_realise 60.70-73.26: narration on Milo; phone buzz 72.06 (the one startle, in silence)
+# ---------------- milo_realise 60.70-73.26
 Q0 = SC["milo_realise"][0]
-arm(milo, "Right", FT(Q0), target=(-1.3, 1.6, 5.4)); arm(milo, "Right", FT(Q0 + 0.8), euler=(6, 6))           # the hand drops
-expr(fm, FT(Q0), "shocked"); expr(fm, FT(65.5), "sad"); expr(fm, FT(68.0), "scared")
-neck(milo, FT(65.4), 0, 0, 0); neck(milo, FT(66.4), 0, 0, 55); neck(milo, FT(67.6), 0, 0, 0)                 # looks back toward his house
+gesture(milo, "Right", FT(Q0 + 0.2), euler=(8, 8), dur=16, ant=0.05)                          # the hand drops, slowly
+expr(fm, FT(Q0), "shocked"); expr(fm, FT(63.0), "sad"); expr(fm, FT(65.5), "scared"); expr(fm, FT(68.0), "sad"); expr(fm, FT(70.6), "scared")
+look(milo, FT(62.9), 10, 0, 0, dur=10)                                                         # eyes down: "wrote it down once"
+look(milo, FT(65.4), -2, 0, 58, dur=9, over=0.18)                                              # whips round to his house
+look(milo, FT(67.4), 0, 0, 0, dur=12)
+look(milo, FT(68.1), -4, 0, -6, dur=14)                                                        # finds the lens: "most of you..."
 cine("Q1 I never said it out loud", Q0, 65.4, milo, toward=rae, ang=-22, size="CU", move="push", amt=1.2, lens=55, sx=0.06)
 cine("Q2 I gave it to the closet", 65.4, 67.9, milo, u=V((0.85, 0.6, 0)), size="MCU", move="hold", lens=40, sx=-0.1)
-cine("Q3 Most of you told me", 67.9, 72.0, milo, u=V((0.15, 1, 0)), size="CU", move="drift", amt=5, lens=30)      # almost to us: the comments line
+cine("Q3 Most of you told me", 67.9, 72.0, milo, u=V((0.15, 1, 0)), size="CU", move="drift", amt=5, lens=30)
 light_shot(Q0, RaeMoon=140, RaeRim=520, MiloKeyR=110)
-# phone: buzz 72.06 -> Rae looks down, raises it; the screen: Milo calling
-arm(rae, "Left", FT(72.1), euler=(4, -6)); arm(rae, "Left", FT(72.6), target=(-0.4, 1.4, 3.6))
-neck(rae, FT(72.1), 0, 0, 0); neck(rae, FT(72.5), 20, 0, 0)
+# the buzz (72.06): Rae jolts, looks down, brings the phone up, then FLIPS it to Milo (quick, overshoot, settle)
+lean(rae, FT(72.06), 4, 0, 0, dur=4, over=0.4, ant=0.0)
+look(rae, FT(72.15), 22, 0, -6, dur=7)
+gesture(rae, "Left", FT(72.2), target=(-0.4, 1.4, 3.6), dur=7)
+gesture(rae, "Left", FT(72.95), target=(-0.25, 2.2, 4.1), dur=5, ant=0.2, over=0.12)          # pushes it toward him
+kf(PHONE, "rotation_euler", 1, (0, 0, 0), interp="CONSTANT"); kf(PHONE, "rotation_euler", FT(72.95), (0, 0, 0))
+kf(PHONE, "rotation_euler", FT(73.03), (0, 0, DEG(-12))); kf(PHONE, "rotation_euler", FT(73.2), (0, 0, DEG(194)))
+kf(PHONE, "rotation_euler", FT(73.32), (0, 0, DEG(176))); kf(PHONE, "rotation_euler", FT(73.42), (0, 0, DEG(180)))
 expr(frae, FT(72.1), "notice"); expr(frae, FT(73.6), "shocked")
-kf(PHONE, "rotation_euler", 1, (0, 0, 0), interp="CONSTANT"); kf(PHONE, "rotation_euler", FT(72.9), (0, 0, 0)); kf(PHONE, "rotation_euler", FT(73.4), (0, 0, DEG(180)))   # she turns the screen to Milo
 cine("F1 the buzz", 72.0, 73.55, rae, toward=milo, ang=34, size="MS", move="hold", lens=36, sy=0.2, sx=-0.05)
 light_shot(73.55, RaeMoon=120, MiloKeyR=60)
 s.frame_set(FT(74.0)); bpy.context.view_layer.update(); PP = PHONE.matrix_world.translation.copy()
 shot("F2 Rae, it's me", 73.55, 75.35, [(0, PP + V((-0.35, -2.4, 0.4)), PP + V((0, 0, 0.1)), 40), (0.85, PP + V((-0.3, -2.0, 0.35)), PP + V((0, 0, 0.1)), 40)], fstop=2.4)
-neck(rae, FT(75.3), 20, 0, 0); neck(rae, FT(75.9), -4, 0, 0)                                                   # looks up at Milo
+look(rae, FT(75.3), -6, 0, 4, dur=16, ant=0.0, over=0.05)                                     # slowly looks up at Milo
 cine("F3 Don't let him in", 75.35, SC["phone"][1], rae, toward=milo, ang=18, size="CU", move="push", amt=1.15, lens=60, sx=-0.04)
+live(rae, 72.0, SC["phone"][1], "scared")
 blinks(fm, Q0, 76.9, every=2.9, ph=0.4)
 
 # ---------------- black 76.96-77.66
@@ -549,26 +652,30 @@ for fr_b, on in ((1, False), (FT(E2["black_cut"]), True), (FT(E2["outro0"]), Fal
     kf(blk, "hide_render", fr_b, not on, interp="CONSTANT")
 shot("Z black", SC["black"][0], SC["black"][1], [(0, RO + V((0, -14, 5)), RO + V((0, 0, 5)), 30)])
 
-# ---------------- outro 77.66-84.24: to camera on Rae's porch, the porch lamp on him
+# ---------------- outro 77.66-84.24: to camera, big readable gestures + mouths
 O0 = SC["outro"][0]
 park(rae, FT(O0))
 at(milo, FT(O0), RO + V((0.0, -4.8, 0.5)), 0)
-arms_down(milo, FT(O0))
+snap_rot(milo, "chest", FT(O0), 0, 0, 0); snap_rot(milo, "neck", FT(O0), 0, 0, 0)
+pose_arm(milo, "Right", FT(O0), euler=(6, 6)); pose_arm(milo, "Left", FT(O0), euler=(6, -6))
 light_shot(O0, RaeMoon=260, RaeRim=420, MiloKeyR=700)
 kf(_LOBJ["MiloKeyR"], "rotation_euler", FT(O0), look_at(_LOBJ["MiloKeyR"], RO + V((0.0, -4.8, 4.8))), interp="CONSTANT")
 expr(fm, FT(O0), "ominous"); expr(fm, FT(79.3), "curious"); expr(fm, FT(81.2), "question"); expr(fm, FT(83.1), "sly")
-for t in (77.66, 79.35, 81.24): say(line(t), fm, "rest_flat", "whisper" if t < 81 else "calm", nod=4.0, P=milo)
-arm(milo, "Left", FT(77.9), euler=(55, 20)); arm(milo, "Left", FT(78.6), euler=(6, -6))      # "on the porch" - a hand down at the boards
-arm(milo, "Right", FT(79.5), euler=(60, -14)); arm(milo, "Right", FT(80.3), euler=(6, 6))     # "on the phone" - toward the door
+for t in (77.66, 79.35, 81.24): say(line(t), fm, "rest_flat", "calm", nod=6.0, P=milo)
+gesture(milo, "Left", FT(77.9), euler=(48, 26), dur=8); gesture(milo, "Left", FT(78.9), euler=(6, -6), dur=8)      # "on the porch": points down
+gesture(milo, "Right", FT(79.5), euler=(70, -18), dur=8); gesture(milo, "Right", FT(80.6), euler=(6, 6), dur=8)    # "on the phone": back at the door
+look(milo, FT(79.6), 0, 0, 24, dur=8); look(milo, FT(80.5), 0, 0, 0, dur=8)
+lean(milo, FT(81.2), -9, 0, 0, dur=22, ant=0.05)                                                                   # leans in on the question
+look(milo, FT(82.6), 3, 0, -7, dur=10)                                                                             # a small head tilt
 mouth(fm, FT(83.4), "rest_creepy")
-idle(milo, FT(O0), NF, amp=0.015, base_z=0.5)
 cine("O outro", O0, E2["total"], milo, u=V((0, 1, 0)), size="MCU", move="push", amt=1.5, lens=30, sy=0.1, land=0.9)
+live(milo, O0, E2["total"], "calm")
 blinks(fm, O0, E2["total"], every=2.9, ph=0.2)
 
 # ================================================================== finish
 CUT_FR = [f0 for _, f0, _ in SHOTS[1:]]
 apply_blinks()
-flush_mouths(); apply_interp(); hold_cuts(); apply_interpolation(); breathe()
+flush_mouths(); apply_interp(); hold_cuts(); apply_interpolation(); breathe(); bake_life()     # life layer goes on top of everything
 
 
 def check_faces():
@@ -610,7 +717,7 @@ if eng == "GPU":
                 for x in pr.devices: x.use = x.type == be
                 print("GPU BACKEND", be, [x.name for x in gpus]); break
         except Exception as e: print("backend fail", be, e)
-    s.cycles.device = "GPU"; s.cycles.samples = 32
+    s.cycles.device = "GPU"; s.cycles.samples = int(os.environ.get("SAMPLES", 32))
 else:
     s.cycles.device = "CPU"; s.cycles.samples = int(os.environ.get("SAMPLES", 6))
 s.render.engine = "CYCLES"; s.cycles.use_denoising = True
@@ -622,6 +729,12 @@ s.render.use_persistent_data = True
 s.render.use_motion_blur = True; s.render.motion_blur_shutter = 0.5; s.render.motion_blur_position = "START"
 s.render.resolution_x, s.render.resolution_y = int(os.environ.get("RX", 216)), int(os.environ.get("RY", 384))
 s.render.image_settings.file_format = "PNG"
+if os.environ.get("PLAYBLAST"):            # MOTION PREVIEW (Joel 23:49): EEVEE, low res, fast - judge the animation before any GPU render
+    eng_ids = [i.identifier for i in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items]
+    s.render.engine = "BLENDER_EEVEE" if "BLENDER_EEVEE" in eng_ids else "BLENDER_EEVEE_NEXT"
+    try: s.eevee.taa_render_samples = int(os.environ.get("SAMPLES", 4))
+    except Exception: pass
+    s.render.use_motion_blur = False
 s.render.filepath = OUT + "/"
 s.frame_start = int(os.environ.get("FS", 1)); s.frame_end = int(os.environ.get("FE", NF))
 s.render.use_overwrite = False; s.render.use_placeholder = True

@@ -241,10 +241,11 @@ def lipsync(rig, f0, f1, segs):
         rest, style = seg[1], seg[2]
         lvl = rms[fr - 1] / peak if fr - 1 < len(rms) else 0
         c = cen[fr - 1] if fr - 1 < len(cen) else 0
+        # Joel 22 Nov 23:49: mouths must read clearly -> open shapes come in earlier and stay bigger
         if style == "whisper":
-            m = rest if lvl < 0.05 else ("small_o" if c < 1600 else "half") if lvl < 0.2 else "half"
-        elif lvl < 0.1: m = rest
-        elif lvl < 0.32: m = "M" if (fr // 3) % 4 == 3 else "half"
+            m = rest if lvl < 0.04 else ("small_o" if c < 1600 else "half") if lvl < 0.14 else ("O" if c < 1300 else "A")
+        elif lvl < 0.07: m = rest
+        elif lvl < 0.2: m = "M" if (fr // 3) % 4 == 3 else "half"
         elif style == "excited": m = "grin_open" if c > 1700 else ("O" if c < 1100 else "A")
         else: m = ("E" if c > 1800 else "A") if (fr // 2) % 3 else "O"
         if held > 0 and m != rig["cur_m"] and not (rig["cur_m"] or "").startswith("rest"):
@@ -253,7 +254,7 @@ def lipsync(rig, f0, f1, segs):
             mouth(rig, fr, m); held = 1
 
 
-def accents(P, rig, f0, f1, nod=4.0, pop=0.03):
+def accents(P, rig, f0, f1, nod=5.5, pop=0.03):
     """Head nods + brow pops on stressed syllables (local loudness peaks)."""
     rms = ENV["rms"]; peak = max(rms[f0 - 1:f1]) or 1
     sm = [sum(rms[max(0, i - 1):i + 2]) / 3 for i in range(len(rms))]
