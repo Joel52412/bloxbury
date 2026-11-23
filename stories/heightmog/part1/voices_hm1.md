@@ -32,6 +32,7 @@ Ugh. Can you not? Seriously, move your foot. I've been standing here for six hou
 [suspicious] But something about him was off.
 [slow, suspicious] He never sits.
 [slow, suspicious] He never bends down.
+[deadpan] Once, a dog sniffed him... and the coat sneezed.
 [slow, building] And his coat... has six shoes.
 [whispering] Then I heard him backstage.
 [sly] So at his big speech... I made my move.
@@ -40,6 +41,7 @@ Ugh. Can you not? Seriously, move your foot. I've been standing here for six hou
 [thinking it over] I could've exposed them...
 [forced deep voice, pompous] Taxes... cancelled.
 [smug] Turns out the top spot was open.
+[matter-of-fact] Every Tuesday, we swap who's on the bottom.
 [to the viewer, playful] Would you expose them... or join them?
 [deadpan, trailing off] Because in this town...
 
@@ -50,6 +52,7 @@ Ugh. Can you not? Seriously, move your foot. I've been standing here for six hou
 [voice cracking, small and squeaky, scared] ...Please don't tell.
 
 ### GUYS
+[muffled, trying to hold it in, then a stifled sneeze] Ah... ah... achoo!
 [muffled, whiny] Your knee is in my ear.
 [muffled, sad] I'm hungry.
 [trying not to laugh, then a snorting giggle] Hehe... hehehe... snrk!
@@ -65,4 +68,5 @@ Ugh. Can you not? Seriously, move your foot. I've been standing here for six hou
 | `Bus_leave` | Bus leave, a city bus door hisses shut and the bus pulls away with a diesel rumble, close-up, quiet street, no music, no voices | 3 s |
 | `Shoe_shuffle` | Shoe shuffle, several pairs of sneakers shuffling and squeaking awkwardly on a wooden stage, close-up, no music, no voices | 2 s |
 | `Mic_tap` | Mic tap, a hand tapping an outdoor microphone on a podium, two soft thumps through a speaker, outdoor town square, no music, no voices | 1 s |
+| `Dog_sniff` | Dog sniff, a medium dog sniffing eagerly at fabric, quick snuffles, close-up, outdoors, no music, no voices | 2 s |
 | `Pen_drop` | Pen drop, a metal pen falls and bounces on a wooden floor, close-up, quiet dining room, no music, no voices | 1 s |

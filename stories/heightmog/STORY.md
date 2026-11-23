@@ -12,7 +12,7 @@ In this town, the taller you are, the more power you get. Kai (4 ft 1) notices t
 `part1/script_hm1.md` (beats + script), `part1/voices_hm1.md` (voice designs, paste-ready blocks, SFX list). Later: `scripts/hm1.py`, `audio/prep_hm1.py`, `data/hm1/`. Id tag: `hm`.
 
 ## Parts
-- **Part 1 "The Trenchcoat Mayor"** (~59 s, max 70 s).
+- **Part 1 "The Trenchcoat Mayor"** (~64 s: min 1:01 for TikTok pay, max 1:10).
 
 ## Status (23 Nov)
-- Joel picked the Trenchcoat Mayor. Script v2 + voice blocks + SFX list delivered; waiting on Joel's tweaks, then voices + SFX. Next: audio (align, prep_hm1), animatic, asset sheet for the new cast and props.
+- Joel picked the Trenchcoat Mayor. Script v3 (~64 s) + voice blocks + SFX list delivered; waiting on Joel's tweaks, then voices + SFX. Next: audio (align, prep_hm1), animatic, asset sheet for the new cast and props.

@@ -52,7 +52,7 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 - **Sets:** dress what the camera sees (`props4.py`); max one practical light per room.
 - **QA:** check_faces, check_shots (deliberate cases in `allow=`), shot stills reviewed, black/blank frame check after GPU render.
 - **24 fps. Captions:** `captions.write_ass()`: bold yellow Poppins, ONE word at a time with a pop, y=66%; red = monster/fake, white = off-screen.
-- **Length (Joel 23 Nov):** every video ~1 minute, max 1:10.
+- **Length (Joel 23 Nov):** every video 1:01 to 1:10 (TikTok pays only over 1 minute); write scripts to ~1:04 for margin.
 - **Hook:** frame 0 lit and readable; voice by 0.3 s with a strange claim a new viewer gets; something visibly wrong by ~3.5 s; cuts every 1.5–2 s for the first 6 s; recaps after the hook.
 - **Story:** studio-grade first drafts; new open question every 8–10 s; pattern breaks; 1–2 rewatch details; last line loops to first; end on a choice question. (Horror: dread over loud stings, max one earned startle.)
 - **SFX:** never synthesise real-world sounds; request ElevenLabs SFX from Joel (key-first prompt, duration, influence); level by RMS (files arrive ~−48 dB).
