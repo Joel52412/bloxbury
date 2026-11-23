@@ -225,7 +225,10 @@ class Mix:
         mix, vox, spk = self.build(total)
         mix = mix[:int(total * sr)]; mix = mix / max(np.abs(mix).max(), 1e-6) * 0.92
         raw = self.out + "part%s_raw.wav" % n; write_wav(raw, mix, sr)
-        loudnorm(raw, self.out + "part%s_%s.wav" % (n, "nomusic" if self.nomusic else "tiktok" if self.tiktok else "audio"), lufs, tp, sr)
+        wav = self.out + "part%s_%s.wav" % (n, "nomusic" if self.nomusic else "tiktok" if self.tiktok else "audio")
+        loudnorm(raw, wav, lufs, tp, sr)
+        # the repo/pods keep the mix as lossless FLAC (*.wav is gitignored): copy partN_*.flac to _pipeline/data/pN/
+        subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", wav, "-c:a", "flac", wav[:-4] + ".flac"], check=True)
         envs = {k: envelope(v, nf, self.fps, sr) for k, v in spk.items()}
         caps = [{"who": who, "text": o["text"], "style": st, "mode": mode, "fx": fx, "t0": d, "t1": d + len(sig) / sr,
                  "words": [(w, d + (s - o["a"]), d + (min(e, o["b"]) - o["a"])) for w, s, e in o["words"]]}

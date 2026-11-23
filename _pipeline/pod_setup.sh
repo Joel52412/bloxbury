@@ -25,8 +25,7 @@ fi
 mkdir -p $H/bloxbury-blender $H/studio_library/engine $H/talk $H/audio
 cp $R/_studio_library/engine/*.py $H/studio_library/engine/
 cp $R/_pipeline/scripts/*.py $H/bloxbury-blender/
-cp $R/_pipeline/audio_tools/prep2.py $H/talk/
 find $R/_pipeline/data -maxdepth 1 -type f -exec cp {} $H/talk/ \;
-for d in $R/_pipeline/data/p*; do [ -d $d ] && cp $d/env_p*.json $d/captions_p*.ass $d/part*_audio.wav $H/talk/ 2>/dev/null; done   # every part: env, captions, mix
+for d in $R/_pipeline/data/p*; do [ -d $d ] && cp $d/env_p*.json $d/captions_p*.ass $d/part*_audio.flac $d/part*_tiktok.flac $H/talk/ 2>/dev/null; done   # every part: env, captions, mix
 ./blender/blender -v | head -1
 echo SETUP_OK
