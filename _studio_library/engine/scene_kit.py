@@ -532,6 +532,40 @@ def motion_flips(f0, f1):
     return set(flips)
 
 
+def dark_shots(base):
+    """Shots dark enough to show denoiser blotches at the base settings. One tiny render per shot (mid frame,
+    72x128, 4 samples, ~0.3 s each), mean luma 0-1. Shots between 0.03 (intended black) and DARK_LUMA (default 0.13),
+    darkest first, get DARK_SAMPLES (default 2x base) at noise threshold 0.01 until they cover DARK_BUDGET of the
+    frames (default 0.08). Measured 23 Nov on Part 3 dark shots (CPU, vs a 256-sample reference): 64 spp + threshold
+    0.01 = +1.8 dB, 22% less frame-to-frame flicker, 1.87x time per boosted frame -> <=7% extra render time.
+    (64 spp at the normal 0.02 threshold gained nothing: the threshold, not the cap, limits dark shots.)
+    Cached in OUT. Returns {frame: samples}."""
+    cache = OUT + "/.dark_shots_%d.json" % base
+    try: return {int(k): v for k, v in json.load(open(cache)).items()}
+    except (OSError, ValueError): pass
+    r = s.render; keep = (r.resolution_x, r.resolution_y, s.cycles.samples, r.filepath, r.use_motion_blur)
+    r.resolution_x, r.resolution_y, s.cycles.samples, r.use_motion_blur = 72, 128, 4, False
+    lum = []
+    for name, f0, f1 in SHOTS:
+        s.frame_set((f0 + f1) // 2); r.filepath = os.path.join(bpy.app.tempdir or "/tmp", "kit_lum.png"); bpy.ops.render.render(write_still=True)
+        im = bpy.data.images.load(r.filepath, check_existing=False); px = list(im.pixels)
+        lum.append((sum(0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2] for i in range(0, len(px), 4)) / (len(px) // 4),
+                    name, f0, f1))
+        bpy.data.images.remove(im)
+    r.resolution_x, r.resolution_y, s.cycles.samples, r.filepath, r.use_motion_blur = keep
+    thr = float(os.environ.get("DARK_LUMA", 0.13)); budget = float(os.environ.get("DARK_BUDGET", 0.08)) * NF
+    hi = int(os.environ.get("DARK_SAMPLES", 2 * base)); out, used = {}, 0
+    for l, name, f0, f1 in sorted(lum):
+        if l >= thr: break
+        if l < 0.03: continue                                      # intended black: nothing to clean
+        if used + (f1 - f0 + 1) > budget: continue
+        used += f1 - f0 + 1; out.update({f: hi for f in range(f0, f1 + 1)}); print("DARK SHOT %s %.3f -> %d samples" % (name, l, hi))
+    print("SHOT LUMA", [(n, round(l, 3)) for l, n, _, _ in sorted(lum)][:12], "boosted frames", used)
+    try: json.dump(out, open(cache, "w"))
+    except OSError: pass
+    return out
+
+
 def _render_frame(fr, fresh):
     """One frame. fresh=True drops Cycles' persistent data for it (rebuilt from scratch = correct motion data)."""
     s.render.use_persistent_data = not fresh
@@ -552,8 +586,12 @@ def render():
         else:
             flips = motion_flips(s.frame_start, s.frame_end) if s.render.use_motion_blur else set()
             print("MOTION FLIPS (fresh render, no persistent data):", sorted(flips))
+            base, thr0 = s.cycles.samples, s.cycles.adaptive_threshold
+            dark = dark_shots(base) if base >= 16 and s.render.engine == "CYCLES" and not os.environ.get("NODARK") else {}
             for fr in range(s.frame_start, s.frame_end + 1):
                 try: os.close(os.open(OUT + "/%04d.png" % fr, os.O_CREAT | os.O_EXCL))   # claim the frame
                 except FileExistsError: continue                                         # done or someone's on it
+                s.cycles.samples = dark.get(fr, base); s.cycles.adaptive_threshold = 0.01 if fr in dark else thr0
                 _render_frame(fr, fr in flips)
+            s.cycles.samples, s.cycles.adaptive_threshold = base, thr0
     print("DONE", NF)
