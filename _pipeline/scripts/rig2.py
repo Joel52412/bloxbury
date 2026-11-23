@@ -187,11 +187,27 @@ EX = {
 }
 
 
-def expr(rig, frame, key, interp="BEZIER"):
-    lz, lt, rz, rt, ew, eh = EX[key]
+EXPR_RAMP = 4          # frames an expression change takes (23 Nov: without a hold key the face morphed over the whole gap)
+
+
+def _hold_before(ob, path, frame, n):
+    """Key the channel's current value n frames before `frame` (unless a key already sits in that span), so the change
+    happens in n frames instead of creeping across the whole gap since the previous key."""
+    for fc in _fcurves(ob):
+        if fc.data_path != path or not len(fc.keyframe_points): continue
+        if any(frame - n <= k.co.x < frame for k in fc.keyframe_points): continue
+        if min(k.co.x for k in fc.keyframe_points) >= frame - n: continue
+        v = fc.evaluate(frame - n)
+        kp = fc.keyframe_points.insert(frame - n, v); kp.interpolation = "BEZIER"
+
+
+def expr(rig, frame, key, interp="BEZIER", ramp=None):
+    lz, lt, rz, rt, ew, eh = EX[key]; n = EXPR_RAMP if ramp is None else ramp
     for side, z, tilt in (("L", lz, lt), ("R", rz, -rt)):
         b = rig["brow" + side]; base = b.get("bz0")
         if base is None: b["bz0"] = base = b.location.z
+        if interp != "CONSTANT" and n:
+            for ob, path in ((b, "location"), (b, "rotation_euler"), (rig["eye" + side], "scale")): _hold_before(ob, path, frame, n)
         kf(b, "location", frame, base + z, index=2, interp=interp)
         kf(b, "rotation_euler", frame, (0, tilt, 0), interp=interp)
         kf(rig["eye" + side], "scale", frame, (ew, 1, eh), interp=interp)
@@ -254,8 +270,19 @@ def lipsync(rig, f0, f1, segs):
             mouth(rig, fr, m); held = 1
 
 
+def _nod_shape(d):
+    """Head-nod pulse around a stressed syllable at d = 0: eases up over 4 frames, peaks at +1, dips to -0.15 and
+    settles by +10. Zero speed at both ends (23 Nov: the old 2-frame keyed nod snapped)."""
+    if d < -3 or d > 10: return 0.0
+    if d <= 1:
+        u = (d + 3) / 4.0; return u * u * (3 - 2 * u)
+    w = (d - 1) / 9.0
+    return 0.5 * (1 + math.cos(math.pi * w)) - 0.15 * math.sin(math.pi * w) ** 2
+
+
 def accents(P, rig, f0, f1, nod=5.5, pop=0.03):
-    """Head nods + brow pops on stressed syllables (local loudness peaks)."""
+    """Head nods on stressed syllables (local loudness peaks), ADDED on top of whatever the head already does and keyed on
+    every frame of the window, so overlapping nods sum smoothly instead of fighting each other's keys."""
     rms = ENV["rms"]; peak = max(rms[f0 - 1:f1]) or 1
     sm = [sum(rms[max(0, i - 1):i + 2]) / 3 for i in range(len(rms))]
     last = -99; hits = []
@@ -263,14 +290,18 @@ def accents(P, rig, f0, f1, nod=5.5, pop=0.03):
         v = sm[fr - 1] / peak
         if v > 0.5 and sm[fr - 1] >= sm[fr - 2] and sm[fr - 1] >= sm[fr] and fr - last >= 6:
             hits.append(fr); last = fr
-    hd = P["head"]
-    for fr in hits:
-        kf(hd, "rotation_euler", fr - 2, (0, 0, 0)); kf(hd, "rotation_euler", fr, (R(nod), 0, 0)); kf(hd, "rotation_euler", fr + 4, (R(-0.8), 0, 0))
-        kf(hd, "rotation_euler", fr + 7, (0, 0, 0))
+    if not hits: return hits
+    hd = P["head"]; a = min(hits) - 3; b = max(hits) + 10
+    hd.keyframe_insert("rotation_euler", frame=a, index=0)
+    fc = next(c for c in _fcurves(hd) if c.data_path == "rotation_euler" and c.array_index == 0)
+    base = {fr: fc.evaluate(fr) for fr in range(a, b + 1)}
+    for fr in range(a, b + 1):
+        add = sum(_nod_shape(fr - h) for h in hits)
+        kp = fc.keyframe_points.insert(fr, base[fr] + R(nod) * add, options={"FAST"}); kp.interpolation = "BEZIER"
+    fc.update()
     return hits
 
 
-# ------------------------------------------------------------------ characters
 def make_milo():
     S = new_set(); skin = (234, 184, 146); rng = RNG(42)
     d_hoodie(S, (226, 156, 32), rng, skin)
