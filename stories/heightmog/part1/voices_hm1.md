@@ -2,6 +2,7 @@
 Save as `stories/heightmog/part1/voice/<who>_hm1.mp3` (kai, mayor, guys). Music: `assets/music/Numbers_piano.mp3`.
 
 ## New voices (ElevenLabs Voice Design, guidance ~35%)
+Mix: every voice sped up 1.1× and pitched up (rubberband, formants kept); Kai +3 semitones total, others +1. Record at normal speed.
 Paste only the Prompt into the Prompt box and the Preview text into the Preview Text box.
 ### KAI (narrator + in-scene lines)
 Prompt (ElevenLabs blocks child voices, so design an adult and pitch it up ~+3 semitones, formants kept, in our mix):
@@ -34,6 +35,7 @@ Ugh. Can you not? Seriously, move your foot. I've been standing here for six hou
 [slow, suspicious] He never sits.
 [slow, suspicious] He never bends down.
 [deadpan] Once, a dog sniffed him... and the coat sneezed.
+[deadpan] He wears the coat... in July.
 [slow, building] And his coat... has six shoes.
 [whispering] Then I heard him backstage.
 [sly] So at his big speech... I made my move.
@@ -43,6 +45,7 @@ Ugh. Can you not? Seriously, move your foot. I've been standing here for six hou
 [forced deep voice, pompous] Taxes... cancelled.
 [smug] Turns out the top spot was open.
 [matter-of-fact] Every Tuesday, we swap who's on the bottom.
+[flat, unbothered] It's Tuesday.
 [to the viewer, playful] Would you expose them... or join them?
 [deadpan, trailing off] Because in this town...
 
@@ -57,6 +60,7 @@ Ugh. Can you not? Seriously, move your foot. I've been standing here for six hou
 [muffled, whiny] Your knee is in my ear.
 [muffled, sad] I'm hungry.
 [trying not to laugh, then a snorting giggle] Hehe... hehehe... snrk!
+[muffled, panicking] It's not Tuesday.
 [muffled, defeated] Your knee is in my ear.
 
 ## SFX requests (ElevenLabs Sound Effects, influence 0.65)

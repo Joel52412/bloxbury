@@ -1,7 +1,7 @@
-# HEIGHT MOG: The Trenchcoat Mayor (hm1) script v3, ~64 s (min 1:01 for TikTok pay, max 1:10)
+# HEIGHT MOG: The Trenchcoat Mayor (hm1) script v4, ~68 s raw speech, ~64 s after the 1.1× speed-up (min 1:01 for TikTok pay, max 1:10)
 Premise: in this town, the taller you are, the more power you get. Kai (4 ft 1) discovers the 9-foot mayor is three short guys in a trenchcoat... and joins them.
 Voices: KAI (narrator, voiceover; mouth moves only on in-scene lines), MAYOR (the top guy: fake booming voice, real squeaky one), GUYS (middle + bottom guy, one voice, bottom pitched down in the mix).
-Music: `Numbers_piano.mp3` under everything, hard drop at the topple (42.8 s), back in at 50.4 s.
+Music: `Numbers_piano.mp3` under everything, hard drop at the topple (44.8 s raw), back in at 52.4 s raw. Times below are raw (before the 1.1× speed-up).
 
 ## Beat sheet
 | Time | Beat | Open question |
@@ -26,27 +26,30 @@ Music: `Numbers_piano.mp3` under everything, hard drop at the topple (42.8 s), b
 | 16.6 | KAI (VO) | He never sits. | Town dinner: everyone seated, the mayor standing at the table, plate at his chin. |
 | 18.4 | KAI (VO) | He never bends down. | The mayor drops a pen. Stares at it. An aide picks it up. |
 | 20.6 | KAI (VO) | Once, a dog sniffed him... and the coat sneezed. | A dog sniffs the coat hem; the whole coat jolts with a muffled "achoo"; the mayor stares ahead like nothing happened. |
-| 23.4 | KAI (VO) | And his coat... has six shoes. | Insert at the coat hem: six sneakers shuffle; one pair faces backwards. |
-| 26.2 | KAI (VO) | Then I heard him backstage. | Kai peeks round a curtain; the coat stands alone in the dark wing. |
-| 27.8 | MAYOR | Stop moving. | (coat on screen, top) |
-| 28.7 | GUYS (middle) | Your knee is in my ear. | (coat's middle button bulges) |
-| 30.2 | GUYS (bottom) | I'm hungry. | (coat hem shuffles) |
-| 31.4 | KAI (VO) | So at his big speech... I made my move. | Stage, crowd, flags. Kai crawls through legs toward the podium. |
-| 34.2 | MAYOR | Citizens! From today, short people are banned from the— | Mayor at the podium, arm raised. |
-| 37.4 | KAI (VO) | One tickle. | Kai's hand slides under the coat hem. |
-| 38.6 | GUYS (bottom) | (giggle, snort) | The coat jolts... sways... (anticipation, overshoot) |
-| 40.2 | | (wobble, fabric rip, thud) | ...and topples off the stage. Music cuts. |
-| 42.8 | | (silence, then crowd gasp) | The coat flops open: three short guys in a heap, the top one still in the mustache. |
-| 44.8 | MAYOR (real voice) | ...Please don't tell. | The three look up at Kai, tiny and sweaty. |
-| 46.8 | KAI (VO) | They were shorter than me. | Two-shot: Kai is, for once, the tallest in frame. |
-| 48.6 | KAI (VO) | I could've exposed them... | Kai looks at the crowd, then at the empty coat. |
-| 50.4 | KAI | Taxes... cancelled. | Music back. The coat stands again, now TEN feet tall; Kai's voice comes out deep from the top. Crowd cheers. |
-| 53.2 | KAI (VO) | Turns out the top spot was open. | Coat struts through the square, even smoother than before. |
-| 55.6 | KAI (VO) | Every Tuesday, we swap who's on the bottom. | Calendar on the town hall wall: TUESDAY circled; the coat stomps grumpily. |
-| 58.2 | GUYS (bottom) | Your knee is in my ear. | Insert at the hem: now EIGHT shoes. |
-| 60.0 | KAI (VO) | Would you expose them... or join them? | The coat tips its hat to camera. |
-| 62.8 | KAI (VO) | Because in this town... | Cut to the opening framing: loops into line 1. |
-| ~64.4 | | end | |
+| 23.4 | KAI (VO) | He wears the coat... in July. | Heat haze, everyone in shorts and fans; the mayor in the full coat, sweat drop. |
+| 25.4 | KAI (VO) | And his coat... has six shoes. | Insert at the coat hem: six sneakers shuffle; one pair faces backwards. |
+| 28.2 | KAI (VO) | Then I heard him backstage. | Kai peeks round a curtain; the coat stands alone in the dark wing. |
+| 29.8 | MAYOR | Stop moving. | (coat on screen, top) |
+| 30.7 | GUYS (middle) | Your knee is in my ear. | (coat's middle button bulges) |
+| 32.2 | GUYS (bottom) | I'm hungry. | (coat hem shuffles) |
+| 33.4 | KAI (VO) | So at his big speech... I made my move. | Stage, crowd, flags. Kai crawls through legs toward the podium. |
+| 36.2 | MAYOR | Citizens! From today, short people are banned from the— | Mayor at the podium, arm raised. |
+| 39.4 | KAI (VO) | One tickle. | Kai's hand slides under the coat hem. |
+| 40.6 | GUYS (bottom) | (giggle, snort) | The coat jolts... sways... (anticipation, overshoot) |
+| 42.2 | | (wobble, fabric rip, thud) | ...and topples off the stage. Music cuts. |
+| 44.8 | | (silence, then crowd gasp) | The coat flops open: three short guys in a heap, the top one still in the mustache. |
+| 46.8 | MAYOR (real voice) | ...Please don't tell. | The three look up at Kai, tiny and sweaty. |
+| 48.8 | KAI (VO) | They were shorter than me. | Two-shot: Kai is, for once, the tallest in frame. |
+| 50.6 | KAI (VO) | I could've exposed them... | Kai looks at the crowd, then at the empty coat. |
+| 52.4 | KAI | Taxes... cancelled. | Music back. The coat stands again, now TEN feet tall; Kai's voice comes out deep from the top. Crowd cheers. |
+| 55.2 | KAI (VO) | Turns out the top spot was open. | Coat struts through the square, even smoother than before. |
+| 57.6 | KAI (VO) | Every Tuesday, we swap who's on the bottom. | Calendar on the town hall wall: TUESDAY circled; the coat stomps grumpily. |
+| 60.2 | GUYS (middle) | It's not Tuesday. | Muffled from the coat. |
+| 61.4 | KAI | It's Tuesday. | Kai from the top, flat. The coat stomps on. |
+| 62.6 | GUYS (bottom) | Your knee is in my ear. | Insert at the hem: now EIGHT shoes. |
+| 64.4 | KAI (VO) | Would you expose them... or join them? | The coat tips its hat to camera. |
+| 67.2 | KAI (VO) | Because in this town... | Cut to the opening framing: loops into line 1. |
+| ~68.8 | | end | |
 
 ## Rewatch details
 - Shot 1: six shoes under the coat, one pair backwards, and the coat wobbles at ~2.8 s.
