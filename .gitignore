@@ -1,6 +1,6 @@
 # Big or regenerable files stay on Joel's laptop only (see CLAUDE.md -> Folder map)
-series/**/frames/
-series/**/exports/
+stories/**/frames/
+stories/**/exports/
 *.mp4
 *.blend
 *.blend1

@@ -1,9 +1,9 @@
 # prep_p2.py - Part 2 "She Came Home": cue sheet + sound design on the shared audio kit (mix.py). 24 fps.
-# Line cuts come from split_lines.py / pocketsphinx (data in _pipeline/data/p2/lines_*.json). ElevenLabs leaves digital
+# Line cuts come from split_lines.py / pocketsphinx (data in stories/bloxbury/data/p2/lines_*.json). ElevenLabs leaves digital
 # silence between lines, so every cut sits in silence. Pacing is set here (dest times), not in the recordings.
 # Usage: python3 prep_p2.py [repo_root]  (TIKTOK=1)  -> OUT_DIR/{env_p2.json, part2_audio.wav, captions_p2.ass}
 import numpy as np, os, sys
-REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 sys.path.insert(0, REPO + "/_pipeline/audio_tools")
 from mix import Mix, load, fade, SR
 

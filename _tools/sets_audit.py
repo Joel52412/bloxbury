@@ -1,7 +1,7 @@
 # sets_audit.py - wide views of every set (town, Milo's room, kitchen, hallway) with dressing + town detail. OUT=/tmp/sets
 import os, math, bpy
 from mathutils import Vector as V
-os.chdir("/home/claude/bloxbury/_pipeline/scripts")
+os.chdir("/home/claude/bloxbury-blender")
 exec(open("/home/claude/studio_library/engine/scene_kit.py").read())      # Part 2's world + engine + library, via the kit
 boot("p2", world="bloxbury", patches=BLOX_LOW_WINDOWS); load("recurring", "props2", "props3")
 exec(open(LIB + "props4.py").read())

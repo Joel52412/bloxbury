@@ -1,4 +1,4 @@
-# Bloxbury story & scare direction playbook
+# Story & scare direction playbook (all stories; scare notes are for horror)
 Studio-grade first drafts (Joel). Short rules are in CLAUDE.md; this is the reasoning and method.
 
 ## Research findings (22 Nov) and what we do with them
