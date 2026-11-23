@@ -437,18 +437,28 @@ for o in FEET_OBJ:
     kf(o, "location", FT(4.1), (x0, o.location.y, o.location.z))
 for o in FEET_OBJ: vis_obj(o, 1, False); vis_obj(o, FT(3.4), True)
 vis_obj(GAP["spill_feet"], 1, False); vis_obj(GAP["spill"], 1, True)
-vis_obj(GAP["spill_feet"], FT(3.95), True); vis_obj(GAP["spill"], FT(3.95), False)
+vis_obj(GAP["spill_feet"], FT(3.4), True); vis_obj(GAP["spill"], FT(3.4), False)
+# 23 Nov fix: the shoe shadows used to pop on in ONE frame at 3.95. Now the feet card cross-fades from the empty spill
+# to the shadowed one while the feet slide in (3.45-3.95), so the shadows grow in with the steps.
+_fm = GAP["spill_feet"].active_material; _nt = _fm.node_tree
+_tf = next(n for n in _nt.nodes if n.type == "TEX_IMAGE"); _bs = next(n for n in _nt.nodes if n.type == "BSDF_PRINCIPLED")
+_te = _nt.nodes.new("ShaderNodeTexImage"); _te.image = GAP["spill"].active_material.node_tree.nodes[_tf.name].image \
+    if _tf.name in GAP["spill"].active_material.node_tree.nodes else next(n for n in GAP["spill"].active_material.node_tree.nodes if n.type == "TEX_IMAGE").image
+_mx = _nt.nodes.new("ShaderNodeMix"); _mx.data_type = "FLOAT"
+_nt.links.new(_te.outputs["Alpha"], _mx.inputs[2]); _nt.links.new(_tf.outputs["Alpha"], _mx.inputs[3]); _nt.links.new(_mx.outputs[0], _bs.inputs["Alpha"])
+for _fr, _v in ((1, 0.0), (FT(3.45), 0.0), (FT(3.95), 1.0)):
+    _mx.inputs[0].default_value = _v; _mx.inputs[0].keyframe_insert("default_value", frame=_fr)
 for t, on in ((SC["closet_crack"][0], False), (SC["door_ask"][0], True), (SC["milo_push"][1], False)):
     for o in FEET_OBJ: vis_obj(o, FT(t), on)
     vis_obj(GAP["spill_feet"], FT(t), on); vis_obj(GAP["spill"], FT(t), not on)
 light_shot(3.15, MoonSpot=5000, RoomFillA=25, moon_at=(-1.5, -31.0, 2.0))
-shot("D1 insert: the gap", 3.15, 5.1, [(0, V((1.6, -37.0, 1.15)), DOOR_LOW, 32), (1, V((1.6, -37.0, 1.15)), DOOR_LOW, 32)], fstop=3.5)   # floor level, locked off: the feet walk in
+shot("D1 insert: the gap", 3.15, 5.1, [(0, V((1.75, -37.0, 1.15)), DOOR_LOW, 32), (1, V((1.45, -37.0, 1.15)), DOOR_LOW, 32)], fstop=3.5)   # floor level, slow drift (a locked-off frame read as a frozen video): the feet walk in
 light_shot(5.1, **HOOK_LIGHT)
 cine("D2 he stares at the door", 5.1, 7.55, milo, u=FWD + LEFT * 0.2, size="MCU", move="static", lens=40, sx=0.0, roll=-4)
 lean(milo, FT(5.3), 7, 0, 0, dur=14)                                # shrinks back from the door
 look(milo, FT(6.4), -3, 0, 4, dur=8)
 light_shot(7.55, MoonSpot=9000, RoomFillA=70)
-shot("D3 knocks / Bug?", 7.55, SC["door_feet"][1], [(0, V((0.6, -41.5, 5.2)), DOOR_MID, 30), (0.85, V((0.55, -40.6, 5.1)), DOOR_MID, 30)])
+shot("D3 knocks / Bug?", 7.55, SC["door_feet"][1], [(0, V((0.6, -41.5, 5.2)), DOOR_MID, 30), (0.85, V((0.55, -40.6, 5.1)), DOOR_MID, 30), (1, V((0.54, -40.45, 5.09)), DOOR_MID, 30)])   # lands, then keeps creeping (no dead hold)
 for tk in (7.78, 8.02, 8.26):                                       # the door shivers on each soft knock
     kf(FRONT_DOOR, "rotation_euler", FT(tk) - 1, FD_ROT); kf(FRONT_DOOR, "rotation_euler", FT(tk), (FD_ROT[0], FD_ROT[1], FD_ROT[2] + DEG(0.5)))
     kf(FRONT_DOOR, "rotation_euler", FT(tk) + 3, FD_ROT)
@@ -499,7 +509,7 @@ for o in FEET_OBJ:                                                  # one foot s
     kf(o, "location", FT(30.0), o.location.copy()); kf(o, "location", FT(30.3), o.location + V((0, 0, 0.08))); kf(o, "location", FT(30.6), o.location.copy())
 light_shot(31.4, **HOOK_LIGHT)
 snap_rot(milo, "neck", FT(31.4), 0, 0, 0); pose_arm(milo, "Right", FT(31.4), target=(-0.3, 1.4, 2.8))
-gesture(milo, "Right", FT(31.5), target=MOUTH_T, dur=4, ant=0.1, over=0.08)     # SLAPS the hand back over his mouth (smear)
+gesture(milo, "Right", FT(31.5), target=MOUTH_T, dur=5, ant=0.1, over=0.08)     # SLAPS the hand back over his mouth (smear)
 expr(fm, FT(31.4), "shocked")
 cine("A2 tell me our word", 31.4, SC["door_ask"][1], milo, u=FWD + LEFT * 0.5, size="ECU", move="static", lens=70, sx=0.0, sy=0.1, roll=6)   # dutch: the thing at the door knows too much
 live(milo, 31.4, SC["door_ask"][1], "scared")
@@ -724,7 +734,7 @@ exec(open(SCR + "director.py").read())     # shot checker: camera inside a mesh 
 _AIR = [o for o in bpy.data.objects if o.name.startswith(("MoonDust", "Smear"))]     # air specks are not blockers
 for o in _AIR: o.hide_viewport = True
 shot_probs = check_shots(SHOTS, allow=ALLOW)
-check_motion({"milo": milo, "rae": rae, "mum": real}, SHOTS, 2023, quiet=(FT(31.5), FT(D0 + 0.25), FT(D0 + 0.45), FT(72.95), FT(73.1)) + tuple(range(FT(TE1), FT(SC["escape"][1]) + 4, 4)))   # run/crawl cycles are meant to be fast
+check_motion({"milo": milo, "rae": rae, "mum": real}, SHOTS, 2023, quiet=(FT(31.5), FT(31.5) + 5, FT(D0 + 0.25), FT(D0 + 0.45), FT(D0 + 0.45) + 5, FT(72.95), FT(73.1)) + tuple(range(FT(TE1), FT(SC["escape"][1]) + 4, 4)))   # run/crawl cycles are meant to be fast
 print("SHOTLIST", [(n, (a + b) // 2) for n, a, b in SHOTS])
 for o in _AIR:
     if not o.name.startswith("Smear"): o.hide_viewport = False

@@ -118,7 +118,7 @@ def insert(name, t0, t1, start_pt, end_pt, normal, start_w, end_w, lens=50, land
         h = w * 16 / 9; d = h * lens / 36.0
         return _CV(pt) + n * d + _CV((0, 0, 0.02 * d)), _CV(pt)
     pa, ga = at(start_pt, start_w); pb, gb = at(end_pt, end_w)
-    shot(name, t0, t1, [(0, pa, ga, lens), (land, pb, gb, lens), (1, pb + (pb - gb).normalized() * -0.01, gb, lens)], fstop=fstop)
+    shot(name, t0, t1, [(0, pa, ga, lens), (land, pb, gb, lens), (1, pb + (gb - pb) * 0.035, gb, lens)], fstop=fstop)   # lands, then keeps creeping 3.5% (a dead hold read as a frozen video, 23 Nov)
     FRAMING[name] = [_CV(end_pt)]
     SHOT_META[name] = ("insert", "push")
     _CINE_ORDER.append(name)
