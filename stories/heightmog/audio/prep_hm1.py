@@ -1,6 +1,6 @@
 # prep_hm1.py - HEIGHT MOG: The Trenchcoat Mayor cue sheet on the shared audio kit (mix.py). 24 fps.
-# Voices are the sped-up/pitched copies (voice_fx.py: kai +3 kid, mayor/guys +1, tempo 1.13 to land at 1:07) in part1/voice/fx/:
-#   python3 _pipeline/audio_tools/voice_fx.py stories/heightmog/part1/voice kai:3:kid mayor:1 guys:1 --id hm1 --tempo 1.13.
+# Voices are the sped-up/pitched copies (voice_fx.py: kai +1.5, mayor/guys +0.5 (Joel: +3 kid sounded weird), tempo 1.13 to land at 1:07) in part1/voice/fx/:
+#   python3 _pipeline/audio_tools/voice_fx.py stories/heightmog/part1/voice kai:1.5 mayor:0.5 guys:0.5 --id hm1 --tempo 1.13.
 # Usage: python3 prep_hm1.py [repo]  (TIKTOK=1, NOMUSIC=1) -> OUT_DIR/{env_hm1.json, hm1_audio.wav/.flac, captions_hm1.ass}
 import os, sys
 REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
