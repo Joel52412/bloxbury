@@ -218,7 +218,10 @@ M_RED_TEXT.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].defaul
 for o in [o for o in bpy.data.objects if o.name.startswith(("DoorLight", "FootShadow"))]: o.hide_render = True
 
 # ------------------------------------------------------------------ CINEMATIC NIGHT LIGHTING (LIGHTING.md), keyed per shot
-exec(open(LIB + "lookdev.py").read()); cinematic_look(exposure=0.9, bloom=0.55, vignette=0.3)
+exec(open(LIB + "lookdev.py").read())
+SOFT = os.environ.get("LOOK", "hard") == "soft"            # Joel 23 Nov: soft wrap light like the reference clips
+_CL = cinematic_look(exposure=0.9, bloom=0.55, vignette=0.3, split=not SOFT)
+if SOFT: shadow_cool(_CL); halation(_CL)
 
 
 def spot(name, loc, tgt, energy, size_deg, radius, col):
@@ -244,6 +247,9 @@ LIGHTS = {
     "RaeRim": area("RaeRim", RO + V((6, -3, 11)), RO + V((-1.6, -6.2, 4.8)), 0, 2, (0.62, 0.72, 1.0)),
     "MiloKeyR": area("MiloKeyR", RO + V((-3.0, -2.5, 8.0)), RO + V((-1.6, -6.2, 4.8)), 0, 1.5, (1.0, 0.76, 0.5)),
 }
+if SOFT:
+    soften_lights(list(LIGHTS.values()) + [o.data for o in bpy.data.objects if o.type == "LIGHT" and o.data not in LIGHTS.values()])
+    grit(); DUST = dust("MoonDust", (8.0, -36.8, 5.5), size=(12, 4, 7), count=160)
 _LOBJ = {k: [o for o in bpy.data.objects if o.data == d][0] for k, d in LIGHTS.items()}
 _LAMPS = [o.data for o in bpy.data.objects if o.type == "LIGHT" and o.name.startswith("LampLight")]
 _LAMP0 = [(d.energy, tuple(d.color)) for d in _LAMPS]
@@ -701,7 +707,10 @@ probs = check_faces()
 print("FACE CHECK", "OK" if not probs else probs[:20])
 json.dump({"shots": SHOTS, "nf": NF}, open("/home/claude/talk/shots_p3.json", "w"))
 exec(open(SCR + "director.py").read())     # shot checker: camera inside a mesh / subject blocked / lens covered
+_AIR = [o for o in bpy.data.objects if o.name.startswith("MoonDust")]     # air specks are not blockers
+for o in _AIR: o.hide_viewport = True
 shot_probs = check_shots(SHOTS, allow=ALLOW)
+for o in _AIR: o.hide_viewport = False
 shot_probs += check_framing(SHOTS)
 if shot_probs and not os.environ.get("FORCE"):
     raise SystemExit("shot check failed - fix the cameras (FORCE=1 to render anyway)")
