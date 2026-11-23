@@ -20,8 +20,8 @@ def shades(P):
 
 kai, top, mid, bot, tall, avg, aide = cast(
     kai=(make_kai, "rest_smile"), top=(make_guy_top, "rest_flat"), mid=(make_guy_mid, "rest_flat"),
-    bot=(make_guy_bot, "rest_flat"), tall=(lambda: random_extra("Tall", 61, role="office"), "rest_smirk"),
-    avg=(lambda: random_extra("Avg", 77, role="casual"), "rest_flat"), aide=(lambda: random_extra("Aide", 33, role="office"), "rest_flat"))
+    bot=(make_guy_bot, "rest_flat"), tall=(lambda: random_extra("Tall", 14, role="office"), "rest_smirk"),
+    avg=(lambda: random_extra("Avg", 11, role="casual"), "rest_flat"), aide=(lambda: random_extra("Aide", 7, role="office"), "rest_flat"))
 size_rig(tall, 1.12); size_rig(avg, 0.93); size_rig(aide, 0.95)
 shades(tall); hm_mustache(top)
 ST = build_stack(bot, mid, top)

@@ -99,7 +99,7 @@ def hm_shoe(name, loc, yaw, parent, col=(40, 30, 26), sole=(235, 232, 225), stub
     return r
 
 
-def hm_mustache(P, col=(70, 44, 28)):
+def hm_mustache(P, col=(150, 60, 40)):
     """Big curled handlebar mustache on the head (sits above the mouth so lip-sync stays visible)."""
     head = P.get("head") or P["neck"]
     fy = surf_y(0) + 0.03; m = P["M"]("Stache", col, rough=0.8)
