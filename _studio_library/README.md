@@ -12,7 +12,7 @@ CAST tags F1–F6, B1–B6, C1–C24, K1–K12 via `studio_character(tag)` (rand
 - **Faces:** M2 (+12 emotions, `faces4.RARE`). Banned: faces A–E, M1.
 - **Hair:** H2 H3 H4 H8, M1–M6, X1–X6 (under-hat hair for hats). Banned: H1, H5, H6, H7, downloaded .obj hair.
 - **Outfits:** O1–O4 + role/kids/teen.
-- **Props:** batches 1–6. 4 = set dressing (`dress_kitchen/hallway/bedroom`, two-tone walls, frames, shelves, coats, sconces, calendar/drawing); 5 = town detail (`detail_town`/`detail_house`); 6 = note, pencil, drawing, bedroom door + light gap, side window, fence gap, branches cookie, torch, phone, door set. `lookdev` grade.
-- **Sets:** Bloxbury Town, a kid's bedroom (Milo's), kitchen, hallway (mirror), hollow closet.
+- **Props:** batches 1–7 (7 = Height Mog: trenchcoat stack, plaza/stage/podium, curtain wing, bus, dog, banquet, pen, `hm_town_makeover`). 4 = set dressing (`dress_kitchen/hallway/bedroom`, two-tone walls, frames, shelves, coats, sconces, calendar/drawing); 5 = town detail (`detail_town`/`detail_house`); 6 = note, pencil, drawing, bedroom door + light gap, side window, fence gap, branches cookie, torch, phone, door set. `lookdev` grade.
+- **Sets:** Bloxbury Town, Tallton (sunny redress of the same map, props7), a kid's bedroom (Milo's), kitchen, hallway (mirror), hollow closet.
 - **Cards** (`recurring.py`, from BLOXBURY; reusable in spin-offs): MILO (`rig2.make_milo`), RAE, MAYOR, DAN, NEIGHBOUR, MUM. **Monster:** THE KNOCKER (`monster.make_knocker`).
 - Night lighting template: `stories/bloxbury/scripts/part3_assets.py` (`night()`, `spot()`, `cookie_on()`, `street_lamps()`).

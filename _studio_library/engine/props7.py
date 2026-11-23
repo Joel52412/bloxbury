@@ -1,4 +1,4 @@
-# props7.py - HEIGHT MOG batch (NOT yet approved by Joel): mayor's trenchcoat + extra shoes, mustache, white gloves,
+# props7.py - HEIGHT MOG batch (approved by Joel 23 Nov 23:57): mayor's trenchcoat + extra shoes, mustache, white gloves,
 # town plaza + stage (podium, gooseneck mic, flags, "must be this tall" banner, bunting), backstage curtain, town bus,
 # dog (pivots for sniff/sneeze), banquet table, fountain pen.
 # Load after props.py + props4.py (pmat/rb/taper/rcyl/plane/imgmat/dmat/save_img/pfont). Blender coords (front = +Y).

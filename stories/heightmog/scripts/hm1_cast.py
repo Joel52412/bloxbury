@@ -1,4 +1,4 @@
-# hm1_cast.py - HEIGHT MOG cards (NOT yet approved): KAI + the three short guys (TOP = the "mayor": mustache, top hat;
+# hm1_cast.py - HEIGHT MOG cards (approved by Joel 23 Nov 23:57): KAI + the three short guys (TOP = the "mayor": mustache, top hat;
 # MID: glasses, sweater vest; BOT: headband, tank). exec'd after the kit boot + props7 (needs garments, hair, props7).
 # Heights (Kai = 1.0): short guys ~0.86, stack ~2.2, average adult ~1.25, tall ~1.5.
 
