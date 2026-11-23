@@ -14,6 +14,7 @@ RX, RY, SAMPLES = os.environ.get("RX", "216"), os.environ.get("RY", "384"), os.e
 BUDGET = float(os.environ.get("BUDGET", 720))
 env = json.load(open(f"{TALK}env_p{N}.json")); NF = int(env.get("nf") or round(env["total"] * 24))
 STATE = f"{OUT}/state.json"
+AUDIO = next((f"{TALK}part{N}_audio.{x}" for x in ("wav", "flac") if os.path.exists(f"{TALK}part{N}_audio.{x}")), f"{TALK}part{N}_audio.flac")
 st = json.load(open(STATE)) if os.path.exists(STATE) else {"spf": 1.5, "setup": 25, "batches": []}
 
 
@@ -61,7 +62,7 @@ def join():
     if missing(): raise SystemExit(f"{len(missing())} frames still missing - run more batches first")
     mp4 = f"{TALK}Part{N}_preview.mp4"
     # own join (not make_part.sh): libass scales the 1080x1920 captions, \pos included, to the 432x768 upscale
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", "24", "-i", f"{OUT}/%04d.png", "-i", f"{TALK}part{N}_audio.wav",
+    subprocess.run(["ffmpeg", "-v", "error", "-y", "-framerate", "24", "-i", f"{OUT}/%04d.png", "-i", AUDIO,
                     "-vf", f"scale=432:768:flags=lanczos,ass={TALK}captions_p{N}.ass:fontsdir={HERE}/../assets/fonts,format=yuv420p",
                     "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-c:a", "aac", "-b:a", "160k", "-shortest", mp4], check=True)
     shots = f"{TALK}shots_p{N}.json"

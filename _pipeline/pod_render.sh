@@ -13,5 +13,7 @@ done
 # tiny progress file for the laptop Render Monitor + keep every GPU busy until the last frame
 nohup python3 /workspace/bloxbury/_pipeline/pod_progress.py $OUT $N > /workspace/progress.log 2>&1 &
 nohup sh /workspace/bloxbury/_pipeline/pod_balance.sh $S $N $OUT > /workspace/balance.log 2>&1 &
+# crash/hang guard: clears stale placeholders, stops the pod if no frame lands for 10 min
+nohup sh /workspace/bloxbury/_pipeline/pod_watchdog.sh $OUT 1 $N > /workspace/watchdog.log 2>&1 &
 # when every frame is done: frame check, assemble, wait for the laptop to download it, then the pod deletes itself
 nohup sh /workspace/bloxbury/_pipeline/pod_finish.sh $OUT $N > /workspace/finish.log 2>&1 &

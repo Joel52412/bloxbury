@@ -1,4 +1,4 @@
-# Bloxbury camera playbook (Joel 23 Nov 01:10: "the camera just zooms in every time")
+# Camera playbook (all stories) (Joel 23 Nov 01:10: "the camera just zooms in every time")
 Research: Fincher (motivated moves), Spielberg (oners and blocking), Kubrick (one-point, Steadicam, stare), Ari Aster/Pogorzelski (dollhouse wides, swivel instead of reverse shot), Flanagan (negative space, hidden figures), It Follows (wide pans, POV push), Arcane/Spider-Verse (live-action imperfection in CG), Hitchcock's rule.
 
 ## Rules

@@ -3,10 +3,9 @@
 # Add every NEW library builder to the add(...) list so the audit always covers the whole library.
 import os, math, bpy
 from mathutils import Vector
-os.chdir("/home/claude/bloxbury/_pipeline/scripts")
-src = open("part2.py").read()
-pre = src[:src.index("# ------------------------------------------------------------------ cast")]
-exec(pre)
+os.chdir("/home/claude/bloxbury-blender")
+exec(open("/home/claude/studio_library/engine/scene_kit.py").read())      # Part 2's world + engine + library, via the kit
+boot("p2", world="bloxbury", patches=BLOX_LOW_WINDOWS); load("recurring", "props2", "props3")
 exec(open(LIB + "props4.py").read())
 OUT = os.environ.get("OUT", "/tmp/audit"); os.makedirs(OUT, exist_ok=True)
 ONLY = os.environ.get("ONLY", "")

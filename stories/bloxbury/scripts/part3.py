@@ -1,192 +1,24 @@
-# part3.py - BLOXBURY Part 3 "Don't Say It". 24 fps, rig v2 faces, library cast/sets/props 1-6, cinema shots,
-# LIGHTING.md recipe (keyed per shot) + lookdev grade. Audio/cues/captions: prep_p3.py -> OUT_DIR {env_p3.json, part3_audio.wav, captions_p3.ass}
+# part3.py - BLOXBURY Part 3 "Don't Say It". Built on the shared scene kit (scene_kit.py): this file is settings + beats.
+# Rig v2 faces, library cast/sets/props 1-6, cinema shots, LIGHTING.md recipe (keyed per shot) + lookdev grade.
+# Audio/cues/captions: prep_p3.py -> {env_p3.json, part3_audio.wav, captions_p3.ass}
 # Preview: RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 FRAMES=a,b python3 part3.py      Pod: ENGINE=GPU RENDER=1 RX=1080 RY=1920 blender -b --python part3.py
-import bpy, math, random, os, json
-from mathutils import Vector, Matrix
-SCR = "/home/claude/bloxbury-blender/"
-LIB = "/home/claude/studio_library/engine/"
-src = open(SCR + "bloxbury_part1.py").read()
-pre = src[:src.index("# Milo starts at the fence")]
-# Milo's windows lowered (sill 4, top 8) so a 5-stud character can actually look out of them
-pre = pre.replace('box("WallFront", RS(4, 7, T), R(cx_, 3.5, fz), m_wall, parent=root)',
-                  'box("WallFront", RS(4, 4, T), R(cx_, 2.0, fz), m_wall, parent=root)')
-pre = pre.replace('box("WallFront", RS(4, H - 11, T), R(cx_, 11 + (H - 11) / 2, fz), m_wall, parent=root)',
-                  'box("WallFront", RS(4, H - 8, T), R(cx_, 8 + (H - 8) / 2, fz), m_wall, parent=root)')
-pre = pre.replace('WINDOW_PARTS.append(box("Window", RS(4, 4, 0.15), R(ox, 9, fz), M_WINDOW, parent=root))',
-                  'WINDOW_PARTS.append(box("Window", RS(4, 4, 0.15), R(ox, 6, fz), M_WINDOW, parent=root))')
-assert pre.count("R(cx_, 2.0, fz)") == 1
-# Part 3: sash window in Milo's RIGHT wall (faces Rae's): hole 4 wide (local z -6.5..-2.5) x 4 tall (4..8)
-_wr = 'box("WallRight", RS(T, H, D), R(W / 2 - T / 2, H / 2, 0), m_wall, parent=root)'
-assert pre.count(_wr) == 1
-pre = pre.replace(_wr, 'box("WallRight", RS(T, H, 3.5), R(W / 2 - T / 2, H / 2, -8.25), m_wall, parent=root); '
-                       'box("WallRight", RS(T, H, 12.5), R(W / 2 - T / 2, H / 2, 3.75), m_wall, parent=root); '
-                       'box("WallRight", RS(T, 4, 4), R(W / 2 - T / 2, 2, -4.5), m_wall, parent=root); '
-                       'box("WallRight", RS(T, H - 8, 4), R(W / 2 - T / 2, 8 + (H - 8) / 2, -4.5), m_wall, parent=root)')
-exec(pre)
-exec(src[src.index("# ---------------------------------------------------------------- TREES + HILLS"):
-         src.index("# ---------------------------------------------------------------- CAMERA")])
-RB = R                                    # Roblox coords (x, up, z) -> Blender
-FPS = 24; WARP = []                       # old helpers (key/F/set_day) now run on the 24 fps timeline, no warp
-for f in ("charlib", "stylelab", "hair2", "hair3", "faces2", "garments", "garments2", "hair4", "faces3", "faces4", "props"):
-    exec(open(LIB + f + ".py").read())
-V = Vector
-ENV = json.load(open(os.environ.get("ENV_P3", "/home/claude/talk/env_p3.json"))); E2 = dict(ENV); ENV["rms"] = E2["rms"]["milo"]; ENV["cen"] = E2["cen"]["milo"]
-exec(open(SCR + "rig2.py").read())       # kf, apply_interp, upgrade_rig, arm, face v2, expr, lipsync ... (R = radians now)
-exec(open(LIB + "monster.py").read())    # THE KNOCKER (studio library)
-DEG = math.radians
-OUT = os.environ.get("OUT", "/home/claude/talk/frames_p3")
-os.makedirs(OUT, exist_ok=True)
-NF = E2["nf"]
-s = bpy.context.scene
-s.render.fps = FPS
-s.frame_start, s.frame_end = 1, NF
-FT = lambda t: 1 + int(round(t * FPS))     # video seconds -> frame
-for o in [o for o in bpy.data.objects if o.name.startswith("HazeVolume")]:
-    bpy.data.objects.remove(o, do_unlink=True)   # Cycles: the haze volume costs too much render time
-
-EX.update({
-    "sad":      (0.03, -0.16, 0.03, -0.16, 1.0, 0.84),
-    "nervous":  (0.045, -0.15, 0.055, -0.12, 0.98, 1.02),
-    "scared":   (0.075, -0.2, 0.075, -0.2, 0.92, 1.22),
-    "shocked":  (0.1, -0.06, 0.1, -0.06, 1.14, 1.32),
-    "deadpan":  (-0.02, 0.02, -0.02, 0.02, 1.0, 0.6),
-    "laugh":    (0.05, -0.1, 0.05, -0.1, 1.0, 0.42),
-    "friendly": (0.03, -0.06, 0.03, -0.06, 1.0, 1.0),
-    "grin":     (0.01, 0.06, 0.01, 0.06, 1.0, 0.7),
-})
-
-# ------------------------------------------------------------------ mouth events (sorted at the end: no double mouths)
-_MEV = {}
-_mouth_rt = mouth
-
-
-def mouth(rig, frame, key):
-    _MEV.setdefault(id(rig), (rig, []))[1].append((frame, key))
-    rig["cur_m"] = key
-
-
-def flush_mouths():
-    for rig, ev in _MEV.values():
-        ev.sort(key=lambda e: e[0]); rig["cur_m"] = None
-        last = {}
-        for fr, k in ev: last[fr] = k                  # last call for a frame wins
-        for fr in sorted(last): _mouth_rt(rig, fr, last[fr])
-
-
-# ------------------------------------------------------------------ blocking helpers
-_CUTS = []        # (obj, frame) - hold the previous pose up to the cut, then snap
-
-
-def place(P, fr, loc, yaw=0.0):
-    r = P["root"]
-    kf(r, "location", fr, V(loc)); kf(r, "rotation_euler", fr, (0, 0, DEG(yaw)))
-    _CUTS.append((r, fr))
-
-
-def hold_cuts():
-    for ob, fr in _CUTS:
-        for fc in _fcurves(ob):
-            if fc.data_path not in ("location", "rotation_euler"): continue
-            pts = [k for k in fc.keyframe_points if k.co.x < fr - 0.5]
-            if not pts: continue
-            prev = max(pts, key=lambda k: k.co.x)
-            prev.interpolation = "CONSTANT"          # hold the last pose of the previous shot right up to the cut
-
-
-def idle(P, f0, f1, amp=0.02, base_z=0.0, speed=2.2, ph=0.0):
-    for fr in range(f0, f1, 12):
-        kf(P["root"], "location", fr, base_z + amp * math.sin(fr / FPS * speed + ph), index=2)
-
-
-def walk(P, f0, f1, p0, p1, steps=4, leg=30, yaw=None, z=0.0):
-    n = f1 - f0
-    for i in range(n + 1):
-        fr = f0 + i; u = i / n; e = u * u * (3 - 2 * u)
-        ph = steps * e
-        ramp = min(1.0, u / 0.12, (1 - u) / 0.12) if 0 < u < 1 else 0.0
-        ang = DEG(leg) * math.sin(math.pi * ph) * ramp
-        p = V(p0).lerp(V(p1), e)
-        kf(P["root"], "location", fr, (p.x, p.y, z + 0.07 * (math.cos(2 * math.pi * ph) - 1) * -0.5 * ramp))
-        kf(P["hipL"], "rotation_euler", fr, (ang, 0, 0)); kf(P["hipR"], "rotation_euler", fr, (-ang, 0, 0))
-        arm(P, "Left", fr, euler=(-math.degrees(ang) * 0.8 + 3, -4)); arm(P, "Right", fr, euler=(math.degrees(ang) * 0.8 + 3, 4))
-        kf(P["chest"], "rotation_euler", fr, (DEG(-5) * ramp, 0, -ang * 0.15))
-    for h in ("hipL", "hipR"): kf(P[h], "rotation_euler", f1 + 2, (0, 0, 0))
-
-
-def neck(P, fr, x=0, y=0, z=0, interp="BEZIER"):
-    kf(P["neck"], "rotation_euler", fr, (DEG(x), DEG(y), DEG(z)), interp=interp)
-
-
-def chest(P, fr, x=0, y=0, z=0, interp="BEZIER"):
-    kf(P["chest"], "rotation_euler", fr, (DEG(x), DEG(y), DEG(z)), interp=interp)
-
-
-def arms_down(P, fr):
-    arm(P, "Left", fr, euler=(4, -6)); arm(P, "Right", fr, euler=(4, 6))
-
-
-def smear(P, side, fr, k=1.35):
-    sh = P[side]
-    kf(sh, "scale", fr - 1, (1, 1, 1)); kf(sh, "scale", fr, (1, 1, k)); kf(sh, "scale", fr + 2, (1, 1, 1))
-
-
-def strip_faces(P):
-    for objs in P["faces"].values():
-        for o in objs: bpy.data.objects.remove(o, do_unlink=True)
-    P["faces"] = {}
-
-
-
+import os
+exec(open(os.environ.get("KIT", "/home/claude/studio_library/engine/scene_kit.py")).read())
+boot("p3", world="bloxbury", patches=BLOX_LOW_WINDOWS + BLOX_SIDE_WINDOW)
 
 # ================================================================== LIBRARY: cast cards, props batches, sets
-exec(open(LIB + "recurring.py").read())
-exec(open(LIB + "props2.py").read())
-exec(open(LIB + "props3.py").read())
-SC = {n: (a, b) for n, a, b in E2["scenes"]}
-FAR = V((3000, 3000, -800))
-
-
-def ray_only_glossy(P, on=True):
-    """Mirror twin: visible ONLY in reflections (and the real one is hidden from reflections)."""
-    for o in [P["root"]] + list(P["root"].children_recursive):
-        if hasattr(o, "visible_camera"):
-            o.visible_camera = not on; o.visible_diffuse = not on; o.visible_shadow = not on
-            o.visible_transmission = not on; o.visible_volume_scatter = not on; o.visible_glossy = True
-
-
-def no_reflection(P):
-    for o in [P["root"]] + list(P["root"].children_recursive):
-        if hasattr(o, "visible_glossy"): o.visible_glossy = False
-
-
+load("recurring", "props2", "props3")
 
 # ------------------------------------------------------------------ cast
-milo = make_milo(); rae = make_rae(); real = make_mum("RealMum")
-CAST = (milo, rae, real)
-for P in CAST: strip_faces(P)
-for o in bpy.data.objects: o.animation_data_clear()
-for P in CAST: upgrade_rig(P)
-fm, frae, freal = (build_face_v2(P) for P in CAST)
-RIGS = {"milo": fm, "rae": frae, "real": freal}
-for rig, rest in ((fm, "rest_flat"), (frae, "rest_flat"), (freal, "rest_frown")):
-    mouth(rig, 1, rest)
-for P in CAST: place(P, 1, FAR + V((CAST.index(P) * 12, 0, 0)))
-
-
-def park(P, fr):
-    place(P, fr, FAR + V((CAST.index(P) * 12, 0, 0)))
-
-
-def pose(P, loc, yaw):
-    P["root"].location = V(loc); P["root"].rotation_euler = (0, 0, DEG(yaw))
-
-
+milo, rae, real = cast(milo=(make_milo, "rest_flat"), rae=(make_rae, "rest_flat"), real=(lambda: make_mum("RealMum"), "rest_frown"))
+fm, frae, freal = RIGS["milo"], RIGS["rae"], RIGS["real"]
 area = p3_area
 
 # ------------------------------------------------------------------ sets + Part 3 props (library batch 6)
-exec(open(LIB + "props4.py").read()); dress_bedroom()
-exec(open(LIB + "props5.py").read()); detail_town(houses)
-exec(open(LIB + "props6.py").read())
+load("props4"); dress_bedroom()
+load("props5"); detail_town(houses)
+load("props6")
+
 p3_hollow_closet()
 FRONT_DOOR = [o for o in bpy.data.objects if o.name.startswith("FrontDoor")][0]
 BDOOR = p6_bedroom_door(FRONT_DOOR)
@@ -218,20 +50,13 @@ M_RED_TEXT.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].defaul
 for o in [o for o in bpy.data.objects if o.name.startswith(("DoorLight", "FootShadow"))]: o.hide_render = True
 
 # ------------------------------------------------------------------ CINEMATIC NIGHT LIGHTING (LIGHTING.md), keyed per shot
-exec(open(LIB + "lookdev.py").read())
+load("lookdev")
 LOOK = os.environ.get("LOOK", "mid"); SOFT = LOOK in ("soft", "real", "mid")
 # mid (Joel 23 Nov 09:13): realistic sources (kelvin practicals, blue moon, soft lamp shadows, grit) + HALF the old blue
 # split-tone + a lighter tungsten white balance. Between "everything blue" and fully neutral.
 _CL = cinematic_look(exposure=0.9, bloom=0.55, vignette=0.3, split={"hard": True, "mid": 0.35}.get(LOOK, False))
 if SOFT: shadow_cool(_CL, amount={"real": 0.35, "mid": 0.3}.get(LOOK, 0.8)); halation(_CL, amount=0.05 if LOOK in ("real", "mid") else 0.08)
 if LOOK in ("real", "mid"): white_balance(_CL, (0.95, 0.98, 1.04, 1) if LOOK == "mid" else (0.8, 0.92, 1.2, 1))
-
-
-def spot(name, loc, tgt, energy, size_deg, radius, col):
-    d = bpy.data.lights.new(name, "SPOT"); d.energy = 0; d.spot_size = DEG(size_deg); d.spot_blend = 0.25
-    d.shadow_soft_size = radius; d.color = col
-    o = bpy.data.objects.new(name, d); s.collection.objects.link(o); o.location = V(loc)
-    o.rotation_euler = (V(tgt) - V(loc)).to_track_quat("-Z", "Y").to_euler(); return d
 
 
 LIGHTS = {
@@ -258,9 +83,6 @@ if SOFT:
 _LOBJ = {k: [o for o in bpy.data.objects if o.data == d][0] for k, d in LIGHTS.items()}
 _LAMPS = [o.data for o in bpy.data.objects if o.type == "LIGHT" and o.name.startswith("LampLight")]
 _LAMP0 = [(d.energy, tuple(d.color)) for d in _LAMPS]
-
-
-def look_at(o, tgt): return (V(tgt) - o.location).to_track_quat("-Z", "Y").to_euler()
 
 
 def light_shot(t, exposure=0.9, sun=None, lamps=None, room=0, moon_from=(24.0, -34.0, 13.0), moon_at=(-2.0, -39.0, 1.5),
@@ -290,112 +112,18 @@ def sway(t0, t1, amp=2.5):
         kf(BRANCH, "rotation_euler", fr, (DEG(amp * math.sin(tt * 1.3)), DEG(amp * 0.6 * math.sin(tt * 0.9 + 1)), DEG(amp * 0.8 * math.sin(tt * 0.7))))
 
 
-def sit(P, fr, loc, yaw):
-    place(P, fr, loc, yaw)
-    for h in ("hipL", "hipR"): kf(P[h], "rotation_euler", fr, (DEG(90), 0, 0), interp="CONSTANT")
-
-
-def stand(P, fr):
-    for h in ("hipL", "hipR"): kf(P[h], "rotation_euler", fr, (0, 0, 0), interp="CONSTANT")
-
-
 set_night(0.0); house_lights(0.0, False)
 
-# ------------------------------------------------------------------ helpers
-def vis_obj(o, fr, on): kf(o, "hide_render", fr, not on, interp="CONSTANT")
-
-
-_BLINKS = []
-
-
-def blinks(rig, t0, t1, every=3.1, ph=0.0):
-    _BLINKS.append((rig, t0, t1, every, ph))      # applied at the end, once every cut is known (no closed eyes before a cut)
-
-
-def apply_blinks():
-    for rig, t0, t1, every, ph in _BLINKS:
-        t = t0 + 0.9 + ph
-        while t < t1 - 0.4:
-            fr = FT(t)
-            if all(not (c - 7 <= fr <= c + 1) for c in CUT_FR): blink(rig, fr)
-            t += every + 0.6 * math.sin(t * 1.7)
-
-
-def say(L, rig, rest, style="calm", nod=3.0, P=None):
-    ENV["rms"] = E2["rms"][L["who"]]; ENV["cen"] = E2["cen"][L["who"]]
-    f0, f1 = FT(L["t0"]), FT(L["t1"]) + 1
-    lipsync(rig, f0, f1, [(f0, rest, style)]); mouth(rig, f1 + 1, rest)
-    if P is not None: accents(P, rig, f0, f1, nod=nod)
-
-
-LN = {}
-for L in E2["lines"]: LN.setdefault(L["text"].split()[0].lower().strip(".,!?") + "@" + str(round(L["t0"])), L)
-
-
-def line(t0):
-    return min(E2["lines"], key=lambda L: abs(L["t0"] - t0))
-
-
-# ================================================================== CAMERA (from Part 1: hard cuts, each shot keyed inside its frames)
-cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam")); s.collection.objects.link(cam); s.camera = cam
-cam.data.dof.use_dof = True; cam.data.dof.aperture_fstop = 2.4; cam.data.sensor_width = 36; cam.data.clip_end = 3000
-_PREV_E = [None]
-SHOTS = []
-
-
-def cam_key(fr, pos, tgt, lens, focus=None, interp="BEZIER"):
-    pos = V(pos); tgt = V(tgt)
-    kf(cam, "location", fr, pos, interp=interp)
-    q = (tgt - pos).to_track_quat("-Z", "Y")
-    if "CAM_ROLL" in globals() and CAM_ROLL[0]:
-        from mathutils import Quaternion as _Q; q = q @ _Q((0, 0, 1), DEG(CAM_ROLL[0]))
-    e = q.to_euler()
-    if _PREV_E[0] is not None: e.make_compatible(_PREV_E[0])
-    _PREV_E[0] = e.copy()
-    kf(cam, "rotation_euler", fr, e, interp=interp)
-    kf(cam.data, "lens", fr, lens, interp=interp)
-    cam.data.dof.focus_distance = focus or (tgt - pos).length
-    cam.data.keyframe_insert("dof.focus_distance", frame=fr); _LOG.append((cam.data, "dof.focus_distance", fr, interp))
-
-
-def shot(name, t0, t1, keys, fstop=2.4):
-    """keys: [(u 0..1, pos, tgt, lens)]; calm eased moves only (hard rule)."""
-    f0, f1 = FT(t0), FT(t1) - 1
-    SHOTS.append((name, f0, f1))
-    for i, (u, p, g, l) in enumerate(keys):
-        fr = f0 + int(round(u * (f1 - f0)))
-        cam_key(fr, p, g, l, interp="CONSTANT" if fr >= f1 else "BEZIER")
-    if keys[-1][0] < 1: cam_key(f1, keys[-1][1], keys[-1][2], keys[-1][3], interp="CONSTANT")
-    cam.data.dof.aperture_fstop = fstop; cam.data.keyframe_insert("dof.aperture_fstop", frame=f0)
-    _LOG.append((cam.data, "dof.aperture_fstop", f0, "CONSTANT"))
-
-
-def idle_here(P, f0, f1, amp=0.015, ph=0.0):
-    idle(P, f0, f1, amp=amp, base_z=P["root"].location.z, ph=ph)     # Part 1's idle() keys absolute z: keep the set's floor height
-
-
-def ots(subj, other, along=3.0, side=1.3, dz=0.25):
-    """Over-the-shoulder camera for a CU on subj: on the subj->other axis, pushed sideways so it never sits in the other head."""
-    a = H(subj); b = H(other); d = (b - a); d.z = 0; L = d.length; d.normalize()
-    perp = V((d.y, -d.x, 0)) * side
-    return a + d * min(along, L - 1.6) + perp + V((0, 0, dz))
-
-
-def H(P, dz=0.0):
-    return V(P["root"].location) + V((0, 0, 4.6 + dz))
-
-
-def at(P, fr, loc, yaw):
-    place(P, fr, V(loc), yaw); P["root"].location = V(loc); P["root"].rotation_euler = (0, 0, DEG(yaw))
-
-exec(open(SCR + "cinema.py").read())          # camera grammar: cine() / insert() / check_framing()
+# ================================================================== CAMERA: hard cuts, each shot keyed inside its frames
+camera_rig()
+load("cinema")          # camera grammar: cine() / insert() / check_framing()
 
 
 
 # ================================================================== SHOTS (times from env_p3 scenes; captions/lines from prep_p3)
 # ANIMATION PASS v2 (Joel 23:49): every move goes through motion.py (wind-up, overshoot, settle, smears), the life layer
 # keeps every visible character breathing/drifting/trembling, real run + creep, real sitting, real writing, quick phone flip.
-exec(open(LIB + "motion.py").read())
+load("motion")
 ALLOW = ("E2 the fence gap",)      # he ducks UNDER the top rail: the rail crossing his head is the point
 MB = V((-6.2, -39.6, 0.4)); MYAW = -34; BED_TOP = 2.4               # Milo on the bed edge, facing the door
 FWD = V((math.sin(DEG(-MYAW)), math.cos(DEG(-MYAW)), 0)); LEFT = V((-FWD.y, FWD.x, 0))
@@ -407,10 +135,6 @@ MOUTH_T = (-1.3, 1.6, 5.4)                                          # right hand
 for P in CAST: arms_down(P, 1)
 sway(0, SC["escape"][0] + 2)
 CUTS_T = []                                                         # life windows follow the cuts
-
-
-def live(P, t0, t1, mood):
-    life(P, FT(t0), FT(t1) - 1, mood)
 
 
 # ---------------- 0  HOOK 0.00-3.15
@@ -701,87 +425,7 @@ live(milo, O0, E2["total"], "calm")
 blinks(fm, O0, E2["total"], every=2.9, ph=0.2)
 
 # ================================================================== finish
-CUT_FR = [f0 for _, f0, _ in SHOTS[1:]]
-apply_blinks()
-flush_mouths(); apply_interp(); hold_cuts(); apply_interpolation(); breathe(); bake_life()     # life layer goes on top of everything
 # drawn smears tested 23 Nov (slap/torch/phone): at these speeds motion blur already reads as the smear; a drawn ribbon
 # looked like a glitch, so none are used. smear() stays in motion.py for a real fight beat.
-
-
-def check_faces():
-    probs = []
-    for nm_, rig in RIGS.items():
-        curves = {}
-        for k, objs in rig["mouths"].items():
-            fc = [c for c in _fcurves(objs[0]) if c.data_path == "hide_render"]
-            curves[k] = fc[0] if fc else None
-        for fr in range(1, NF + 1):
-            on = [k for k, c in curves.items() if c is not None and c.evaluate(fr) < 0.5]
-            if len(on) != 1: probs.append((nm_, fr, on))
-    for nm_, rig in RIGS.items():
-        for side in ("L", "R"):
-            fc = [c for c in _fcurves(rig["blink" + side]) if c.data_path == "scale" and c.array_index == 2]
-            if fc:
-                for cut in CUT_FR:
-                    if any(fc[0].evaluate(f) < 0.9 for f in range(cut - 4, cut)): probs.append(("eyes closed before cut", nm_, cut))
-    return probs
-
-
-probs = check_faces()
-print("FACE CHECK", "OK" if not probs else probs[:20])
-json.dump({"shots": SHOTS, "nf": NF}, open("/home/claude/talk/shots_p3.json", "w"))
-exec(open(SCR + "director.py").read())     # shot checker: camera inside a mesh / subject blocked / lens covered
-_AIR = [o for o in bpy.data.objects if o.name.startswith(("MoonDust", "Smear"))]     # air specks are not blockers
-for o in _AIR: o.hide_viewport = True
-shot_probs = check_shots(SHOTS, allow=ALLOW)
-check_motion({"milo": milo, "rae": rae, "mum": real}, SHOTS, 2023, quiet=(FT(31.5), FT(31.5) + 5, FT(D0 + 0.25), FT(D0 + 0.45), FT(D0 + 0.45) + 5, FT(72.95), FT(73.1)) + tuple(range(FT(TE1), FT(SC["escape"][1]) + 4, 4)))   # run/crawl cycles are meant to be fast
-print("SHOTLIST", [(n, (a + b) // 2) for n, a, b in SHOTS])
-for o in _AIR:
-    if not o.name.startswith("Smear"): o.hide_viewport = False
-shot_probs += check_framing(SHOTS)
-if shot_probs and not os.environ.get("FORCE"):
-    raise SystemExit("shot check failed - fix the cameras (FORCE=1 to render anyway)")
-# ================================================================== render settings
-eng = os.environ.get("ENGINE", "CPU")
-if eng == "GPU":
-    pr = bpy.context.preferences.addons["cycles"].preferences
-    for be in ("OPTIX", "CUDA"):
-        try:
-            pr.compute_device_type = be; pr.get_devices()
-            gpus = [x for x in pr.devices if x.type == be]
-            if gpus:
-                for x in pr.devices: x.use = x.type == be
-                print("GPU BACKEND", be, [x.name for x in gpus]); break
-        except Exception as e: print("backend fail", be, e)
-    s.cycles.device = "GPU"; s.cycles.samples = int(os.environ.get("SAMPLES", 32))
-else:
-    s.cycles.device = "CPU"; s.cycles.samples = int(os.environ.get("SAMPLES", 6))
-s.render.engine = "CYCLES"; s.cycles.use_denoising = True
-exec(open(SCR + "director.py").read()) if "render_quality" not in globals() else None
-render_quality(s, os.environ.get("QUALITY", "fast"))     # Joel picked fast 22 Nov 15:23
-try:                       # OIDN (GPU-accelerated on RTX) with albedo+normal, accurate prefilter: far steadier frame to
-    s.cycles.denoiser = "OPENIMAGEDENOISE"; s.cycles.denoising_input_passes = "RGB_ALBEDO_NORMAL"   # frame than OptiX
-    s.cycles.denoising_prefilter = "ACCURATE"; s.cycles.denoising_use_gpu = True
-except Exception as _e: print("denoise opts", _e)
-s.render.use_persistent_data = True
-s.render.use_motion_blur = True; s.render.motion_blur_shutter = 0.5; s.render.motion_blur_position = "START"
-s.render.resolution_x, s.render.resolution_y = int(os.environ.get("RX", 216)), int(os.environ.get("RY", 384))
-s.render.image_settings.file_format = "PNG"
-if os.environ.get("PLAYBLAST"):            # MOTION PREVIEW (Joel 23:49): EEVEE, low res, fast - judge the animation before any GPU render
-    eng_ids = [i.identifier for i in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items]
-    s.render.engine = "BLENDER_EEVEE" if "BLENDER_EEVEE" in eng_ids else "BLENDER_EEVEE_NEXT"
-    try: s.eevee.taa_render_samples = int(os.environ.get("SAMPLES", 4))
-    except Exception: pass
-    s.render.use_motion_blur = False
-s.render.filepath = OUT + "/"
-s.frame_start = int(os.environ.get("FS", 1)); s.frame_end = int(os.environ.get("FE", NF))
-s.render.use_overwrite = False; s.render.use_placeholder = True
-if probs and not os.environ.get("FORCE"):
-    raise SystemExit("face check failed - not rendering")
-if os.environ.get("RENDER"):
-    if os.environ.get("FRAMES"):
-        for fr in [int(x) for x in os.environ["FRAMES"].split(",")]:
-            s.frame_set(fr); s.render.filepath = OUT + "/%04d.png" % fr; bpy.ops.render.render(write_still=True)
-    else:
-        bpy.ops.render.render(animation=True)
-print("DONE", NF)
+finish_part(life=True, allow=ALLOW, motion_chars={"milo": milo, "rae": rae, "mum": real},
+            quiet=(FT(31.5), FT(31.5) + 5, FT(D0 + 0.25), FT(D0 + 0.45), FT(D0 + 0.45) + 5, FT(72.95), FT(73.1)) + tuple(range(FT(TE1), FT(SC["escape"][1]) + 4, 4)))   # run/crawl cycles are meant to be fast
