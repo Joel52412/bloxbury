@@ -17,7 +17,7 @@ assets/           music/  sfx/  voice_clones/ (laptop)  inspo/ (laptop)
 series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)  youtube/make_youtube.sh
 ```
 - Every file Joel sends goes straight to its section (music, sfx keep ElevenLabs names + all variants, voice → partN/voice).
-- Lean: no demo/test/preview/check files left behind (send those in chat). TikTok mixes are regenerated, not stored. Delete frames once an export is checked.
+- Lean: no demo/test/preview/check files left behind (send those in chat). Mixes are stored only as FLAC (`*.wav` gitignored). Delete frames once an export is checked.
 
 ## Episode workflow
 1. **Story:** read `_pipeline/STORY_DIRECTION.md`, research, write beat sheet + script → `series/<story>/partN/partN_script.md`. Joel tweaks.

@@ -745,7 +745,10 @@ def gui_mode(mon):
                 txt.config(text="  ·  ".join(parts), fg="#f59e0b" if i == slowest and fr < 1 else SUB)
             STAGE = {"checking": "Checking every frame on the pod...", "assembling": "Putting the video together on the pod...",
                      "ready": "Video ready on the pod, starting download...", "needs_claude": "Pod stopped at a problem: tell Claude",
-                     "stopped_no_download": "Not downloaded in 60 min: pod STOPPED (disk kept). Tell Claude."}
+                     "stopped_no_download": "Not downloaded in 60 min: pod STOPPED (disk kept). Tell Claude.",
+                     "motion_audit": "Checking the motion on the pod...", "tiktok": "Making the TikTok cut on the pod...",
+                     "stalled": "No new frame for 10 min: pod STOPPED (frames kept). Tell Claude.",
+                     "stopped_needs_claude": "Pod stopped after a problem (disk kept). Tell Claude."}
             dtext = ""
             if j.delivery == "downloading":
                 mb = (j.out.get("size") or 0) / 1e6
