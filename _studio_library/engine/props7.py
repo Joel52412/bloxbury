@@ -383,3 +383,154 @@ def hm_pen(name="Pen", loc=(0, 0, 0), parent=None):
     rb("PenClip", (0.03, 0.24, 0.03), _V7((0, -0.42, 0.075)), gold, r, r=0.01)
     rcyl("PenNib", 0.05, 0.16, _V7((0, 0.34, 0)), gold, r, axis="Y", bevel=0.0, seg=10, top_scale=0.15)
     return r
+
+
+# ================================================================== TOWN MAKEOVER: Bloxbury map -> TALLTON (sunny comedy town)
+HM_HOUSE_COLS = [(250, 200, 120), (140, 210, 190), (245, 150, 140), (180, 170, 235), (150, 200, 240), (250, 230, 140),
+                 (235, 170, 200), (170, 220, 140), (255, 185, 110), (130, 190, 220), (240, 220, 200), (200, 160, 220)]
+HM_ROOF_COLS = [(190, 90, 60), (60, 90, 130), (50, 120, 110), (120, 60, 90)]
+HM_SHOPS = [("TALL & CO.", "LIFT SHOES", (40, 50, 90), (250, 205, 60)), ("LADDER BAKERY", "FRESH DAILY", (170, 60, 50), (250, 240, 220)),
+            ("STILTS", "ICE CREAM", (230, 90, 150), (255, 250, 240)), ("UP-TOWN CAFE", "COFFEE + CAKE", (50, 120, 110), (250, 240, 220)),
+            ("HIGH CUTS", "BARBER", (30, 30, 36), (240, 60, 60)), ("TOP SHELF", "BOOKS", (90, 60, 140), (250, 230, 160))]
+
+
+def shop_sign_img(name, sub, bg, fg):
+    im = Image.new("RGB", (1000, 300), bg); d = ImageDraw.Draw(im)
+    d.rectangle((10, 10, 989, 289), outline=fg, width=10)
+    d.text((500, 120), name, font=pfont(110), fill=fg, anchor="mm"); d.text((500, 230), sub, font=pfont(54), fill=fg, anchor="mm")
+    return save_img(im, "hm_shop_" + name.replace(" ", "_").replace("&", "and").replace(".", ""))
+
+
+def town_sign_img():
+    im = Image.new("RGB", (1200, 460), (250, 244, 225)); d = ImageDraw.Draw(im)
+    d.rectangle((0, 0, 1199, 459), outline=(40, 50, 90), width=16)
+    d.text((600, 120), "WELCOME TO", font=pfont(70), fill=(40, 50, 90), anchor="mm")
+    d.text((600, 230), "TALLTON", font=pfont(150), fill=(170, 35, 45), anchor="mm")
+    d.text((600, 360), "Population 214 (listed by height)", font=pfont(52), fill=(60, 60, 60), anchor="mm")
+    return save_img(im, "hm_town_sign")
+
+
+def clock_img():
+    im = Image.new("RGB", (600, 600), (40, 50, 90)); d = ImageDraw.Draw(im)
+    d.ellipse((20, 20, 580, 580), fill=(250, 244, 225), outline=(214, 172, 70), width=24)
+    for k in range(12):
+        a = k * math.pi / 6; d.line((300 + 230 * math.sin(a), 300 - 230 * math.cos(a), 300 + 260 * math.sin(a), 300 - 260 * math.cos(a)),
+                                    fill=(40, 40, 40), width=14)
+    d.line((300, 300, 300, 120), fill=(20, 20, 20), width=16); d.line((300, 300, 420, 330), fill=(20, 20, 20), width=12)
+    return save_img(im, "hm_clock")
+
+
+def _kids(root): return [root] + list(root.children_recursive)
+
+
+def _front(root):
+    """House front (Blender): returns (front_y, dirn) where dirn = +1 if the front faces +Y."""
+    y = root.location.y
+    return (y + 10.0, 1) if y < 0 else (y - 10.0, -1)
+
+
+def hm_shopfront(root, k):
+    """Striped awning, a big sign board with a generated name, a display window with goods, a planter, a bench."""
+    name, sub, bg, fg = HM_SHOPS[k % len(HM_SHOPS)]
+    fy, n = _front(root); x0 = root.location.x
+    r = root_of("Shop_" + name, (x0, fy, 0)); r.rotation_euler = (0, 0, 0 if n > 0 else math.pi)   # local +Y = out of the wall
+    stripes = (m7("awn_%d" % k, bg, rough=0.8), m7("awn_w", (250, 248, 240), rough=0.8))
+    for i in range(10):
+        rb("Awning", (2.0, 3.0, 0.15), _V7((-9 + i * 2.0, 1.4, 11.2)), stripes[i % 2], r, r=0.03, rot=(D7(-20), 0, 0))
+    for i in range(10):
+        rb("AwnFlap", (2.0, 0.08, 0.6), _V7((-9 + i * 2.0, 2.85, 10.4)), stripes[i % 2], r, r=0.02)
+    plane("ShopSign", 12, 3.6, _V7((0, 0.32, 12.6)), imgmat("hm_shopsign_%d" % k, shop_sign_img(name, sub, bg, fg), rough=0.5), r)
+    rb("SignFrame", (12.6, 0.3, 4.2), _V7((0, 0.12, 12.6)), m7("signframe", (60, 45, 35)), r, r=0.08)
+    win = m7("shopwin", (40, 55, 70), rough=0.08, metal=0.2)
+    for s in (-1, 1):
+        rb("ShopWin", (6.0, 0.2, 4.6), _V7((s * 6.6, 0.3, 4.2)), win, r, r=0.05)
+        rb("ShopWinFrame", (6.4, 0.25, 0.3), _V7((s * 6.6, 0.33, 1.8)), m7("winframe", (250, 248, 240)), r, r=0.05)
+        for j in range(3):                                                 # goods on the display shelf
+            rb("Goods", (1.0, 0.6, 1.0 + 0.3 * j), _V7((s * 6.6 - 1.8 + j * 1.8, 0.0, 2.6 + 0.15 * j)),
+               m7("goods%d" % ((k + j) % 3), [(250, 205, 60), (230, 90, 150), (60, 150, 220)][(k + j) % 3], rough=0.4), r, r=0.15)
+        rb("Planter", (2.2, 1.2, 1.2), _V7((s * 3.6, 1.2, 0.6)), m7("planter", (120, 80, 60)), r, r=0.1)
+        for j in range(3):
+            rcyl("PFlower", 0.4, 0.4, _V7((s * 3.6 - 0.6 + j * 0.6, 1.2, 1.4)), m7("flower%d" % j, [(230, 70, 90), (250, 200, 60), (240, 240, 245)][j]),
+                 r, bevel=0.1, seg=10)
+    return r
+
+
+def hm_town_hall():
+    """The mansion becomes Tallton Town Hall: warm stone + terracotta roof, clock tower with a flag, pediment sign."""
+    for nm, col in (("Marble", (238, 226, 205)), ("MansionRoof", (180, 85, 60))):
+        m = bpy.data.materials.get(nm)
+        if m: _nodes(m)[3].inputs["Base Color"].default_value = (*lin(col), 1)
+    root = root_of("TownHall", (245, 0, 0))
+    stone = m7("hall_stone", (238, 226, 205), rough=0.6); terr = m7("hall_roof", (180, 85, 60), rough=0.7)
+    gold = m7("gold", (214, 172, 70), rough=0.3, metal=0.9)
+    rb("Tower", (9, 9, 12), _V7((0, 0, 35)), stone, root, r=0.2)
+    rb("TowerTrim", (9.6, 9.6, 0.6), _V7((0, 0, 41.2)), gold, root, r=0.1)
+    taper("TowerRoof", (10, 10, 6), _V7((0, 0, 44.5)), terr, root, top=(0.05, 0.05), r=0.1)
+    plane("Clock", 6, 6, _V7((-4.56, 0, 35.5)), imgmat("hm_clock", clock_img(), rough=0.4), root, rot=(0, 0, D7(90)))
+    rcyl("TPole", 0.15, 6, _V7((0, 0, 50)), gold, root, seg=10)
+    f = plane("TFlag", 3.6, 2.4, _V7((0, -1.9, 51.6)), imgmat("hm_flag", flag_img(None), rough=0.85), root, rot=(0, 0, D7(90)))
+    taper("Pediment", (2.0, 44, 5), _V7((-21.5, 0, 31.5)), stone, root, top=(1.0, 0.05), r=0.1)
+    im = Image.new("RGB", (1400, 220), (238, 226, 205)); d = ImageDraw.Draw(im)
+    d.text((700, 110), "TALLTON TOWN HALL", font=pfont(130), fill=(40, 50, 90), anchor="mm")
+    plane("HallSign", 22, 3.4, _V7((-20.62, 0, 26.0)), imgmat("hm_hallsign", save_img(im, "hm_hallsign"), rough=0.6), root, rot=(0, 0, D7(90)))
+    for k in range(4):                                                   # front steps
+        rb("HallStep", (2.0, 30, 0.5 * (k + 1)), _V7((-21 - (3 - k) * 2.0, 0, 0.25 * (k + 1))), stone, root, r=0.05)
+    return root
+
+
+def hm_bunting_line(a, b, n=22, sag=1.2, seed=0):
+    """A string of triangle flags hung between two points (sags in the middle)."""
+    a, b = _V7(a), _V7(b); root = root_of("BuntLine", a)
+    cols = [m7("bunt_r", (190, 40, 50)), m7("bunt_w", (245, 245, 240)), m7("bunt_b", (40, 70, 150)), m7("bunt_y", (250, 205, 60))]
+    d = b - a; yaw = math.atan2(d.y, d.x)
+    for k in range(n):
+        u = (k + 0.5) / n; p = d * u + _V7((0, 0, -sag * 4 * u * (1 - u)))
+        t = taper("Flaglet", (0.06, 0.9, 0.9), p + _V7((0, 0, -0.45)), cols[(k + seed) % 4], root, top=(1.0, 0.05), r=0.01)
+        t.rotation_euler = (D7(180), 0, yaw + D7(90))
+    for k in range(12):
+        u0, u1 = k / 12, (k + 1) / 12
+        p0 = d * u0 + _V7((0, 0, -sag * 4 * u0 * (1 - u0))); p1 = d * u1 + _V7((0, 0, -sag * 4 * u1 * (1 - u1)))
+        v = p1 - p0; mid = (p0 + p1) / 2
+        rb("BuntRope", (v.length + 0.05, 0.05, 0.05), mid, m7("rope", (240, 240, 235)), root, r=0.02, rot=(0, -math.atan2(v.z, math.hypot(v.x, v.y)), yaw))
+    return root
+
+
+def hm_town_makeover(houses):
+    """Recolour + redress the Bloxbury map into Tallton: pastel houses with coloured roofs/doors, six shopfronts near the plaza,
+    the town hall, bunting across the road, painted green lamp posts with flower baskets, a zebra crossing, a new welcome
+    sign; horror leftovers (fog walls, moving van, boards, clock text, old sign text) hidden."""
+    hide = ("Hollow_", "MoveVan", "VanBody", "VanCab", "VanWindshield", "Wheel", "VanLabel", "BoardPlank", "Clock ", "SignTitle", "SignPopulation")
+    for o in bpy.data.objects:
+        if o.name.startswith(hide): o.hide_render = True
+    van = bpy.data.objects.get("MoveVan")
+    if van:
+        for o in _kids(van): o.hide_render = True
+    allh = dict(houses)
+    for nm in ("MiloHouse",):
+        if bpy.data.objects.get(nm): allh[nm] = bpy.data.objects[nm]
+    for i, (nm, root) in enumerate(sorted(allh.items())):
+        body = tex_mat("HM_" + nm, HM_HOUSE_COLS[i % len(HM_HOUSE_COLS)], "siding")
+        roof = m7("roof%d" % (i % 4), HM_ROOF_COLS[i % 4], rough=0.75)
+        door = m7("door%d" % (i % 5), [(40, 70, 150), (190, 40, 50), (50, 120, 110), (250, 205, 60), (90, 60, 140)][i % 5], rough=0.4)
+        for o in _kids(root):
+            b = o.name.split(".")[0]
+            if o.type != "MESH": continue
+            if b in ("Body", "WallFront", "WallBack", "WallLeft", "WallRight", "WallFrontTop"): o.data.materials[0] = body if o.data.materials else None
+            elif b in ("Roof", "Attic"): o.data.materials[0] = roof
+            elif b in ("Door", "FrontDoor"): o.data.materials[0] = door
+    shops = [n for n in sorted(allh) if n.startswith("House_") and allh[n].location.x >= 50]
+    for k, nm in enumerate(shops): hm_shopfront(allh[nm], k)
+    m = bpy.data.materials.get("Metal")
+    if m: _nodes(m)[3].inputs["Base Color"].default_value = (*lin((40, 80, 60)), 1)
+    for o in [o for o in bpy.data.objects if o.name.split(".")[0] == "LampPole" and not o.hide_render]:
+        p = o.location; s_ = 1 if p.y > 0 else -1
+        rb("Basket", (1.6, 1.6, 1.0), _V7((p.x, p.y - s_ * 1.1, 10.5)), m7("basket", (120, 80, 50)), None, r=0.3)
+        for j in range(4):
+            rcyl("BFlower", 0.45, 0.4, _V7((p.x - 0.5 + (j % 2), p.y - s_ * 1.1 - 0.4 + (j // 2) * 0.8, 11.1)),
+                 m7("flower%d" % (j % 3), [(230, 70, 90), (250, 200, 60), (240, 240, 245)][j % 3]), None, bevel=0.1, seg=10)
+    for x in range(-125, 150, 50):
+        hm_bunting_line((x, -15, 14.5), (x + 6, 15, 14.5), seed=x // 50)
+    for k in range(7):
+        rb("Zebra", (1.6, 20, 0.04), _V7((132 + k * 3.2, 0, 0.24)), m7("zebra", (250, 250, 248), rough=0.6), None, r=0.01)
+    plane("TownSign", 18, 6.9, _V7((-200, 19.6, 7.0)), imgmat("hm_town_sign", town_sign_img(), rough=0.6), None, rot=(0, 0, D7(180)))
+    return hm_town_hall()

@@ -20,7 +20,7 @@ def shades(P):
 
 kai, top, mid, bot, tall, avg, aide = cast(
     kai=(make_kai, "rest_smile"), top=(make_guy_top, "rest_flat"), mid=(make_guy_mid, "rest_flat"),
-    bot=(make_guy_bot, "rest_flat"), tall=(lambda: random_extra("Tall", 14, role="office"), "rest_smirk"),
+    bot=(make_guy_bot, "rest_flat"), tall=(lambda: random_extra("Tall", 28, role="office"), "rest_smirk"),
     avg=(lambda: random_extra("Avg", 11, role="casual"), "rest_flat"), aide=(lambda: random_extra("Aide", 7, role="office"), "rest_flat"))
 size_rig(tall, 1.12); size_rig(avg, 0.93); size_rig(aide, 0.95)
 shades(tall); hm_mustache(top)
@@ -38,6 +38,7 @@ for head_, m_, ld_ in LAMPS:                     # daytime: street lamps off
 for o in [o for o in bpy.data.objects if o.name.split(".")[0] in ("LampPole", "LampArm", "StreetLamp") and o.location.x > 160]:
     o.hide_render = True                         # clear the plaza
 PLAZA = hm_plaza((190, 0))
+HALL = hm_town_makeover(houses)                  # Bloxbury map -> Tallton
 STAGE = hm_stage((210, 0))
 CURT = hm_curtain((700, 0, 400.0))                                                 # backstage wing (stand-alone set)
 BUS = hm_bus("Bus", (-60, -6, 0.2)); BUS["root"].rotation_euler = (0, 0, math.radians(-90))     # drives along +X
@@ -105,6 +106,16 @@ def add(name, fn, wide=False): SHOTS.append((name, fn, wide))
 
 
 # ---------------------------------------------------------------- shots
+def sh_town():        # establishing: Tallton high street, shops, bunting, the town hall at the end
+    only((avg, (95, -9, 0.4), 100), (aide, (112, 9, 0.4), -80))
+    look((70, -5, 9), (190, 2, 9), 24)
+
+
+def sh_shops():       # the shopfronts opposite the bus stop
+    only((kai, (128, 22, 0.4), 160))
+    look((112, 4, 4.5), (140, 30, 7), 24)
+
+
 def sh_lineup():      # heights: tall, avg, Kai, and the three short guys (coat off)
     only((tall, SO + V((-7.5, 0, 0)), 10), (avg, SO + V((-4.2, 0, 0)), 5), (kai, SO + V((-1.2, 0, 0)), 0),
          stack=(SO + V((4.2, 0, 0)), -8), coat=False)
@@ -193,6 +204,8 @@ def sh_pen():         # insert: the mayor's pen on the stage planks
     look(p + V((-1.4, -1.0, 1.3)), p + V((0, 0, 0)), 50)
 
 
+add("00_tallton_street", sh_town)
+add("00b_shops", sh_shops)
 add("01_cast_heights", sh_lineup, wide=True)
 add("02_mayor_stack_kai", sh_stack)
 add("03_mayor_face", sh_mayor_face)
