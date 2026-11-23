@@ -219,9 +219,10 @@ for o in [o for o in bpy.data.objects if o.name.startswith(("DoorLight", "FootSh
 
 # ------------------------------------------------------------------ CINEMATIC NIGHT LIGHTING (LIGHTING.md), keyed per shot
 exec(open(LIB + "lookdev.py").read())
-SOFT = os.environ.get("LOOK", "hard") == "soft"            # Joel 23 Nov: soft wrap light like the reference clips
+LOOK = os.environ.get("LOOK", "hard"); SOFT = LOOK in ("soft", "real")
 _CL = cinematic_look(exposure=0.9, bloom=0.55, vignette=0.3, split=not SOFT)
-if SOFT: shadow_cool(_CL); halation(_CL)
+if SOFT: shadow_cool(_CL, amount=0.35 if LOOK == "real" else 0.8); halation(_CL, amount=0.05 if LOOK == "real" else 0.08)
+if LOOK == "real": white_balance(_CL)
 
 
 def spot(name, loc, tgt, energy, size_deg, radius, col):
@@ -247,9 +248,11 @@ LIGHTS = {
     "RaeRim": area("RaeRim", RO + V((6, -3, 11)), RO + V((-1.6, -6.2, 4.8)), 0, 2, (0.62, 0.72, 1.0)),
     "MiloKeyR": area("MiloKeyR", RO + V((-3.0, -2.5, 8.0)), RO + V((-1.6, -6.2, 4.8)), 0, 1.5, (1.0, 0.76, 0.5)),
 }
-if SOFT:
+if LOOK == "real": real_lights(LIGHTS)
+if SOFT and LOOK != "real":
     soften_lights(list(LIGHTS.values()) + [o.data for o in bpy.data.objects if o.type == "LIGHT" and o.data not in LIGHTS.values()])
-    grit(); DUST = dust("MoonDust", (8.0, -36.8, 5.5), size=(12, 4, 7), count=160)
+if SOFT:
+    grit(strength=0.06 if LOOK == "real" else 0.12); DUST = dust("MoonDust", (8.0, -36.8, 5.5), size=(12, 4, 7), count=110 if LOOK == "real" else 160)
 _LOBJ = {k: [o for o in bpy.data.objects if o.data == d][0] for k, d in LIGHTS.items()}
 _LAMPS = [o.data for o in bpy.data.objects if o.type == "LIGHT" and o.name.startswith("LampLight")]
 _LAMP0 = [(d.energy, tuple(d.color)) for d in _LAMPS]

@@ -46,17 +46,18 @@ def cinematic_look(scene=None, exposure=0.0, bloom=0.5, vignette=0.32, split=Tru
         L.new(em.outputs[0], bl.inputs[0])
         mx = N.new("ShaderNodeMix"); mx.data_type = "RGBA"; mx.blend_type = "MULTIPLY"
         mx.inputs["Factor"].default_value = vignette
-        L.new(cur, mx.inputs["A"])
+        L.new(cur, mx.inputs[6])
         inv = N.new("ShaderNodeMath"); inv.operation = "MULTIPLY_ADD"; inv.inputs[1].default_value = 0.6; inv.inputs[2].default_value = 0.4
         L.new(bl.outputs[0], inv.inputs[0])                       # mask 0..1 -> 0.4..1.0 (corners never go black)
-        L.new(inv.outputs[0], mx.inputs["B"])
-        cur = mx.outputs["Result"]
+        L.new(inv.outputs[0], mx.inputs[7])
+        cur = mx.outputs[2]
     L.new(cur, go.inputs[0])
     s.compositing_node_group = ng
     s.render.use_compositing = True
     return ng
 
 
+# NOTE: ShaderNodeMix in RGBA mode: colour sockets are inputs[6]/[7] and outputs[2] (["A"]/["Result"] hit the hidden float ones)
 # ------------------------------------------------------------------ SOFT LOOK (Joel 23 Nov 01:13 reference clips)
 # What the refs do: big soft sources that wrap and fall off (no hard-edged pools), surfaces with grit for the light to
 # rake across, halation/bloom round hot light, dust in the beams, grain. All cheap: no volumes, no extra bounces.
@@ -127,12 +128,12 @@ def halation(ng, amount=0.08, tint=(1.0, 0.3, 0.15, 1)):
     L.new(src, g.inputs["Image"])
     # glow only (glare - source), tinted, added back
     sub = N.new("ShaderNodeMix"); sub.data_type = "RGBA"; sub.blend_type = "SUBTRACT"; sub.inputs["Factor"].default_value = 1
-    L.new(g.outputs[0], sub.inputs["A"]); L.new(src, sub.inputs["B"])
+    L.new(g.outputs[0], sub.inputs[6]); L.new(src, sub.inputs[7])
     mul = N.new("ShaderNodeMix"); mul.data_type = "RGBA"; mul.blend_type = "MULTIPLY"; mul.inputs["Factor"].default_value = 1
-    L.new(sub.outputs["Result"], mul.inputs["A"]); mul.inputs["B"].default_value = tint
+    L.new(sub.outputs[2], mul.inputs[6]); mul.inputs[7].default_value = tint
     add = N.new("ShaderNodeMix"); add.data_type = "RGBA"; add.blend_type = "ADD"; add.inputs["Factor"].default_value = amount
-    L.new(src, add.inputs["A"]); L.new(mul.outputs["Result"], add.inputs["B"])
-    L.new(add.outputs["Result"], go.inputs[0])
+    L.new(src, add.inputs[6]); L.new(mul.outputs[2], add.inputs[7])
+    L.new(add.outputs[2], go.inputs[0])
 
 
 def shadow_cool(ng, tint=(0.8, 0.92, 1.2, 1), amount=0.8):
@@ -145,5 +146,51 @@ def shadow_cool(ng, tint=(0.8, 0.92, 1.2, 1), amount=0.8):
     mr.inputs["To Min"].default_value = amount; mr.inputs["To Max"].default_value = 0.0
     L.new(bw.outputs[0], mr.inputs["Value"])
     mx = N.new("ShaderNodeMix"); mx.data_type = "RGBA"; mx.blend_type = "MULTIPLY"
-    L.new(mr.outputs["Result"], mx.inputs["Factor"]); L.new(src, mx.inputs["A"]); mx.inputs["B"].default_value = tint
-    L.new(mx.outputs["Result"], go.inputs[0])
+    L.new(mr.outputs["Result"], mx.inputs["Factor"]); L.new(src, mx.inputs[6]); mx.inputs[7].default_value = tint
+    L.new(mx.outputs[2], go.inputs[0])
+
+
+# ------------------------------------------------------------------ REAL LOOK (Joel 23 Nov 08:46: "realistic good lighting")
+# Physical sizes and colour temperatures; colour comes from the sources, the grade stays near neutral.
+#   moon through a window: crisp-edged patch (small source), bluish ~ 7500K as film convention;
+#   sky/bounce fill: big and soft, cool; practicals: tungsten 2700K, sodium ~2000K, torch LED 5000K.
+def kelvin(k):
+    """Approx. blackbody RGB (linear-ish) normalised to max 1, from Tanner Helland's fit."""
+    import math
+    t = k / 100.0
+    r = 255 if t <= 66 else 329.698727446 * ((t - 60) ** -0.1332047592)
+    g = 99.4708025861 * math.log(t) - 161.1195681661 if t <= 66 else 288.1221695283 * ((t - 60) ** -0.0755148492)
+    b = 255 if t >= 66 else (0 if t <= 19 else 138.5177312231 * math.log(t - 10) - 305.0447927307)
+    c = [max(0.0, min(255.0, x)) / 255.0 for x in (r, g, b)]
+    m = max(c); return tuple(x / m for x in c)          # sRGB-ish fit used as-is: tungsten reads warm, not orange
+
+
+# Moon/sky as cinema renders them (day-for-night convention: clearly blue, ~ the eye's scotopic shift), not literal 4100K.
+REAL_RGB = {"Moon": (0.52, 0.66, 1.0), "RoomFill": (0.42, 0.56, 1.0), "RaeMoon": (0.5, 0.64, 1.0), "YardRim": (0.55, 0.68, 1.0),
+            "RaeRim": (0.55, 0.68, 1.0), "ClosetIn": (0.6, 0.7, 1.0)}
+REAL_TEMP = {
+             "Door": 2700, "Fairy": 2400, "WinGlow": 2700, "MiloKey": 2900, "Sodium": 2000, "RunKey": 2100}
+
+
+def real_lights(lights):
+    for k, d in lights.items():
+        for pre, c in REAL_RGB.items():
+            if k.startswith(pre): d.color = c; break
+        else:
+            for pre, K in REAL_TEMP.items():
+                if k.startswith(pre): d.color = kelvin(K); break
+        if d.type == "SPOT":
+            if k.startswith("Moon"): d.shadow_soft_size = 0.35; d.spot_blend = 0.5      # crisp window patch, soft cone edge
+            else: d.shadow_soft_size = max(d.shadow_soft_size, 0.8); d.spot_blend = 0.7   # lamp heads are not points
+        elif d.type == "AREA" and k.startswith(("RoomFill", "RaeMoon")):
+            d.size = d.size * 1.8                                                      # sky bounce is huge and soft
+
+
+def white_balance(ng, mult=(0.8, 0.92, 1.2, 1)):
+    """Camera white balance set for tungsten (~3200K), the real night-shoot practice: moonlight goes blue,
+    tungsten practicals read warm-neutral, and black stays black (a multiply, unlike a lift tint)."""
+    N, L = ng.nodes, ng.links
+    go = [n for n in N if n.type == "GROUP_OUTPUT"][0]
+    src = go.inputs[0].links[0].from_socket
+    mx = N.new("ShaderNodeMix"); mx.data_type = "RGBA"; mx.blend_type = "MULTIPLY"; mx.inputs["Factor"].default_value = 1
+    L.new(src, mx.inputs[6]); mx.inputs[7].default_value = mult; L.new(mx.outputs[2], go.inputs[0])
