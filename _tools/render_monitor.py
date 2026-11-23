@@ -29,7 +29,7 @@ IMG_EXT = {".png", ".exr", ".jpg", ".jpeg", ".tif", ".tiff", ".webp"}
 HERE = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(HERE, "render_jobs.json")
 DEFAULT_CONFIG = {
-    "watch_folders": [],          # e.g. ["C:/Users/frimp/Downloads/robloxshorts/series"]
+    "watch_folders": [],          # e.g. ["C:/Users/frimp/Downloads/robloxshorts/stories"]
     "jobs": [],                   # manual / RunPod jobs
     "local_poll_s": 2,            # laptop folders (just counts files: costs nothing)
     "remote_poll_s": 5,           # RunPod pods: reads the pod's tiny render_progress.json (a few hundred bytes)
@@ -268,7 +268,7 @@ class Job:
 
     def _deliver(self, s, out):
         remote = out.get("file") or ""
-        rel = s.get("download_to") or os.path.join("series", s.get("group_dir", "bloxbury"), "exports", os.path.basename(remote))
+        rel = s.get("download_to") or os.path.join("stories", s.get("group_dir", "bloxbury"), "exports", os.path.basename(remote))
         dest = rel if os.path.isabs(rel) else os.path.join(ROOT, rel)
         if os.path.exists(dest):                       # never overwrite an earlier version
             b, e = os.path.splitext(dest); dest = "%s_%s%s" % (b, datetime.datetime.now().strftime("%H%M"), e)
@@ -745,7 +745,10 @@ def gui_mode(mon):
                 txt.config(text="  ·  ".join(parts), fg="#f59e0b" if i == slowest and fr < 1 else SUB)
             STAGE = {"checking": "Checking every frame on the pod...", "assembling": "Putting the video together on the pod...",
                      "ready": "Video ready on the pod, starting download...", "needs_claude": "Pod stopped at a problem: tell Claude",
-                     "stopped_no_download": "Not downloaded in 60 min: pod STOPPED (disk kept). Tell Claude."}
+                     "stopped_no_download": "Not downloaded in 60 min: pod STOPPED (disk kept). Tell Claude.",
+                     "motion_audit": "Checking the motion on the pod...", "tiktok": "Making the TikTok cut on the pod...",
+                     "stalled": "No new frame for 10 min: pod STOPPED (frames kept). Tell Claude.",
+                     "stopped_needs_claude": "Pod stopped after a problem (disk kept). Tell Claude."}
             dtext = ""
             if j.delivery == "downloading":
                 mb = (j.out.get("size") or 0) / 1e6

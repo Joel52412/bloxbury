@@ -1,83 +1,70 @@
-# Joel's Roblox Shorts Studio
-A story-agnostic pipeline for Roblox-style animated Shorts (any genre or series): Blender 5.3 Python, rendered on RunPod, reusable asset library (`_studio_library`) + scripted scenes. Everything under Workflow, Hard rules, Rendering and Engine applies to EVERY story; genre rules are marked. Current series: **BLOXBURY: The 3AM Knock** (horror, `series/bloxbury/`).
+# Joel's Roblox Shorts Studio (core)
+Pipeline for Roblox-style animated Shorts in any genre: Blender 5.3 Python, shared engine + approved asset library, free low-res tests here, paid final renders on RunPod. This file is the core every thread needs. Genre rules are marked.
+
+## Read only what the task needs (usage, Joel 23 Nov)
+- Always: this file + `stories/<story>/STORY.md` for the ONE story you are on. Never read other stories.
+- New story or spin-off: `stories/README.md` (how-to + template).
+- Writing: `_pipeline/STORY_DIRECTION.md`; new voice: `_pipeline/VOICE_DESIGN.md`.
+- Building scenes: `_pipeline/ENGINE.md`, `_pipeline/CAMERA.md`, `_pipeline/LIGHTING.md`; casting/assets: `_studio_library/README.md`.
+- Pods: `_pipeline/RUNPOD.md`. Read source files only for the functions you touch.
 
 ## Start of every chat
-1. `add_repo Joel52412/bloxbury (push)`, then `git clone --depth 1 https://github.com/Joel52412/bloxbury /home/claude/bloxbury && sh /home/claude/bloxbury/_pipeline/restore.sh` (fills `/home/claude/{bloxbury-blender,studio_library/engine,talk,tools}`, installs bpy).
-2. After any change: commit + `git -c push.negotiate=true push`; copy changed files to `C:\Users\frimp\Downloads\robloxshorts` if connected (device_commit_files). Laptop `device_bash` has ffmpeg (remux there, no upload needed).
+1. `add_repo Joel52412/bloxbury (push)`, `git clone --depth 1 https://github.com/Joel52412/bloxbury /home/claude/bloxbury && sh /home/claude/bloxbury/_pipeline/restore.sh` (fills `/home/claude/{bloxbury-blender,studio_library/engine,talk,tools}` with every story's scripts + audio data, installs bpy).
+2. After any change: commit + `git -c push.negotiate=true push`; laptop `C:\Users\frimp\Downloads\robloxshorts` is a git clone of `main`: after each merge update it with a git bundle (`_pipeline/LAPTOP.md`), not file copies. Laptop `device_bash` has ffmpeg.
 
 ## End of every chat (Joel 16:21)
-Update Status, then condense every .md (this file, `_pipeline/*.md`, scripts' notes): keep only rules and current state, cut history, duplicates and filler (fewer words = less usage). Push, copy to the laptop, update the Project doc.
+Update the story's STORY.md Status (and Studio status below if shared things changed), condense any .md you touched (rules + current state only, no history), push, copy to the laptop, update the Project doc.
 
 ## Folders (repo and laptop identical)
 ```
-_pipeline/        scripts/ (scenes, director.py), audio_tools/ (prep_pN.py cue sheets), data/pN/ (env, captions, mix), pod_*.sh, make_*.sh
-_studio_library/  engine/ (library .py), manifest.json, approval_sheets/
-_tools/           Render Monitor, library_audit.py, sets_audit.py, audit_sheet.py
-assets/           music/  sfx/  voice_clones/ (laptop)  inspo/ (laptop)
-series/<story>/   partN/ (script, voice/<voice>_pN.mp3)  exports/ (mp4s, laptop)  youtube/make_youtube.sh
+_pipeline/        shared: scripts/ (rig2, cinema, director), audio_tools/ (mix.py kit, align, split, captions, visemes),
+                  pod_*.sh, make_*.sh, playbooks (*.md)
+_studio_library/  engine/ (library + scene_kit.py), manifest.json, approval_sheets/, README.md (catalogue)
+_tools/           Render Monitor, library_audit.py, sets_audit.py, motion_audit.py, scene_fingerprint.py
+assets/           music/ sfx/ fonts/ (shared)  voice_clones/ inspo/ (laptop)
+stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (prep_<id>.py), data/<id>/,
+                  partN/ (script, voice/<who>_<id>.mp3), exports/ (laptop), youtube/
 ```
-- Every file Joel sends goes straight to its section (music, sfx keep ElevenLabs names + all variants, voice → partN/voice).
-- Lean: no demo/test/preview/check files left behind (send those in chat). TikTok mixes are regenerated, not stored. Delete frames once an export is checked.
+- Part ids are unique across ALL stories (restore copies everything flat): Bloxbury `p1..pN`, a new story picks a 2-3 letter tag (`gb1`, `gb2`...). Scene/prep file names carry the id.
+- Joel's files go straight to their place (music, sfx keep ElevenLabs names + all variants, voice → `stories/<story>/partN/voice`).
+- Lean: no demo/test/preview files left behind (send them in chat). Mixes are stored only as FLAC (`*.wav` gitignored). Delete frames once an export is checked.
 
-## Episode workflow
-1. **Story:** read `_pipeline/STORY_DIRECTION.md`, research, write beat sheet + script → `series/<story>/partN/partN_script.md`. Joel tweaks.
-2. **Voices:** paste-ready ElevenLabs blocks, one per voice: one line per paragraph, [emotion] tags, no numbers; main character narrates. New speaking character → Voice Design prompt (`_pipeline/VOICE_DESIGN.md`). Request ALL the part's SFX now (same file).
-3. **Audio:** align (`align_full.py`), split (`split_lines.py`), scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` in the cue sheet or ask for a regen), then `prep_pN.py`: pacing, level matching, voice FX, music bed + dropouts, SFX, loudnorm −16 LUFS / −2 dBTP (Joel 21:54: not too loud), music ~20 dB under voices and ducked ~7 dB while anyone speaks, word-timed captions, lip-sync env (line modes N/D/C/O).
-4. **Audio animatic** (dark frame + captions + scene labels + timecode) → Joel judges pacing.
-5. **Asset sheet** `partN_assets.py` (detail bar applies), quick low-res checks here, then the sheet itself on a pod at FINAL quality (Joel 22:25: 1× Secure 4090, ~$0.10, `pod_stills.sh partN_assets.py` → `contact.jpg` + `stills.zip`): every new character/set/prop (sets at z=400, studio cyc for cards), NEW vs APPROVED panel. Review stills first. No pod until Joel OKs.
-6. **After OK:** save to library (`recurring.py` cards, `propsN.py`, manifest, studio.py), switch the asset script to library versions.
-7. **Scene** `partN.py` from the previous part: build here (~10 s) until `check_faces` and `check_shots` pass; animate ONLY with `motion.py` + `mocap.py`: walks/runs = `mo_walk(P, f0, f1, path, clip)` (real gait, feet on the floor), natural actions = `mo_clip(P, name, fr)` (wave, shrug, phone, scared_look, idles; `mirror=`, `mode="add"`), targeted poses = gesture/look/lean (wind-up + overshoot + settle), `sit_down`/`seated`, `life()` windows on every visible character outside mocap windows, `bake_life()` at the end; render one still per shot (216×384) → Joel. **MOTION CLIPS (free, Joel 23 Nov 20:54 "much better"):** `check_motion` OK, then render the 4-6 busiest moments (fast actions, dialogue CUs, inserts) here at 216×384 SAMPLES=4 in batches under 15 min, and send a before/after (or after-only) side-by-side mp4 → Joel. Then **MOTION PREVIEW (Joel 23:49, hard gate):** whole part on 1× Secure 4090, `RX=540 RY=960 SAMPLES=6 pod_render.sh` (~10 min, ~$0.15) → Joel watches it with sound and says yes → only then the full GPU render. Stills can't show floating, sliding, clipping or stiff snaps; the preview must. Run `_tools/motion_audit.py` on the preview AND the final export (with `shots_pN.json`) and fix every POP/JUDDER/FREEZE before calling it done.
-8. **TikTok:** `TIKTOK=1 prep_pN.py`, then `make_tiktok.sh <part.mp4> <tiktok.wav> <Bloxbury_PartN_TikTok.mp4>` (keeps 94% picture with black borders: TikTok's zoom crops them off. Joel 16:05).
-9. Audit assets used; push anything not in the library.
+## Episode workflow (one part or a one-off)
+1. **Story:** research, beat sheet + script → `stories/<story>/partN/`. Joel tweaks.
+2. **Voices:** paste-ready ElevenLabs blocks, one per voice: one line per paragraph, [emotion] tags, no numbers; main character narrates. Request ALL the part's SFX now.
+3. **Audio:** `align_full.py` (faster-whisper `small.en` mapped onto the script words; `ALIGN=sphinx` fallback), `split_lines.py`, scan every line for gaps >40 ms inside words and clicks (fix via `REPAIR` or ask for a regen), then `prep_<id>.py` on `mix.Mix` (cue/voice/sfx/silence/music/finish): loudnorm −16 LUFS / −2 dBTP, music ~20 dB under voices and ducked ~7 dB under speech, word-timed captions, lip-sync env with viseme codes.
+4. **Audio animatic** (`make_animatic.py`, dark frame) → Joel judges pacing. Once the scene builds, `make_storyboard.py N` (each shot's first→last still cross-faded on the real mix + captions, ~10 s) replaces it and the stills sheet.
+5. **Asset sheet** `<id>_assets.py` for every new character/set/prop (detail bar), low-res checks here, then final-quality stills on a pod (`pod_stills.sh`, 1× Secure 4090, ~$0.10) only after Joel OKs.
+6. **After OK:** save to the library (cards, propsN.py, manifest, studio.py), switch the asset script to library versions.
+7. **Scene** `<id>.py` on the scene kit: build here until `check_faces` + `check_shots` pass; animate only with `motion.py` + `mocap.py` (walks/runs `mo_walk`, natural actions `mo_clip`); storyboard animatic (`make_storyboard.py N`) → Joel. Then `check_motion` OK and **motion clips** of the 4-6 busiest moments (216×384, SAMPLES=4, batches <15 min) → Joel. Then **motion preview (hard gate):** whole part FREE here: `preview_local.py partN.py` (216×384 CPU, SAMPLES=4; one call = one ~12-min resumable batch, `--all` in the background runs them all, joins with mix + captions and runs motion_audit; Part 3 = 2023 frames in 30 min) → Joel watches with sound and says yes → final GPU render. `_tools/motion_audit.py` on preview AND final (with `shots_<id>.json`): fix every POP/JUDDER/FREEZE.
+8. **TikTok:** `TIKTOK=1 prep_<id>.py`, copy `<stem>_tiktok.flac` to `data/<id>/` (pods make the cut via `tiktok_audio`), or by hand `make_tiktok.sh <part.mp4> <tiktok.flac> <out.mp4>` (94% picture with black borders).
+9. Audit assets used; push anything new to the library.
 
 ## Hard rules
 - **Library:** save only Joel-verified assets; ask before bulk saves; "full asset sheet" = show everything.
-- **Look:** R6 characters, classic head, Roblox-makeable only. No glitch clipping (toaster through table, feet through floor, mug through face); unavoidable contact (hugs, tools in hands) is fine. Hats get under-hat hair.
-- **Hair:** dark skin never blonde/very light; white/grey only for older characters; keep a/b versions of B4, C19, K11. Banned: downloaded .obj hair, faces A–E and M1, hair H1, H5, H6, H7.
-- **Casting:** recurring characters have fixed cards; extras are random library mixes; monsters made fresh, saved only if approved.
-- **Animation (Joel 23:49: "no AI-slop"; 23 Nov: "too much salt ruins the dish": subtle life, small overshoot, no tremble):** `look()` x>0 = head UP. no pose ever snaps mid-shot or sits dead still; check paths against buildings (no clipping), bottoms ON seats, props move with hands (pencil in the hand, letters written one by one), quick actions are quick (phone flip 5 frames + overshoot); mouths clearly readable (rig2 lipsync opens earlier/bigger). Fluid Roblox-fight style (anticipation, overshoot, settle, smear frames, motion blur, idle motion), never stop-motion. Faces match meaning and pitch. Anime lip-sync. Sparkles twinkle subtly, never flicker. **Narration = voiceover: mouth does not move**; lip-sync only for in-scene dialogue or talking straight to camera (outro).
-- **Motion standards (23 Nov, Part 3 judder):** every animated channel is keyed on EVERY frame or on sparse Bezier keys, never a mix of per-frame keys plus a coarser layer (life step=3 over per-frame beats = 8 Hz stutter). Every beat starts and ends at zero speed and blends from the motion already running (`motion._beat`). No visibility pops for things that should move in (cross-fade). No camera holds dead still for >0.5 s (inserts creep). `check_motion` (POP + CHATTER on arms, neck, chest, head and root) must print OK before any preview; expressions change over 4 frames (`EXPR_RAMP`), head nods (`accents`) and camera jolts (`shake`) are eased per frame; before calling a render smooth, diff every consecutive frame of the export (3-frame autocorrelation, freezes, single-frame spikes).
-- **Camera (`_pipeline/CAMERA.md`):** 9:16, so key details sit in the centre column (Joel 23 Nov); max one push per scene, vary static/arc/crane/pull/dutch; calm, eased moves; shake only as a small jolt on the one big hit. Shots via `cinema.py` `cine()`/`insert()` (subject + size + move), never raw coords for character shots. Dolly, never zoom (fixed lens per shot); moves ≤25% size change, land at ~80% then settle; eyes upper third, looking room; vary size/move between cuts (hold, push, pull reveal, drift, sink); inserts land ON the key detail. `check_framing` (OFF/CROP/DRIFT/SAME) must pass. Joel 22 Nov: zooms that end on nothing / cropped faces = fail.
-- **Detail bar (Joel 21:11):** nothing ships as a plain block. Every new asset gets 3+ readable sub-details at its shot size (trim/edges, a working part, a surface break, a story/life detail); pictures/screens/labels use generated images, never flat colour. Cheap only: bevelled boxes, shared materials, emission glows, no glass/volumes; measure render cost before/after (≤5%). Asset sheets: new assets + `_tools/library_audit.py` / `sets_audit.py` front-view renders, current vs new.
-- **Sets:** dress what the camera sees (walls behind faces) with `props4.py` (two-tone walls, frames, shelves, coats, sconces, calendar/drawing rewatch bait). Cheap: boxes, shared mats, emission glows, max one practical light per room, no glass/volume (+~2% render time measured).
-- **QA:** check_faces (one mouth every frame, no closed eyes before a cut); check_shots (no camera in a mesh, nothing blocking the aim point or lens; deliberate cases in `allow=`); shot stills sheet reviewed; after GPU render, black/blank frame check.
-- **24 fps.** Captions (Joel 21:26, from a viral video): `audio_tools/captions.py` `write_ass()` for every part: big bold yellow Poppins (`assets/fonts`), ONE word at a time with a pop, lower-middle y=66% under faces; red = monster/fake, white = off-screen; word-timed (pocketsphinx).
-- **Hook (Joel 21:23):** frame 0 is a lit, readable picture (never black, never a recap); voice by 0.3 s with an impossible/strange claim a new viewer gets without earlier parts; something visibly wrong by ~3.5 s; cuts every 1.5–2 s for the first 6 s. Recaps come after the hook.
-- **Story (all series):** studio-grade first drafts. Hook picture + line in 0–3 s; new open question every 8–10 s; pattern breaks; pay off earlier parts; retell half-known legends made wrong; (horror: no cliché loud stings: silence, dropouts, misdirection, reflections, quiet lines; max one earned startle); 1–2 rewatch details; last line loops to first; end on a choice question.
-- **SFX:** never synthesise real-world sounds; request ElevenLabs SFX from Joel (key-first prompt, duration, influence). ElevenLabs files arrive ~−48 dB: set level by RMS in the cue sheet.
+- **Look:** R6 characters, classic head, Roblox-makeable only. No glitch clipping (feet through floor, mug through face); unavoidable contact is fine. Hats get under-hat hair.
+- **Hair:** dark skin never blonde/very light; white/grey only for older characters. Banned: downloaded .obj hair, faces A–E and M1, hair H1, H5, H6, H7.
+- **Casting:** recurring characters have fixed cards (in their story); extras are random library mixes; monsters made fresh, saved only if approved.
+- **Animation (Joel: "no AI-slop", "too much salt ruins the dish"):** subtle life, small overshoot, no tremble. Nothing snaps mid-shot or sits dead still; paths don't clip buildings; bottoms ON seats; props move with hands; quick actions are quick (5 frames + overshoot). Fluid Roblox-fight style (anticipation, overshoot, settle, motion blur, idle), never stop-motion. Faces match meaning and pitch. `look()` x>0 = head UP. Lip-sync from the speech (`rig2.lipsync` viseme codes), `check_lipsync(RIGS)` OK. **Narration = voiceover: mouth does not move**; lip-sync only for in-scene dialogue or to-camera.
+- **Motion standards:** each channel keyed every frame OR on sparse Bezier keys, never mixed; every beat starts/ends at zero speed and blends (`motion._beat`); cross-fade, never pop, things that move in; no camera dead still >0.5 s; expressions ramp 4 frames; `check_motion` OK before any preview.
+- **Camera (CAMERA.md):** 9:16, key details in the centre column; shots via `cine()`/`insert()`, never raw coords for characters; dolly not zoom; max one push per scene, moves ≤25% size change, eased, land ~80% then settle; vary size/move between cuts; inserts land ON the detail; `check_framing` passes. Zooms ending on nothing or cropped faces = fail.
+- **Detail bar:** nothing ships as a plain block: 3+ readable sub-details per new asset; pictures/screens use generated images; cheap only (bevelled boxes, shared mats, emission, no glass/volumes, ≤5% render cost).
+- **Sets:** dress what the camera sees (`props4.py`); max one practical light per room.
+- **QA:** check_faces, check_shots (deliberate cases in `allow=`), shot stills reviewed, black/blank frame check after GPU render.
+- **24 fps. Captions:** `captions.write_ass()`: bold yellow Poppins, ONE word at a time with a pop, y=66%; red = monster/fake, white = off-screen.
+- **Length (Joel 23 Nov):** every video ~1 minute, max 1:10.
+- **Hook:** frame 0 lit and readable; voice by 0.3 s with a strange claim a new viewer gets; something visibly wrong by ~3.5 s; cuts every 1.5–2 s for the first 6 s; recaps after the hook.
+- **Story:** studio-grade first drafts; new open question every 8–10 s; pattern breaks; 1–2 rewatch details; last line loops to first; end on a choice question. (Horror: dread over loud stings, max one earned startle.)
+- **SFX:** never synthesise real-world sounds; request ElevenLabs SFX from Joel (key-first prompt, duration, influence); level by RMS (files arrive ~−48 dB).
 - **Ad-safe (horror):** creepy not gory; nothing graphic in the first 7 s or the thumbnail.
-- **TikTok:** copyrighted music must span ≤55 s first-to-last (else muted); YouTube keeps the full mix.
+- **TikTok:** copyrighted music spans ≤55 s first-to-last (else muted); YouTube keeps the full mix.
 
-## Rendering
-- **Here (free):** low-res tests and shot stills, in short batches under 15 min each (Joel 23 Nov 20:49); anything longer goes to RunPod. **RunPod:** asset sheets at final quality (`pod_stills.sh`, 1× Secure 4090) and the full-res final (1080×1920, 32 samples, OptiX, `QUALITY=fast`). Every shot gets the `lookdev.cinematic_look()` grade (+3% render time) and follows `_pipeline/LIGHTING.md` (motivated short-side key, low fill, opposite-temperature rim, cookies, palette by beat).
-- **Fastest first (Joel 23 Nov):** run `get-capacity` (gpuCount 3/2/1, CUDA 13.2) and offer the fastest setup actually in stock; multi-GPU often isn't (3x/2x 4090 all out 23 Nov 09:32). A persistent mount narrows hosts: drop it if nothing places.
-- **Before creating a pod:** give hourly price, total time, total cost per option incl. 2×/3× GPUs; Joel must OK. Only delete pods made in this chat. Never print API keys or tokens.
-- **Cards:** default 3× Community RTX 4090 ($0.34/hr each); Secure 4090 $0.89/hr; A40 Secure $0.59/hr. Always `allowedCudaVersions: ["13.2"]` (inside `gpu`): 13.0 Community 4090s were broken 3 times. Check torch CUDA in the first minute; delete if broken. Speeds: ~1.5 s/frame per 4090, ~3 s per A40.
-- **Create body:** image `runpod/pytorch:1.0.2-cu1281-torch280-ubuntu2404` (pod_setup installs Blender, ~2 min). `ghcr.io/joel52412/bloxbury-render:5.3` gave IMAGE_AUTH_ERROR 22 Nov 22:27 (package private / no registry credential): use it again only after making the GHCR package public, disk 30, `mounts: {persistent: {size: 20, path: /workspace}}` (Joel 23 Nov: without it the 60-min auto-stop wiped an undownloaded preview), port 8888/http, startJupyter, `env: {"GITHUB_RO": "{{ RUNPOD_SECRET_GITHUB_RO }}"}` at create time (changing env later wipes the pod).
-- **On the pod:** `T=$(tr '\0' '\n' < /proc/1/environ | sed -n 's/^GITHUB_RO=//p')`; `git clone --depth 1 https://x-access-token:$T@github.com/Joel52412/bloxbury.git /workspace/bloxbury`; `nohup sh /workspace/bloxbury/_pipeline/pod_setup.sh > setup.log &` (<1 min). Token is read-only: pods never push.
-- **Render:** write `/workspace/render_job.json` first (`name, group, total, frame_start, frame_end, cost_per_hr, pod_started, output, audio, captions, black, download_to=series/bloxbury/exports/...`), then `sh /workspace/bloxbury/_pipeline/pod_render.sh partN.py <NF> /workspace/frames` (one shared frame queue across GPUs + progress file + balancer + auto-finish). `exec-pod` calls max 25 s: use nohup.
-- **Download (Joel 23:41):** when the stage is `ready`, give Joel the backup download link; he downloads it himself, then Claude deletes the pod straight away (Claude can't reach the pod proxy; pulling 39 base64 chunks is slow). Render Monitor optional.
-- **Auto-finish:** `pod_finish.sh` checks frames, assembles (`make_part.sh`), the Render Monitor downloads and writes `received.json`, the pod deletes itself (`runpodctl`: confirm which syntax works on the next pod). No download in 60 min → pod stops itself. Failure → stage `needs_claude`.
-- **Tell Joel when a render starts (always for anything >5 min, Joel 23 Nov):** pod ID first, Jupyter token, frames link `https://<pod>-8888.proxy.runpod.net/tree/workspace/frames?token=<token>`, cards + $/hr, frames, ETA, estimated cost, and the backup download link `.../files/workspace/<file>?token=<token>`. Render Monitor (`_tools/Render Monitor.bat`) shows it live.
-- **Pod → Claude images:** small contact-sheet JPG printed as base64 via exec-pod (≤1 MiB stdout).
-- Spot pods: GraphQL only, can't be created here.
+## Rendering (details: `_pipeline/RUNPOD.md`)
+- **Here (free):** low-res tests, stills, motion clips, storyboard and the whole-part motion preview, in batches under 15 min each. Final quality → RunPod. (Laptop: ASUS Vivobook, AMD integrated, no NVIDIA: no laptop renders.)
+- **RunPod:** asset sheets, final (1080×1920, 32 samples, OptiX, `lookdev.cinematic_look()` grade). Before any pod: give $/hr, time and total cost per option (fastest in stock first, incl. 2×/3× GPUs); Joel must OK. Tell Joel when a render starts (pod ID, links, ETA, cost). Only delete pods made in this chat. Never print keys or tokens.
 
-## Engine
-- Load order: `bloxbury_part1.py` prefix (to `# Milo starts at the fence`), charlib, stylelab, hair2, hair3, faces2, garments, garments2, hair4, faces3, faces4, props, studio, then recurring, props2, props3, props4, props5 (+ `detail_town(houses)` after the town), props6, lookdev, monster; scenes then rig2, motion, mocap. Part 3 template for night lighting: `part3_assets.py` (`night()`, `spot()`, `cookie_on()`, `street_lamps()`).
-- Registry `studio.py`: CAST tags F1–F6, B1–B6, C1–C24, K1–K12, `studio_character(tag)`.
-- Approved: faces M2 (+12 emotions, faces4.RARE); hair H2 H3 H4 H8, M1–M6, X1–X6; outfits O1–O4 + role/kids/teen; props batches 1–6 (6 = Part 3: note, pencil, LIGHTHOUSE drawing, bedroom door + light gap, side window, fence gap, branches cookie, torch, phone, Rae's door set; 4 = set dressing `dress_kitchen/hallway/bedroom` + wall/room pieces; 5 = town detail `detail_town`/`detail_house`; batch-2 props upgraded); sets Bloxbury Town, Milo's room, kitchen, hallway (mirror), hollow closet; cards MILO (`rig2.make_milo`), RAE, MAYOR, DAN, NEIGHBOUR, MUM (`recurring.py`); THE KNOCKER (`monster.make_knocker`).
-- **Mocap** (`engine/mocap.py`, clips in `_studio_library/mocap/*.json`): CMU mocap (free for commercial use; credit "Motion data from mocap.cs.cmu.edu" in descriptions) retargeted to R6 by `_tools/mocap_import.py` (BVH auto-downloaded, not stored). Gaits: walk, walk_slow, walk_scared, walk_sad, sneak, jog, run. Actions: wave (left), wave_hello (right), shrug, phone (right), scared_look, idle_look, idle. New clip = one CLIPS line + rebuild. `mo_list()` prints them. Not yet Joel-approved (PR pending).
-- Scene template: `part2.py` (+ `rig2.py`: `upgrade_rig`, `arm`, `build_face_v2`, `expr`, `blink`, `lipsync`, `accents`; walk cycle; smears = shoulder Z ×1.35 for 2 frames; motion blur 0.5 position START; `cam_key` with make_compatible).
-- Helpers/lessons: `place()` + `hold_cuts()` + `flush_mouths()`; use `idle_here()` (idle() keys absolute z); aim shots BEFORE parking characters; character shots via `cine()` (ots() is legacy); emission sockets keyed with `key()`; Blender 5 needs `kf()`, `apply_interp()`, `_fcurves()`; DOF keyed on `cam.data`; no coplanar faces; check held-prop contact numerically; cups hollow. Glossy-only objects (`visible_glossy`) for mirror/reflection tricks.
-- `cinema.py` sets the 1080×1920 resolution before any maths (sensor fit uses the long side). Sizes = head fraction of frame height: ECU .40, CU .28, MCU .19, MS .12; small sets need short lenses (26–36) or the camera ends up in a wall.
-- Stills: `RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 FRAMES=a,b python3 partN.py`.
-
-## Series so far: BLOXBURY (story-specific; new series get their own section)
-- **Part 1** (71.75 s, `part1_v2.py`, `prep_p1.py`): Milo hears knocks at 3AM; the Knocker (tall, starved, black sockets with pinpoint white eyes, red thin-tooth grin; always kept in the dark with a cool rim light) is in his closet; lunge at the lens on "OUT", cut to black. Rae keeps the WHO'S LEFT list.
-- **Part 2 "She Came Home"** (80 s, 1921 frames, `part2.py`, `prep_p2.py`, script in `series/bloxbury/part2/`): Mum is back making pancakes but calls him "Milo" (she never does). Rae: Mum was crossed off the list three weeks ago; "mirrors don't lie". The hallway mirror's twin keeps smiling and turns. Real Mum whispers from the closet "I heard it too"; fake Mum knocks: "Who are you talking to?" Outro: "Two mums. One door. Which one would you open?" Music: Numbers instrumental loop (`assets/music`), 35%.
-
-## Status (23 Nov 21:00)
-- Parts 1-3 delivered. Part 3 v2 (`Bloxbury_Part3_v2.mp4`) looked jagged: life layer keyed every 3rd frame (8 Hz judder), easing started/stopped mid-speed, shoe shadows popped on at 0:03.96, slap crossed the face in 1 frame, inserts froze. Fixed in motion.py / part3.py / cinema.py (branch `claude/project-thread-e9iybj`, copied to the laptop). Joel saw the local before/after clips ("much better") and said no re-render needed (23 Nov 20:55).
-- Library: props 1-6 + lookdev approved; `LIGHTING.md`, captions, hook rules in force.
-- TODO: wire `make_tiktok.sh` into `pod_finish.sh`; GHCR render image private (use runpod/pytorch).
-- **NEXT:** Part 4 (built on the fixed motion.py) (open thread: where is real Mum? who has Milo's voice?).
+## Studio status (23 Nov)
+- Parts 1-3 of BLOXBURY delivered. On main: motion fixes, speech-driven lip-sync + `talk_face`, shared scene kit + audio kit, pod hardening (watchdog, x264 export, auto TikTok + motion audit, FLAC mixes).
+- Stories folder split (lean core + one folder per story) in review.
+- Previews free (23 Nov): `preview_local.py` + `make_storyboard.py`. Laptop folder is a git clone of main (set up 23 Nov).
+- TODO: GHCR render image private (use runpod/pytorch).

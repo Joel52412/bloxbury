@@ -1,146 +1,15 @@
-# part1_v2.py - BLOXBURY: The 3AM Knock, Part 1 (redesign). 24 fps, rig v2 faces, library cast, director shots.
-# Audio/cues/captions: _pipeline/audio_tools/prep_p1.py -> /home/claude/talk/{env_p1.json, part1_audio.wav, captions_p1.ass}
+# part1_v2.py - BLOXBURY: The 3AM Knock, Part 1 (redesign). Built on the shared scene kit (scene_kit.py): settings + beats.
+# Rig v2 faces, library cast, director shots.
+# Audio/cues/captions: stories/bloxbury/audio/prep_p1.py -> {env_p1.json, part1_audio.wav, captions_p1.ass}
 # Preview: RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 python3 part1_v2.py      Pod: ENGINE=GPU RENDER=1 RX=1080 RY=1920 blender -b --python part1_v2.py
-import bpy, math, random, os, json
-from mathutils import Vector, Matrix
-SCR = "/home/claude/bloxbury-blender/"
-LIB = "/home/claude/studio_library/engine/"
-src = open(SCR + "bloxbury_part1.py").read()
-pre = src[:src.index("# Milo starts at the fence")]
-# Milo's windows lowered (sill 4, top 8) so a 5-stud character can actually look out of them
-pre = pre.replace('box("WallFront", RS(4, 7, T), R(cx_, 3.5, fz), m_wall, parent=root)',
-                  'box("WallFront", RS(4, 4, T), R(cx_, 2.0, fz), m_wall, parent=root)')
-pre = pre.replace('box("WallFront", RS(4, H - 11, T), R(cx_, 11 + (H - 11) / 2, fz), m_wall, parent=root)',
-                  'box("WallFront", RS(4, H - 8, T), R(cx_, 8 + (H - 8) / 2, fz), m_wall, parent=root)')
-pre = pre.replace('WINDOW_PARTS.append(box("Window", RS(4, 4, 0.15), R(ox, 9, fz), M_WINDOW, parent=root))',
-                  'WINDOW_PARTS.append(box("Window", RS(4, 4, 0.15), R(ox, 6, fz), M_WINDOW, parent=root))')
-assert pre.count("R(cx_, 2.0, fz)") == 1
-exec(pre)
-exec(src[src.index("# ---------------------------------------------------------------- TREES + HILLS"):
-         src.index("# ---------------------------------------------------------------- CAMERA")])
-RB = R                                    # Roblox coords (x, up, z) -> Blender
-FPS = 24; WARP = []                       # old helpers (key/F/set_day) now run on the 24 fps timeline, no warp
-for f in ("charlib", "stylelab", "hair2", "hair3", "faces2", "garments", "garments2", "hair4", "faces3", "faces4", "props"):
-    exec(open(LIB + f + ".py").read())
-V = Vector
-ENV = json.load(open("/home/claude/talk/env_p1.json"))
-exec(open(SCR + "rig2.py").read())       # kf, apply_interp, upgrade_rig, arm, face v2, expr, lipsync ... (R = radians now)
-exec(open(LIB + "monster.py").read())    # THE KNOCKER (studio library)
-DEG = math.radians
-OUT = os.environ.get("OUT", "/home/claude/talk/frames_p1")
-os.makedirs(OUT, exist_ok=True)
-NF = ENV["nf"]
-s = bpy.context.scene
-s.render.fps = FPS
-s.frame_start, s.frame_end = 1, NF
-FT = lambda t: 1 + int(round(t * FPS))     # video seconds -> frame
-for o in [o for o in bpy.data.objects if o.name.startswith("HazeVolume")]:
-    bpy.data.objects.remove(o, do_unlink=True)   # Cycles: the haze volume costs too much render time
-
-EX.update({
-    "sad":      (0.03, -0.16, 0.03, -0.16, 1.0, 0.84),
-    "nervous":  (0.045, -0.15, 0.055, -0.12, 0.98, 1.02),
-    "scared":   (0.075, -0.2, 0.075, -0.2, 0.92, 1.22),
-    "shocked":  (0.1, -0.06, 0.1, -0.06, 1.14, 1.32),
-    "deadpan":  (-0.02, 0.02, -0.02, 0.02, 1.0, 0.6),
-    "laugh":    (0.05, -0.1, 0.05, -0.1, 1.0, 0.42),
-    "friendly": (0.03, -0.06, 0.03, -0.06, 1.0, 1.0),
-    "grin":     (0.01, 0.06, 0.01, 0.06, 1.0, 0.7),
-})
-
-# ------------------------------------------------------------------ mouth events (sorted at the end: no double mouths)
-_MEV = {}
-_mouth_rt = mouth
-
-
-def mouth(rig, frame, key):
-    _MEV.setdefault(id(rig), (rig, []))[1].append((frame, key))
-    rig["cur_m"] = key
-
-
-def flush_mouths():
-    for rig, ev in _MEV.values():
-        ev.sort(key=lambda e: e[0]); rig["cur_m"] = None
-        last = {}
-        for fr, k in ev: last[fr] = k                  # last call for a frame wins
-        for fr in sorted(last): _mouth_rt(rig, fr, last[fr])
-
-
-# ------------------------------------------------------------------ blocking helpers
-_CUTS = []        # (obj, frame) - hold the previous pose up to the cut, then snap
-
-
-def place(P, fr, loc, yaw=0.0):
-    r = P["root"]
-    kf(r, "location", fr, V(loc)); kf(r, "rotation_euler", fr, (0, 0, DEG(yaw)))
-    _CUTS.append((r, fr))
-
-
-def hold_cuts():
-    for ob, fr in _CUTS:
-        for fc in _fcurves(ob):
-            if fc.data_path not in ("location", "rotation_euler"): continue
-            pts = [k for k in fc.keyframe_points if k.co.x < fr - 0.5]
-            if not pts: continue
-            prev = max(pts, key=lambda k: k.co.x)
-            prev.interpolation = "CONSTANT"          # hold the last pose of the previous shot right up to the cut
-
-
-def idle(P, f0, f1, amp=0.02, base_z=0.0, speed=2.2, ph=0.0):
-    for fr in range(f0, f1, 12):
-        kf(P["root"], "location", fr, base_z + amp * math.sin(fr / FPS * speed + ph), index=2)
-
-
-def walk(P, f0, f1, p0, p1, steps=4, leg=30, yaw=None, z=0.0):
-    n = f1 - f0
-    for i in range(n + 1):
-        fr = f0 + i; u = i / n; e = u * u * (3 - 2 * u)
-        ph = steps * e
-        ramp = min(1.0, u / 0.12, (1 - u) / 0.12) if 0 < u < 1 else 0.0
-        ang = DEG(leg) * math.sin(math.pi * ph) * ramp
-        p = V(p0).lerp(V(p1), e)
-        kf(P["root"], "location", fr, (p.x, p.y, z + 0.07 * (math.cos(2 * math.pi * ph) - 1) * -0.5 * ramp))
-        kf(P["hipL"], "rotation_euler", fr, (ang, 0, 0)); kf(P["hipR"], "rotation_euler", fr, (-ang, 0, 0))
-        arm(P, "Left", fr, euler=(-math.degrees(ang) * 0.8 + 3, -4)); arm(P, "Right", fr, euler=(math.degrees(ang) * 0.8 + 3, 4))
-        kf(P["chest"], "rotation_euler", fr, (DEG(-5) * ramp, 0, -ang * 0.15))
-    for h in ("hipL", "hipR"): kf(P[h], "rotation_euler", f1 + 2, (0, 0, 0))
-
-
-def neck(P, fr, x=0, y=0, z=0, interp="BEZIER"):
-    kf(P["neck"], "rotation_euler", fr, (DEG(x), DEG(y), DEG(z)), interp=interp)
-
-
-def chest(P, fr, x=0, y=0, z=0, interp="BEZIER"):
-    kf(P["chest"], "rotation_euler", fr, (DEG(x), DEG(y), DEG(z)), interp=interp)
-
-
-def arms_down(P, fr):
-    arm(P, "Left", fr, euler=(4, -6)); arm(P, "Right", fr, euler=(4, 6))
-
-
-def smear(P, side, fr, k=1.35):
-    sh = P[side]
-    kf(sh, "scale", fr - 1, (1, 1, 1)); kf(sh, "scale", fr, (1, 1, k)); kf(sh, "scale", fr + 2, (1, 1, 1))
-
-
-def strip_faces(P):
-    for objs in P["faces"].values():
-        for o in objs: bpy.data.objects.remove(o, do_unlink=True)
-    P["faces"] = {}
-
+import os
+exec(open(os.environ.get("KIT", "/home/claude/studio_library/engine/scene_kit.py")).read())
+boot("p1", world="bloxbury", patches=BLOX_LOW_WINDOWS)
 
 # ------------------------------------------------------------------ cast (recurring = fixed cards)
-exec(open(LIB + "recurring.py").read())   # RAE, MAYOR, NEIGHBOUR fixed cards (studio library)
-exec(open(LIB + "props2.py").read())       # props batch 2 (hammer, crate, notebook, list insert, door glow...)
-
-
-milo = make_milo(); rae = make_rae(); mayor = make_mayor(); nb = make_neighbour()
-CAST_ALL = (milo, rae, mayor, nb)
-for P in CAST_ALL: strip_faces(P)
-for o in bpy.data.objects: o.animation_data_clear()
-for P in CAST_ALL: upgrade_rig(P)
-fm, fr_, fy, fn = (build_face_v2(P) for P in CAST_ALL)
-RIGS = {"milo": fm, "rae": fr_, "mayor": fy, "nb": fn}
+load("recurring", "props2")      # RAE, MAYOR, NEIGHBOUR fixed cards + props batch 2 (hammer, crate, notebook, list insert, door glow...)
+milo, rae, mayor, nb = cast(park_far=False, milo=(make_milo, None), rae=(make_rae, None), mayor=(make_mayor, None), nb=(make_neighbour, None))
+fm, fr_, fy, fn = (RIGS[k] for k in ("milo", "rae", "mayor", "nb"))     # rest mouths are keyed after the dialogue below
 
 # ------------------------------------------------------------------ props (new for this episode: hammer, crate, notebook)
 note = p2_notebook(rae["tiltLeft"])
@@ -500,35 +369,7 @@ kf(hd_k, "rotation_euler", FT(CUT_OUTRO) + 1, base_r, interp="CONSTANT")
 kf(HINGE, "rotation_euler", ECHO - 12, (0, 0, 0)); kf(HINGE, "rotation_euler", ECHO + 6, (0, 0, DEG(-10)))
 
 # ================================================================== CAMERA (hard cuts; each shot keyed inside its own frames)
-cam = bpy.data.objects.new("Cam", bpy.data.cameras.new("Cam")); s.collection.objects.link(cam); s.camera = cam
-cam.data.dof.use_dof = True; cam.data.dof.aperture_fstop = 2.4; cam.data.sensor_width = 36; cam.data.clip_end = 3000
-_PREV_E = [None]
-SHOTS = []
-
-
-def cam_key(fr, pos, tgt, lens, focus=None, interp="BEZIER"):
-    pos = V(pos); tgt = V(tgt)
-    kf(cam, "location", fr, pos, interp=interp)
-    e = (tgt - pos).to_track_quat("-Z", "Y").to_euler()
-    if _PREV_E[0] is not None: e.make_compatible(_PREV_E[0])
-    _PREV_E[0] = e.copy()
-    kf(cam, "rotation_euler", fr, e, interp=interp)
-    kf(cam.data, "lens", fr, lens, interp=interp)
-    cam.data.dof.focus_distance = focus or (tgt - pos).length
-    cam.data.keyframe_insert("dof.focus_distance", frame=fr); _LOG.append((cam.data, "dof.focus_distance", fr, interp))
-
-
-def shot(name, t0, t1, keys, fstop=2.4):
-    """keys: [(u 0..1, pos, tgt, lens)] inside the shot. Hard cut at t0."""
-    f0, f1 = FT(t0), FT(t1) - 1
-    SHOTS.append((name, f0, f1))
-    for i, (u, p, g, l) in enumerate(keys):
-        fr = f0 + int(round(u * (f1 - f0)))
-        cam_key(fr, p, g, l, interp="CONSTANT" if fr >= f1 else "BEZIER")
-    if keys[-1][0] < 1: cam_key(f1, keys[-1][1], keys[-1][2], keys[-1][3], interp="CONSTANT")
-    cam.data.dof.aperture_fstop = fstop; cam.data.keyframe_insert("dof.aperture_fstop", frame=f0)
-    _LOG.append((cam.data, "dof.aperture_fstop", f0, "CONSTANT"))
-
+camera_rig()
 
 def head_of(P, dz=0.0):
     r = P["root"]; return V(r.location) + V((0, 0, 4.6 + dz))
@@ -601,68 +442,8 @@ blk.visible_shadow = False
 for fr_b, on in ((1, False), (FT(62.35), True), (FT(CUT_OUTRO), False)):
     kf(blk, "hide_render", fr_b, not on, interp="CONSTANT")
 
-# ================================================================== finish: mouths, cut holds, interpolation
-flush_mouths()
-apply_interp()
-hold_cuts()
-apply_interpolation()                       # old-style key() curves (day/night, lamps, fades, van)
-
-
-def check_faces():
-    probs = []
-    for nm_, rig in RIGS.items():
-        curves = {}
-        for k, objs in rig["mouths"].items():
-            fc = [c for c in _fcurves(objs[0]) if c.data_path == "hide_render"]
-            curves[k] = fc[0] if fc else None
-        for fr in range(1, NF + 1):
-            on = [k for k, c in curves.items() if c is not None and c.evaluate(fr) < 0.5]
-            if len(on) != 1: probs.append((nm_, fr, on))
-    cuts = [f0 for _, f0, _ in SHOTS[1:]]
-    for nm_, rig in RIGS.items():
-        for side in ("L", "R"):
-            fc = [c for c in _fcurves(rig["blink" + side]) if c.data_path == "scale" and c.array_index == 2]
-            if fc:
-                for cut in cuts:
-                    if any(fc[0].evaluate(f) < 0.9 for f in range(cut - 4, cut)): probs.append(("eyes closed before cut", nm_, cut))
-    return probs
-
-
-probs = check_faces()
-print("FACE CHECK", "OK" if not probs else probs[:20])
-json.dump({"shots": SHOTS, "nf": NF}, open("/home/claude/talk/shots_p1.json", "w"))
-
-# ================================================================== render settings
-eng = os.environ.get("ENGINE", "CPU")
-if eng == "GPU":
-    pr = bpy.context.preferences.addons["cycles"].preferences
-    for be in ("OPTIX", "CUDA"):
-        try:
-            pr.compute_device_type = be; pr.get_devices()
-            gpus = [x for x in pr.devices if x.type == be]
-            if gpus:
-                for x in pr.devices: x.use = x.type == be
-                print("GPU BACKEND", be, [x.name for x in gpus]); break
-        except Exception as e: print("backend fail", be, e)
-    s.cycles.device = "GPU"; s.cycles.samples = 32
-else:
-    s.cycles.device = "CPU"; s.cycles.samples = int(os.environ.get("SAMPLES", 6))
-s.render.engine = "CYCLES"; s.cycles.use_denoising = True
-try: s.cycles.denoiser = "OPTIX" if eng == "GPU" else "OPENIMAGEDENOISE"
-except Exception: pass
-s.render.use_persistent_data = True
-s.render.use_motion_blur = True; s.render.motion_blur_shutter = 0.5; s.render.motion_blur_position = "START"
-s.render.resolution_x, s.render.resolution_y = int(os.environ.get("RX", 216)), int(os.environ.get("RY", 384))
-s.render.image_settings.file_format = "PNG"
-s.render.filepath = OUT + "/"
-s.frame_start = int(os.environ.get("FS", 1)); s.frame_end = int(os.environ.get("FE", NF))
-s.render.use_overwrite = False; s.render.use_placeholder = True
-if probs and not os.environ.get("FORCE"):
-    raise SystemExit("face check failed - not rendering")
-if os.environ.get("RENDER"):
-    if os.environ.get("FRAMES"):
-        for fr in [int(x) for x in os.environ["FRAMES"].split(",")]:
-            s.frame_set(fr); s.render.filepath = OUT + "/%04d.png" % fr; bpy.ops.render.render(write_still=True)
-    else:
-        bpy.ops.render.render(animation=True)
-print("DONE", NF)
+# ================================================================== finish: mouths, cut holds, interpolation, checks, render
+# Part 1 shipped before the shot checker; these are deliberate: foreground sign/pickets/hard hat framing, over Milo's
+# shoulder, POV through his window glass (P, U2) and over his shoulder at the door (T).
+finish_part(allow=("B sign + van", "F fence wide", "M boarding up", "O behind Milo at the window", "P out of the window",
+                   "T front door inside", "U2 nobody"))
