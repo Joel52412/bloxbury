@@ -10,7 +10,7 @@ Pipeline for Roblox-style animated Shorts in any genre: Blender 5.3 Python, shar
 
 ## Start of every chat
 1. `add_repo Joel52412/bloxbury (push)`, `git clone --depth 1 https://github.com/Joel52412/bloxbury /home/claude/bloxbury && sh /home/claude/bloxbury/_pipeline/restore.sh` (fills `/home/claude/{bloxbury-blender,studio_library/engine,talk,tools}` with every story's scripts + audio data, installs bpy).
-2. After any change: commit + `git -c push.negotiate=true push`; laptop `C:\Users\frimp\Downloads\robloxshorts` becomes a git clone of `main` once Joel runs `_tools/Setup Git Clone.bat` (`_pipeline/LAPTOP.md`); then he double-clicks `_tools/Pull Latest.bat` after merges. Until then copy changed files (device_commit_files). Laptop `device_bash` has ffmpeg.
+2. After any change: commit + `git -c push.negotiate=true push`; laptop `C:\Users\frimp\Downloads\robloxshorts` is a git clone of `main`: after each merge update it with a git bundle (`_pipeline/LAPTOP.md`), not file copies. Laptop `device_bash` has ffmpeg.
 
 ## End of every chat (Joel 16:21)
 Update the story's STORY.md Status (and Studio status below if shared things changed), condense any .md you touched (rules + current state only, no history), push, copy to the laptop, update the Project doc.
@@ -66,5 +66,5 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 ## Studio status (23 Nov)
 - Parts 1-3 of BLOXBURY delivered. On main: motion fixes, speech-driven lip-sync + `talk_face`, shared scene kit + audio kit, pod hardening (watchdog, x264 export, auto TikTok + motion audit, FLAC mixes).
 - Stories folder split (lean core + one folder per story) in review.
-- Previews free (23 Nov): `preview_local.py` + `make_storyboard.py`. Laptop git clone: waiting on Joel running `Setup Git Clone.bat`.
+- Previews free (23 Nov): `preview_local.py` + `make_storyboard.py`. Laptop folder is a git clone of main (set up 23 Nov).
 - TODO: GHCR render image private (use runpod/pytorch).

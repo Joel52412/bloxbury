@@ -1,18 +1,15 @@
-# Laptop folder = git clone (replaces copying files by hand)
-`C:\Users\frimp\Downloads\robloxshorts` tracks `main` on GitHub. Laptop-only files (exports, voice clones, inspo,
-approval sheets, `_tmp`, `_to_delete`, `sort through`) are in `.gitignore`, so git never touches them.
+# Laptop folder = git clone of `main` (since 23 Nov)
+`C:\Users\frimp\Downloads\robloxshorts` is a git clone. Laptop-only files (exports, voice clones, inspo, approval
+sheets, `_tmp`, `_to_delete`, `sort through`, banners) are ignored or untracked, so git never touches them.
+Old audio copies replaced at setup are backed up in `_tmp/laptop_backup_23nov/`.
 
-## One-time setup (Joel, ~3 min)
-1. Install Git: open PowerShell, `winget install --id Git.Git -e`, then close PowerShell.
-2. Double-click `_tools\Setup Git Clone.bat` (copy it over from GitHub first if the folder predates it). It links the
-   folder to GitHub without deleting anything and lists files that differ from GitHub.
-3. If that list only shows old copies of repo files, run `git checkout -- .` in the folder (or tell Claude the list).
+## Claude updates it (after every merge)
+The laptop shell can't reach GitHub (proxy 403), so ship a bundle:
+1. Here: `git -C $HOME/mnt/robloxshorts log -1 --format=%H` (laptop HEAD, via device_bash) = `OLD`. In a FULL (not
+   `--depth 1`) clone: `git bundle create /mnt/project-files/upd.bundle OLD..main` (split -b 20m if over 25 MB).
+2. `device_commit_files` it to `robloxshorts\_tmp\upd.bundle`, then on the laptop:
+   `git pull --ff-only _tmp/upd.bundle main && rm _tmp/upd.bundle`.
+3. git needs delete permission in that folder (device_request_delete_permission) or it leaves `.lock` files.
 
-## Every update
-After a PR merges, double-click `_tools\Pull Latest.bat`. If it stops, a laptop copy of a repo file was edited:
-send Claude the list it prints.
-
-## Claude
-Never push from the laptop (GitHub is the source). To pull on Joel's behalf via `device_bash`
-(`git -C ~/mnt/robloxshorts pull --ff-only`), ask Joel first and request delete permission once (git replaces files by
-deleting them). Before the clone exists, keep copying with `device_commit_files`.
+## Joel (optional)
+With Git for Windows installed (`winget install --id Git.Git -e`), double-click `_tools\Pull Latest.bat`.
