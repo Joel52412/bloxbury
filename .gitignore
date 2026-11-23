@@ -9,3 +9,6 @@ assets/inspo/
 _studio_library/approval_sheets/
 _studio_library/Studio_Asset_Library.png
 __pycache__/
+_tmp/
+_to_delete/
+sort through/
