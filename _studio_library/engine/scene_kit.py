@@ -503,12 +503,57 @@ def render_settings():
     s.render.use_overwrite = False; s.render.use_placeholder = True
 
 
+def motion_flips(f0, f1):
+    """Frames where an object in view (or the camera) starts or stops moving.
+    Cycles bug (Blender 5.3, found 23 Nov): with persistent data + motion blur, an object whose motion starts or stops
+    keeps stale motion data on that frame and renders as a black/unlit silhouette for that ONE frame. Moving(f) = its
+    world matrix differs between shutter open (f) and close (f+0.5, motion_blur START). Cached per range in OUT."""
+    from bpy_extras.object_utils import world_to_camera_view
+    cache = OUT + "/.motion_flips_%d_%d.json" % (f0, f1)
+    try: return set(json.load(open(cache)))
+    except (OSError, ValueError): pass
+    obs = [o for o in s.objects if o.type in ("MESH", "CURVE", "FONT", "SURFACE", "META") and not o.hide_render]
+    cam = s.camera; sh = s.render.motion_blur_shutter
+    def in_view(o, m):                                             # roughly in view: any bbox corner inside +10%
+        for c in o.bound_box:
+            v = world_to_camera_view(s, cam, m @ Vector(c))
+            if v.z > 0 and -0.1 < v.x < 1.1 and -0.1 < v.y < 1.1: return True
+        return False
+    flips, prev = [], None
+    for f in range(f0, f1 + 1):
+        s.frame_set(f); a = [o.matrix_world.copy() for o in obs]; ca = cam.matrix_world.copy()
+        s.frame_set(f, subframe=sh); mv = [x != o.matrix_world for x, o in zip(a, obs)]; cmv = ca != cam.matrix_world
+        if prev is not None and (cmv != prev[1] or any(x != y and in_view(o, m) for x, y, o, m in zip(mv, prev[0], obs, a))):
+            flips.append(f)
+        prev = (mv, cmv)
+    s.frame_set(f0)
+    try: json.dump(flips, open(cache, "w"))
+    except OSError: pass
+    return set(flips)
+
+
+def _render_frame(fr, fresh):
+    """One frame. fresh=True drops Cycles' persistent data for it (rebuilt from scratch = correct motion data)."""
+    s.render.use_persistent_data = not fresh
+    s.frame_set(fr); s.render.filepath = OUT + "/%04d.png" % fr; bpy.ops.render.render(write_still=True)
+    s.render.use_persistent_data = True
+
+
 def render():
-    """RENDER=1: FRAMES=a,b stills, else the whole range."""
+    """RENDER=1: FRAMES=a,b stills, else the whole range. Frames come from a shared queue (atomic 0-byte placeholder
+    per frame, so several GPUs/helpers can work one folder); frames where something starts or stops moving render
+    without persistent data (see motion_flips). Persistent data stays on elsewhere (~30% faster per frame)."""
     if os.environ.get("RENDER"):
+        os.makedirs(OUT, exist_ok=True)
         if os.environ.get("FRAMES"):
-            for fr in [int(x) for x in os.environ["FRAMES"].split(",")]:
-                s.frame_set(fr); s.render.filepath = OUT + "/%04d.png" % fr; bpy.ops.render.render(write_still=True)
+            frames = [int(x) for x in os.environ["FRAMES"].split(",")]
+            flips = motion_flips(min(frames), max(frames)) if s.render.use_motion_blur else set()
+            for fr in frames: _render_frame(fr, fr in flips)
         else:
-            bpy.ops.render.render(animation=True)
+            flips = motion_flips(s.frame_start, s.frame_end) if s.render.use_motion_blur else set()
+            print("MOTION FLIPS (fresh render, no persistent data):", sorted(flips))
+            for fr in range(s.frame_start, s.frame_end + 1):
+                try: os.close(os.open(OUT + "/%04d.png" % fr, os.O_CREAT | os.O_EXCL))   # claim the frame
+                except FileExistsError: continue                                         # done or someone's on it
+                _render_frame(fr, fr in flips)
     print("DONE", NF)
