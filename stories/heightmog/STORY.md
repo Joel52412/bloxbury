@@ -6,7 +6,7 @@ In this town, if someone is taller than you, you have to obey them. Kai, the sho
 - **Height = rank:** R6 rigs scaled per character; keep the scale ratios in the script notes.
 - **World:** daytime, bright comedy palette. Sets: library town street, kitchen; NEW burger counter (sign "TALL LAW"), bench "throne".
 - **New props:** fries carton, Robux coin, shoe lifts, crate, ruler, leash, backpack, chair, pigeon.
-- **Music:** needs a comedy bed from Joel (library only has "Numbers").
+- **Music:** `assets/music/Numbers_piano.mp3` (Joel 23 Nov).
 
 ## Files
 `part1/script_hm1.md` (beats + script), `part1/voices_hm1.md` (voice designs, paste-ready blocks, SFX list). Later: `scripts/hm1.py`, `audio/prep_hm1.py`, `data/hm1/`. Id tag: `hm`.
@@ -15,4 +15,4 @@ In this town, if someone is taller than you, you have to obey them. Kai, the sho
 - **Part 1 "Height Mog"** (~58 s, max 70 s).
 
 ## Status (23 Nov)
-- Script v1 + voice blocks written, waiting for Joel's tweaks, then voices, SFX and music from Joel. Next: audio (align, prep_hm1), animatic, asset sheet for the new cast and props.
+- Joel likes the height = power world + short lead but wants a new story: 4 new directions pitched 23 Nov (Trenchcoat Mayor recommended). Rewrite script + voices after the pick.
