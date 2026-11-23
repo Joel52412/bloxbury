@@ -503,6 +503,15 @@ def render_settings():
     s.render.use_overwrite = False; s.render.use_placeholder = True
 
 
+def frame_list(spec):
+    """"5,12-40,300-310" -> [5, 12, 13, ... 40, 300, ... 310] (render_cache.py writes these RANGES)."""
+    out = []
+    for part in spec.replace(" ", "").split(","):
+        if part:
+            a, _, b = part.partition("-"); out += range(int(a), int(b or a) + 1)
+    return out
+
+
 def motion_flips(f0, f1):
     """Frames where an object in view (or the camera) starts or stops moving.
     Cycles bug (Blender 5.3, found 23 Nov): with persistent data + motion blur, an object whose motion starts or stops
@@ -574,7 +583,8 @@ def _render_frame(fr, fresh):
 
 
 def render():
-    """RENDER=1: FRAMES=a,b stills, else the whole range. Frames come from a shared queue (atomic 0-byte placeholder
+    """RENDER=1: FRAMES=a,b stills, RANGES=a-b,c only those frames (render_cache.py: what a tweak changed), else the
+    whole range. Frames come from a shared queue (atomic 0-byte placeholder
     per frame, so several GPUs/helpers can work one folder); frames where something starts or stops moving render
     without persistent data (see motion_flips). Persistent data stays on elsewhere (~30% faster per frame)."""
     if os.environ.get("RENDER"):
@@ -584,11 +594,12 @@ def render():
             flips = motion_flips(min(frames), max(frames)) if s.render.use_motion_blur else set()
             for fr in frames: _render_frame(fr, fr in flips)
         else:
-            flips = motion_flips(s.frame_start, s.frame_end) if s.render.use_motion_blur else set()
+            frames = frame_list(os.environ["RANGES"]) if os.environ.get("RANGES") else list(range(s.frame_start, s.frame_end + 1))
+            flips = motion_flips(max(1, min(frames) - 1), max(frames)) if s.render.use_motion_blur else set()
             print("MOTION FLIPS (fresh render, no persistent data):", sorted(flips))
             base, thr0 = s.cycles.samples, s.cycles.adaptive_threshold
             dark = dark_shots(base) if base >= 16 and s.render.engine == "CYCLES" and not os.environ.get("NODARK") else {}
-            for fr in range(s.frame_start, s.frame_end + 1):
+            for fr in frames:
                 try: os.close(os.open(OUT + "/%04d.png" % fr, os.O_CREAT | os.O_EXCL))   # claim the frame
                 except FileExistsError: continue                                         # done or someone's on it
                 s.cycles.samples = dark.get(fr, base); s.cycles.adaptive_threshold = 0.01 if fr in dark else thr0

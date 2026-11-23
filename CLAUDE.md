@@ -62,9 +62,11 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 ## Rendering (details: `_pipeline/RUNPOD.md`)
 - **Here (free):** low-res tests, stills, motion clips, storyboard and the whole-part motion preview, in batches under 15 min each. Final quality → RunPod. (Laptop: ASUS Vivobook, AMD integrated, no NVIDIA: no laptop renders.)
 - **RunPod:** asset sheets, final (1080×1920, 32 samples, OptiX, `lookdev.cinematic_look()` grade). Before any pod: give $/hr, time and total cost per option (fastest in stock first, incl. 2×/3× GPUs); Joel must OK. Tell Joel when a render starts (pod ID, links, ETA, cost). Only delete pods made in this chat. Never print keys or tokens.
+- **Tweaks re-render only what changed** (any story): `_tools/render_cache.py plan` → `pod_patch.sh` → `splice` (see `_pipeline/RUNPOD.md`).
 
 ## Studio status (23 Nov)
 - Parts 1-3 of BLOXBURY delivered. On main: motion fixes, speech-driven lip-sync + `talk_face`, shared scene kit + audio kit, pod hardening (watchdog, x264 export, auto TikTok + motion audit, FLAC mixes).
 - Stories folder split (lean core + one folder per story) in review.
+- Re-render only changed frames (`render_cache.py` + `pod_patch.sh`): PR #14 in review. Parts 1-3 have no cache (frames deleted); it starts with the next full render (`accept`).
 - Previews free (23 Nov): `preview_local.py` + `make_storyboard.py`. Laptop folder is a git clone of main (set up 23 Nov).
 - TODO: GHCR render image private (use runpod/pytorch).
