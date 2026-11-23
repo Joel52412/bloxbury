@@ -15,4 +15,4 @@ In this town, the taller you are, the more power you get. Kai (4 ft 1) notices t
 - **Part 1 "The Trenchcoat Mayor"** (~64 s: min 1:01 for TikTok pay, max 1:10).
 
 ## Status (23 Nov)
-- Joel picked the Trenchcoat Mayor. Script v3 (~64 s) + voice blocks + SFX list delivered; waiting on Joel's tweaks, then voices + SFX. Next: audio (align, prep_hm1), animatic, asset sheet for the new cast and props.
+- Script v3 (~64 s) approved by Joel 23 Nov. Waiting on voice files (kai, mayor, guys) + 9 SFX. Next: audio (align, prep_hm1), animatic, asset sheet for the new cast and props.
