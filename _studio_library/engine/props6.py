@@ -350,7 +350,7 @@ def p6_phone(name="Phone", parent=None, screen_on=True, caller="Milo"):
 
 def p6_rae_door_set(RO, name="RaeDoor"):
     """Rae's front door at night (stand-alone set at z=400): porch deck + step, lavender siding facade with trim, the
-    door swung IN with its security chain still hooked and pulled taut, peephole, letterbox, house number, ONE porch
+    door swung IN, peephole, letterbox, house number, ONE porch
     lamp (the practical), doormat, and a warm-dark hall behind: two-tone walls, coat hooks, stairs, hall table + key bowl."""
     RO = _V6(RO); r = root_of(name, RO)
     siding = tex_mat("RaeSiding", (190, 170, 220), "siding"); trim = dmat("raeTrim", (245, 244, 240), rough=0.45)
@@ -381,14 +381,7 @@ def p6_rae_door_set(RO, name="RaeDoor"):
     rcyl(name + "Peep", 0.1, 0.1, _V6((2.45, -0.22, 7.2)), brass, hinge, axis="Y", seg=14)
     rb(name + "Letter", (1.4, 0.08, 0.36), _V6((2.45, -0.22, 3.4)), brass, hinge, r=0.04)
     rcyl(name + "Knob", 0.2, 0.3, _V6((4.3, -0.32, 4.3)), brass, hinge, axis="Y", seg=18, bevel=0.08)
-    # security chain: track on the inside of the frame, chain UNHOOKED and hanging straight down (she just undid it)
-    track = RO + _V6((2.15, 0.95, 5.8))
-    rb(name + "Track", (0.16, 0.12, 0.9), track, brass, None, r=0.03)
-    chm = dmat("chain", (190, 190, 185), metal=0.9, rough=0.3)
-    for k in range(7):
-        rb(name + "Link", (0.11, 0.05, 0.2), track + _V6((0.0, -0.08, -0.25 - k * 0.17)), chm, None, r=0.03,
-           rot=(0, 0, math.radians(90 * (k % 2))))
-    rb(name + "ChainKnob", (0.16, 0.16, 0.16), track + _V6((0, -0.08, -1.5)), brass, None, r=0.07)
+    # (security chain removed, Joel 23 Nov: read as a random hanging thing)
     # doormat
     plane(name + "Mat", 4.0, 2.4, RO + _V6((0, -2.2, 0.52)), imgmat(name + "MatM", mat_img("/tmp/p6_mat.png"), rough=1.0), None, rot=(math.radians(90), 0, math.pi))
     # hall behind (y 0.8 .. 16)

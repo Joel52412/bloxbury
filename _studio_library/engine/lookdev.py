@@ -6,6 +6,7 @@ import bpy
 
 
 def cinematic_look(scene=None, exposure=0.0, bloom=0.5, vignette=0.32, split=True, look="AgX - Medium High Contrast", fringe=0.012):
+    """split: True = full split-tone, or a float 0..1 to scale it (0.5 = the "mid" look, Joel 23 Nov 09:13)."""
     s = scene or bpy.context.scene
     s.view_settings.view_transform = "AgX"
     try: s.view_settings.look = look
@@ -35,7 +36,8 @@ def cinematic_look(scene=None, exposure=0.0, bloom=0.5, vignette=0.32, split=Tru
         try:
             cb.inputs["Factor"].default_value = 1.0
         except Exception: pass
-        for sock, val in (("Lift", (0.97, 1.0, 1.05, 1)), ("Gain", (1.03, 1.0, 0.96, 1))):   # cool shadows, warm highlights
+        k = 1.0 if split is True else float(split)
+        for sock, val in (("Lift", (1 - 0.03 * k, 1.0, 1 + 0.05 * k, 1)), ("Gain", (1 + 0.03 * k, 1.0, 1 - 0.04 * k, 1))):   # cool shadows, warm highlights
             for i in cb.inputs:
                 if i.name == sock and i.bl_idname == "NodeSocketColor": i.default_value = val
         L.new(cur, cb.inputs["Image"]); cur = cb.outputs[0]
@@ -172,13 +174,21 @@ REAL_TEMP = {
              "Door": 2700, "Fairy": 2400, "WinGlow": 2700, "MiloKey": 2900, "Sodium": 2000, "RunKey": 2100}
 
 
-def real_lights(lights):
+# mid look (Joel 23 Nov 09:13 "less blue"): moon/sky only lightly cool, so the night reads without drowning in blue
+MID_RGB = {"Moon": (0.8, 0.86, 1.0), "RoomFill": (0.74, 0.8, 1.0), "RaeMoon": (0.78, 0.84, 1.0), "YardRim": (0.8, 0.86, 1.0),
+           "RaeRim": (0.8, 0.86, 1.0), "ClosetIn": (0.8, 0.85, 1.0)}
+
+
+def real_lights(lights, mix=1.0, cool=None):
+    """mix < 1 blends the colours back toward the scene's own; cool = table of moon/sky colours (REAL_RGB or MID_RGB)."""
     for k, d in lights.items():
-        for pre, c in REAL_RGB.items():
-            if k.startswith(pre): d.color = c; break
+        c0 = tuple(d.color); c1 = None
+        for pre, c in (cool or REAL_RGB).items():
+            if k.startswith(pre): c1 = c; break
         else:
             for pre, K in REAL_TEMP.items():
-                if k.startswith(pre): d.color = kelvin(K); break
+                if k.startswith(pre): c1 = kelvin(K); break
+        if c1: d.color = tuple(a + (b - a) * mix for a, b in zip(c0, c1))
         if d.type == "SPOT":
             if k.startswith("Moon"): d.shadow_soft_size = 0.35; d.spot_blend = 0.5      # crisp window patch, soft cone edge
             else: d.shadow_soft_size = max(d.shadow_soft_size, 0.8); d.spot_blend = 0.7   # lamp heads are not points

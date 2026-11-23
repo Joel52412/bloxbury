@@ -4,9 +4,11 @@
 # drift, eye-line darts, scared tremble) via an ADDITIVE LIFE LAYER baked on top of all keys at the end.
 # Load after rig2.py (needs kf, arm_angles, R/DEG, FPS).  Scene usage:
 #   gesture(P, "Right", fr, target=(x,y,z))        arm move with wind-up + overshoot + settle
-#   look(P, fr, x, y, z)                            head turn (neck) with overshoot
+#   look(P, fr, x, y, z)                            head turn (neck); x > 0 = head UP, x < 0 = looks DOWN (checked 23 Nov)
+#   lean(P, fr, x, ...)                             x < 0 = leans FORWARD
 #   lean(P, fr, x, y, z)                            chest lean with overshoot
 #   run(P, f0, f1, [p0, p1, ...], z)                run cycle along a path (faces travel direction, leans, bounces)
+#   crawl(P, fd, f0, f1, fu, p0, p1)                 drop to all fours, scramble, get up (under a fence rail)
 #   sit_down(P, f0, f1, loc, yaw, seat_z)           stand -> sit (legs forward, bottom ON the seat)
 #   life(P, f0, f1, mood="calm"|"scared"|"tense")   register a life window; bake_life() once at the very end
 import math, random
@@ -35,7 +37,7 @@ def pose_arm(P, side, fr, target=None, euler=None):
     a, c = _arm_ae(side, target, euler); _arm_key(P, side, fr, a, c, interp="CONSTANT"); _ST[(id(P), side)] = (a, c)
 
 
-def gesture(P, side, fr, target=None, euler=None, dur=8, ant=0.14, over=0.12, hold_from=None):
+def gesture(P, side, fr, target=None, euler=None, dur=8, ant=0.08, over=0.06, hold_from=None):
     """Arm move that STARTS at fr: wind-up (2 f), eased travel, overshoot, settle at fr+dur. Smear on big fast moves."""
     a1, c1 = _arm_ae(side, target, euler)
     a0, c0 = _last(P, side, (math.radians(4), math.radians(-6 if side == "Left" else 6)))
@@ -43,7 +45,7 @@ def gesture(P, side, fr, target=None, euler=None, dur=8, ant=0.14, over=0.12, ho
     _arm_key(P, side, fr + 2, a0 - (a1 - a0) * ant, c0 - (c1 - c0) * ant)
     _arm_key(P, side, fr + 2 + int(dur * 0.55), a1 + (a1 - a0) * over, c1 + (c1 - c0) * over)
     _arm_key(P, side, fr + 2 + dur, a1, c1)
-    if abs(a1 - a0) + abs(c1 - c0) > math.radians(55) and dur <= 9:
+    if abs(a1 - a0) + abs(c1 - c0) > math.radians(70) and dur <= 6:
         sh = P[side]; m = fr + 2 + int(dur * 0.3)
         kf(sh, "scale", m - 1, (1, 1, 1)); kf(sh, "scale", m, (1, 1, 1.3)); kf(sh, "scale", m + 2, (1, 1, 1))
     _ST[(id(P), side)] = (a1, c1)
@@ -60,11 +62,11 @@ def _rot_beat(P, part, fr, rot, dur, over, ant):
     _ST[(id(P), part)] = r1
 
 
-def look(P, fr, x=0, y=0, z=0, dur=8, over=0.15, ant=0.08):
+def look(P, fr, x=0, y=0, z=0, dur=8, over=0.07, ant=0.04):
     _rot_beat(P, "neck", fr, (x, y, z), dur, over, ant)
 
 
-def lean(P, fr, x=0, y=0, z=0, dur=10, over=0.12, ant=0.1):
+def lean(P, fr, x=0, y=0, z=0, dur=10, over=0.06, ant=0.05):
     _rot_beat(P, "chest", fr, (x, y, z), dur, over, ant)
 
 
@@ -115,6 +117,43 @@ def run(P, f0, f1, pts, z=0.0, stride=2.6, leg=50, arm_sw=58, lean_deg=14, bounc
     return yaw_prev
 
 
+def crawl(P, fd, f0, f1, fu, p0, p1, z=0.0, pitch=-76, cycle=9, arm=26, leg=20):
+    """Drop to hands and knees (fd..f0), scramble from p0 to p1 (f0..f1), get back up (f1..fu).
+    R6 has no knees: the whole body pitches forward from the feet (root), arms reach for the ground and alternate with
+    the legs, head held up to look where he's going. Root = feet, so the HEAD is ~5 studs ahead of p (plan the gap)."""
+    a = _MV((p0[0], p0[1], z)); b = _MV((p1[0], p1[1], z)); d = b - a
+    yaw = math.atan2(-d.x, d.y); pr = math.radians(pitch)
+    a_dn = math.radians(88)                                                  # arms down to the ground
+    kf(P["root"], "rotation_euler", fd, (0, 0, yaw))
+    kf(P["root"], "location", fd, a)
+    kf(P["root"], "rotation_euler", fd + 2, (math.radians(4), 0, yaw))            # tiny wind-up back
+    kf(P["root"], "rotation_euler", f0, (pr, 0, yaw))
+    _arm_key(P, "Left", fd, *_last(P, "Left", (math.radians(4), math.radians(-6))))
+    _arm_key(P, "Right", fd, *_last(P, "Right", (math.radians(4), math.radians(6))))
+    _arm_key(P, "Left", f0, a_dn, math.radians(-8)); _arm_key(P, "Right", f0, a_dn, math.radians(8))
+    kf(P["neck"], "rotation_euler", fd, _last(P, "neck", (0, 0, 0))); kf(P["neck"], "rotation_euler", f0, (math.radians(55), 0, 0))
+    kf(P["chest"], "rotation_euler", fd, _last(P, "chest", (0, 0, 0))); kf(P["chest"], "rotation_euler", f0, (0, 0, 0))
+    n = f1 - f0
+    for i in range(0, n + 1, 2):
+        fr = f0 + i; u = i / n; ue = u * u * (3 - 2 * u) * 0.35 + u * 0.65          # gentle ease, mostly steady
+        ph = (i / cycle) * 2 * math.pi; sw = math.sin(ph); ramp = min(1.0, i / 4.0, (n - i) / 4.0)
+        kf(P["root"], "location", fr, a.lerp(b, ue) + _MV((0, 0, 0.08 * abs(math.cos(ph)) * ramp)))
+        kf(P["root"], "rotation_euler", fr, (pr + math.radians(1.5) * sw * ramp, 0, yaw + 0.04 * sw * ramp))
+        _arm_key(P, "Left", fr, a_dn + math.radians(arm) * sw * ramp, math.radians(-8))
+        _arm_key(P, "Right", fr, a_dn - math.radians(arm) * sw * ramp, math.radians(8))
+        kf(P["hipL"], "rotation_euler", fr, (-math.radians(leg) * sw * ramp, 0, 0))
+        kf(P["hipR"], "rotation_euler", fr, (math.radians(leg) * sw * ramp, 0, 0))
+        kf(P["neck"], "rotation_euler", fr, (math.radians(55), 0, 0.05 * sw * ramp))
+    kf(P["root"], "location", fu, b); kf(P["root"], "rotation_euler", fu - 2, (math.radians(-4), 0, yaw))
+    kf(P["root"], "rotation_euler", fu, (0, 0, yaw))
+    _arm_key(P, "Left", fu, math.radians(4), math.radians(-6)); _arm_key(P, "Right", fu, math.radians(4), math.radians(6))
+    for h in ("hipL", "hipR"): kf(P[h], "rotation_euler", fu, (0, 0, 0))
+    kf(P["neck"], "rotation_euler", fu, (0, 0, 0))
+    _ST[(id(P), "Left")] = (math.radians(4), math.radians(-6)); _ST[(id(P), "Right")] = (math.radians(4), math.radians(6))
+    _ST[(id(P), "neck")] = (0, 0, 0); _ST[(id(P), "chest")] = (0, 0, 0)
+    return yaw
+
+
 def sit_down(P, f0, f1, loc, yaw, seat_z):
     """Standing at loc (feet on seat_z - the floor under it) -> sitting with the bottom ON seat_z, legs forward."""
     loc = _MV(loc)
@@ -141,7 +180,9 @@ def standing(P, fr):
 
 # ------------------------------------------------------------------ the LIFE LAYER (additive, baked at the end)
 _LIFE = []
-MOODS = {"calm": (1.0, 0.0, 1.0), "tense": (1.4, 0.25, 1.3), "scared": (1.8, 0.7, 1.6), "still": (0.6, 0.0, 0.5)}
+# Joel 23 Nov 09:13 "too much salt ruins the dish": subtle breathing + slow drift, no high-frequency tremble (it aliased
+# against the 2-frame keys and read as flicker).
+MOODS = {"calm": (0.7, 0.0, 0.5), "tense": (0.9, 0.0, 0.6), "scared": (1.1, 0.12, 0.7), "still": (0.5, 0.0, 0.3)}
 
 
 def life(P, f0, f1, mood="calm", seed=None):
@@ -163,7 +204,7 @@ def _fc(ob, path, idx):
         if fc.data_path == path and fc.array_index == idx: return fc
 
 
-def bake_life(step=2):
+def bake_life(step=3):
     """Add breathing, head drift, eye-line darts, weight sway and (scared) tremble ON TOP of every existing key:
     sample each channel, add the signal, write keys every `step` frames inside each life window."""
     import bpy
@@ -171,11 +212,11 @@ def bake_life(step=2):
         breath, trem, drift = MOODS[mood]
         chans = [(P["chest"], "rotation_euler", 0, lambda t: math.radians(1.1 * breath) * math.sin(t * 2 * math.pi / (3.6 / breath ** 0.5))),
                  (P["chest"], "rotation_euler", 2, lambda t: math.radians(1.6 * drift) * _noise(t * 0.5, seed + 1)),
-                 (P["neck"], "rotation_euler", 0, lambda t: math.radians(2.0 * drift) * _noise(t * 0.6, seed + 2) + math.radians(0.9 * trem) * math.sin(t * 37)),
-                 (P["neck"], "rotation_euler", 2, lambda t: math.radians(3.5 * drift) * _noise(t * 0.45, seed + 3) + math.radians(1.2 * trem) * math.sin(t * 41 + 1)),
+                 (P["neck"], "rotation_euler", 0, lambda t: math.radians(2.0 * drift) * _noise(t * 0.6, seed + 2) + math.radians(0.9 * trem) * math.sin(t * 7.0)),
+                 (P["neck"], "rotation_euler", 2, lambda t: math.radians(3.5 * drift) * _noise(t * 0.45, seed + 3) + math.radians(1.2 * trem) * math.sin(t * 6.1 + 1)),
                  (P["neck"], "rotation_euler", 1, lambda t: math.radians(1.5 * drift) * _noise(t * 0.35, seed + 4)),
-                 (P["Left"], "rotation_euler", 0, lambda t: math.radians(1.4 * breath) * math.sin(t * 2 * math.pi / 3.6 + 0.6) + math.radians(0.8 * trem) * math.sin(t * 43)),
-                 (P["Right"], "rotation_euler", 0, lambda t: math.radians(1.4 * breath) * math.sin(t * 2 * math.pi / 3.6 + 0.9) + math.radians(0.8 * trem) * math.sin(t * 47 + 2))]
+                 (P["Left"], "rotation_euler", 0, lambda t: math.radians(1.4 * breath) * math.sin(t * 2 * math.pi / 3.6 + 0.6) + math.radians(0.8 * trem) * math.sin(t * 6.6)),
+                 (P["Right"], "rotation_euler", 0, lambda t: math.radians(1.4 * breath) * math.sin(t * 2 * math.pi / 3.6 + 0.9) + math.radians(0.8 * trem) * math.sin(t * 5.7 + 2))]
         for ob, path, idx, sig in chans:
             fc = _fc(ob, path, idx)
             base = {fr: fc.evaluate(fr) for fr in range(f0, f1 + 1, step)}
@@ -183,3 +224,35 @@ def bake_life(step=2):
                 kp = fc.keyframe_points.insert(fr, v + sig(fr / FPS), options={"FAST"})
                 kp.interpolation = "BEZIER"
             fc.update()
+
+
+# ------------------------------------------------------------------ DRAWN SMEAR (from Joel's fight reference, used sparingly)
+def smear(name, point_fn, fa, fb, show, width=0.35, col=(1.0, 0.92, 0.82), alpha=0.5, steps=8):
+    """A 2D-style motion streak for ONE frame (`show`): a tapered ribbon along the path point_fn(frame) took from fa to fb,
+    turned to face the camera. Roblox-fight style, but at most 2-3 per part (salt, not the dish)."""
+    import bpy
+    sc = bpy.context.scene; cam = sc.camera
+    pts = []
+    for i in range(steps + 1):
+        fr = fa + (fb - fa) * i / steps
+        sc.frame_set(int(fr), subframe=fr - int(fr)); bpy.context.view_layer.update(); pts.append(_MV(point_fn()))
+    sc.frame_set(show); bpy.context.view_layer.update()
+    eye = cam.matrix_world.translation.copy()
+    verts, faces = [], []
+    for i, p in enumerate(pts):
+        d = (pts[min(i + 1, steps)] - pts[max(i - 1, 0)]).normalized()
+        side = d.cross((eye - p).normalized()).normalized() * width * (0.15 + 0.85 * i / steps) * 0.5   # thin tail -> full head
+        verts += [p + side, p - side]
+        if i: faces.append((2 * i - 2, 2 * i - 1, 2 * i + 1, 2 * i))
+    me = bpy.data.meshes.new(name); me.from_pydata(verts, [], faces)
+    m = bpy.data.materials.new(name + "M"); m.use_nodes = True; P_ = m.node_tree.nodes["Principled BSDF"]
+    P_.inputs["Base Color"].default_value = (*col, 1); P_.inputs["Emission Color"].default_value = (*col, 1)
+    P_.inputs["Emission Strength"].default_value = 0.6; P_.inputs["Alpha"].default_value = alpha
+    me.materials.append(m)
+    o = bpy.data.objects.new(name, me); sc.collection.objects.link(o); o.visible_shadow = False
+    for fr, h in ((1, True), (show, False), (show + 1, True)):
+        o.hide_render = h; o.keyframe_insert("hide_render", frame=fr)
+        o.hide_viewport = h; o.keyframe_insert("hide_viewport", frame=fr)
+    for fc in _fcurves(o):
+        for k in fc.keyframe_points: k.interpolation = "CONSTANT"
+    return o

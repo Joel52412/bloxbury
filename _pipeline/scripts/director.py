@@ -137,7 +137,7 @@ def render_quality(s, mode="fast"):
     c = s.cycles
     if mode == "full":
         return
-    c.use_adaptive_sampling = True; c.adaptive_threshold = 0.04; c.adaptive_min_samples = 8
+    c.use_adaptive_sampling = True; c.adaptive_threshold = 0.02; c.adaptive_min_samples = 16   # 0.04 boiled frame to frame (Joel 23 Nov 'flickers')
     c.max_bounces = 6; c.diffuse_bounces = 2; c.glossy_bounces = 2; c.transmission_bounces = 2
     c.transparent_max_bounces = 8; c.volume_bounces = 0
     c.caustics_reflective = False; c.caustics_refractive = False
