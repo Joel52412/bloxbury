@@ -6,6 +6,7 @@ H=/home/claude
 [ -e $H/bloxbury ] || ln -s "$U" $H/bloxbury        # props6 fonts expect the repo at /home/claude/bloxbury
 mkdir -p $H/bloxbury-blender $H/studio_library/engine $H/talk $H/tools
 cp $U/_studio_library/engine/*.py $H/studio_library/engine/
+cp -r $U/_studio_library/mocap $H/studio_library/ 2>/dev/null     # mocap clips (engine/mocap.py)
 cp $U/_pipeline/scripts/*.py $H/bloxbury-blender/                   # shared: rig2, cinema, director
 for st in $U/stories/*/; do                                          # every story: scene scripts + audio data (flat)
   [ -d "$st/scripts" ] && cp "$st"scripts/*.py $H/bloxbury-blender/
