@@ -32,7 +32,7 @@ while True:
     for g in sorted({int(m.group(1)) for f in glob.glob("/workspace/render_gpu*.log") for m in [re.search(r"render_gpu(\d+)", f)] if m}):
         n = 0
         for f in glob.glob("/workspace/render_gpu%d*.log" % g):
-            try: n += open(f, errors="ignore").read().count("Saved: ")
+            try: n += len(re.findall(r"Saved: '[^']*/\d{4}\.png'", open(f, errors="ignore").read()))   # frames only
             except OSError: pass
         h = ghist.setdefault(g, deque(maxlen=600)); h.append((now, n))
         per_gpu.append({"gpu": g, "done": n, "fps": rate(h, now)})
