@@ -2,7 +2,7 @@
 # Joins the finished vertical parts in ../exports (Bloxbury_Part1.mp4, Bloxbury_Part2.mp4, ... the YouTube masters,
 # not the _TikTok versions) into one 16:9 YouTube video with blurred sides, written to ../exports.
 # If a part's master is older than its latest mix, swap the audio first (e.g. Part 2's new sizzle:
-#   ffmpeg -i Bloxbury_Part2.mp4 -i ../../../_pipeline/data/p2/part2_audio.wav -map 0:v -map 1:a -c:v copy -c:a aac ...).
+#   ffmpeg -i Bloxbury_Part2.mp4 -i ../data/p2/part2_audio.wav -map 0:v -map 1:a -c:v copy -c:a aac ...).
 # Usage: bash make_youtube.sh
 cd "$(dirname "$0")/../exports"
 ls Bloxbury_Part*.mp4 | grep -v _TikTok | sort -V | sed "s/.*/file '&'/" > /tmp/bloxbury_parts.txt

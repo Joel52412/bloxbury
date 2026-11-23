@@ -1,9 +1,9 @@
 # prep_p3.py - Part 3 "Don't Say It": cue sheet + SFX on the shared audio kit (mix.py). 24 fps.
-# Lines from _pipeline/data/p3/lines_*.json (align_full + split_lines; milo 12/13 + mum "Bug?" fixed by hand from the
+# Lines from stories/bloxbury/data/p3/lines_*.json (align_full + split_lines; milo 12/13 + mum "Bug?" fixed by hand from the
 # energy envelope, scan for in-word gaps/clicks clean 22 Nov). "Which Milo..." regenerated (pitch cracks) -> milo_p3_fix.mp3. Cues are SEQUENTIAL: dest = previous line end + gap.
 # Usage: python3 prep_p3.py [repo]  (TIKTOK=1 -> music span <=55 s, NOMUSIC=1)  -> OUT_DIR/{env_p3.json, part3_audio.wav, captions_p3.ass}
 import os, sys
-REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
 sys.path.insert(0, REPO + "/_pipeline/audio_tools")
 from mix import Mix
 

@@ -1,4 +1,4 @@
-# Bloxbury lighting playbook (Joel 22 Nov 22:44: "film-grade, keeps viewers intrigued, render time must not double")
+# Lighting playbook (all stories) (Joel 22 Nov 22:44: "film-grade, keeps viewers intrigued, render time must not double")
 Pick the palette that serves the scene (not always cold blue). Every shot:
 1. **One motivated key** with a story reason: moon through a window, a practical (lamp, door gap, screen, torch, street lamp).
 2. **Key on the SHORT side** (the side of the face turned away from camera) for tension; broad/even light only for safe, happy beats.

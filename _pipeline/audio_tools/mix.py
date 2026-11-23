@@ -2,7 +2,9 @@
 # music bed + ducking, loudness, lip-sync envelopes, env_pN.json and captions all live here (any series).
 #
 #   from mix import Mix
-#   m = Mix(REPO, "p4", series="bloxbury", voices=("milo", "rae", "mum"))   # lines from _pipeline/data/p4/lines_<who>.json
+#   m = Mix(REPO, "p4", story="bloxbury", voices=("milo", "rae", "mum"))    # lines from stories/bloxbury/data/p4/lines_<who>.json
+#   part id = <letters><N>, unique across ALL stories (flat /home/claude/talk): Bloxbury p1..pN, a new story e.g. "gb1".
+#   Voices: stories/<story>/part<N>/voice/<who>_<id>.mp3. Music: m.music(part={"file": ..., "vol": ...}) (music_bed cfg).
 #   for c in CUES: m.cue(*c)                     # (who, prefix, gap_before, mode, style, fx, scene) - sequential pacing
 #   m.voice("mum", "Bug?", at=69.6, mode="O", style="w", fx="door")        # or an absolute dest time
 #   m.sfx("Phone_buzz", 1, 0.0, 2.5, db=-30, at=m.marks["So did I"][1] + 0.35)  # Joel's ElevenLabs SFX, level by RMS
@@ -129,12 +131,13 @@ def sfx_path(sfxd, key, var=None):
 class Mix:
     """Voices, SFX and music for one part. Everything is recorded as events and summed in order at finish()."""
 
-    def __init__(self, repo, part, series="bloxbury", voices=("milo",), files=None, ref=None, out=None, fps=FPS, sr=SR,
+    def __init__(self, repo, part, story="bloxbury", voices=("milo",), files=None, ref=None, out=None, fps=FPS, sr=SR,
                  voice_dir=None, data_dir=None, sfx_dir=None):
-        n = part.lstrip("p")
-        self.repo, self.part, self.fps, self.sr = repo, part, fps, sr
-        self.aud = voice_dir or "%s/series/%s/part%s/voice/" % (repo, series, n)
-        self.data = data_dir or "%s/_pipeline/data/%s/" % (repo, part)
+        n = re.sub(r"^[a-z_]*", "", part) or "1"                       # "p4" -> 4, "gb1" -> 1
+        self.repo, self.part, self.n, self.fps, self.sr = repo, part, n, fps, sr
+        self.stem = "part" + n if re.fullmatch(r"p\d+", part) else part      # partN_audio.wav (Bloxbury) / gb1_audio.wav
+        self.aud = voice_dir or "%s/stories/%s/part%s/voice/" % (repo, story, n)
+        self.data = data_dir or "%s/stories/%s/data/%s/" % (repo, story, part)
         self.sfxd = sfx_dir or repo + "/assets/sfx/"
         self.out = out or os.environ.get("OUT_DIR", "/home/claude/talk/"); os.makedirs(self.out, exist_ok=True)
         self.voices = tuple(voices)
@@ -210,7 +213,7 @@ class Mix:
             elif kind == "silence": mix[int(b * sr):int(c * sr)] = 0
             elif kind == "music":
                 duck, low_trim = c
-                bed = music_bed(self.repo, total, sr, len(mix), part=a or int(self.part.lstrip("p")), mutes=b)
+                bed = music_bed(self.repo, total, sr, len(mix), part=a or int(self.n), mutes=b)
                 if low_trim: bed = bed - np.convolve(bed, np.ones(64) / 64, "same") * 0.5     # gentle low trim
                 if duck: bed = bed * np.array(duck_curve(vox, sr=sr), np.float32)
                 mix += bed
@@ -218,14 +221,14 @@ class Mix:
 
     def finish(self, total, black_cut=None, outro0=None, scenes=None, mutes=(), lufs=-16, tp=-2, lipsync_modes=("D", "C"),
                visemes=True):
-        """Mix down -> <part>_raw.wav -> loudnorm -> part<N>_audio.wav (TIKTOK: _tiktok, NOMUSIC: _nomusic),
+        """Mix down -> <part>_raw.wav -> loudnorm -> <stem>_audio.wav (TIKTOK: _tiktok, NOMUSIC: _nomusic),
         env_<part>.json (frames, scenes, mutes, per-voice lip-sync envelopes, word-timed lines, visemes.py mouth codes that
         rig2.lipsync reads; visemes=False keeps a delivered part's old loudness flap) and captions_<part>.ass."""
-        sr, n = self.sr, self.part.lstrip("p"); nf = int(round(total * self.fps)) + 1
+        sr, n = self.sr, self.n; nf = int(round(total * self.fps)) + 1
         mix, vox, spk = self.build(total)
         mix = mix[:int(total * sr)]; mix = mix / max(np.abs(mix).max(), 1e-6) * 0.92
-        raw = self.out + "part%s_raw.wav" % n; write_wav(raw, mix, sr)
-        loudnorm(raw, self.out + "part%s_%s.wav" % (n, "nomusic" if self.nomusic else "tiktok" if self.tiktok else "audio"), lufs, tp, sr)
+        raw = self.out + "%s_raw.wav" % self.stem; write_wav(raw, mix, sr)
+        loudnorm(raw, self.out + "%s_%s.wav" % (self.stem, "nomusic" if self.nomusic else "tiktok" if self.tiktok else "audio"), lufs, tp, sr)
         envs = {k: envelope(v, nf, self.fps, sr) for k, v in spk.items()}
         caps = [{"who": who, "text": o["text"], "style": st, "mode": mode, "fx": fx, "t0": d, "t1": d + len(sig) / sr,
                  "words": [(w, d + (s - o["a"]), d + (min(e, o["b"]) - o["a"])) for w, s, e in o["words"]]}

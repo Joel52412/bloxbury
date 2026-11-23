@@ -1,6 +1,6 @@
 # part2.py - BLOXBURY Part 2 "She Came Home". Built on the shared scene kit (scene_kit.py): this file is settings + beats.
 # Rig v2 faces, library cast/sets (props3), director shots.
-# Audio/cues/captions: _pipeline/audio_tools/prep_p2.py -> {env_p2.json, part2_audio.wav, captions_p2.ass}
+# Audio/cues/captions: stories/bloxbury/audio/prep_p2.py -> {env_p2.json, part2_audio.wav, captions_p2.ass}
 # Preview: RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 python3 part2.py      Pod: ENGINE=GPU RENDER=1 RX=1080 RY=1920 blender -b --python part2.py
 import os
 exec(open(os.environ.get("KIT", "/home/claude/studio_library/engine/scene_kit.py")).read())

@@ -25,7 +25,7 @@ PART_MUSIC = {
 def music_bed(repo, total, sr, n=None, part=2, vol=None, fade_in=None, fade_out=None, start=0.0, mutes=()):
     # mutes: [(t0, t1), ...] seconds where the music drops out for a scene (Joel 12:38: cut it whenever it helps).
     # Cuts are hard-ish (40 ms) going out, so the silence lands, and fade back in over 0.6 s.
-    cfg = PART_MUSIC[part]
+    cfg = part if isinstance(part, dict) else PART_MUSIC[part]     # a story passes its own cfg dict
     vol = cfg["vol"] if vol is None else vol
     fi = cfg["fade_in"] if fade_in is None else fade_in
     fo = cfg["fade_out"] if fade_out is None else fade_out

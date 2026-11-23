@@ -1,6 +1,6 @@
 # part1_v2.py - BLOXBURY: The 3AM Knock, Part 1 (redesign). Built on the shared scene kit (scene_kit.py): settings + beats.
 # Rig v2 faces, library cast, director shots.
-# Audio/cues/captions: _pipeline/audio_tools/prep_p1.py -> {env_p1.json, part1_audio.wav, captions_p1.ass}
+# Audio/cues/captions: stories/bloxbury/audio/prep_p1.py -> {env_p1.json, part1_audio.wav, captions_p1.ass}
 # Preview: RENDER=1 OUT=dir RX=216 RY=384 SAMPLES=4 python3 part1_v2.py      Pod: ENGINE=GPU RENDER=1 RX=1080 RY=1920 blender -b --python part1_v2.py
 import os
 exec(open(os.environ.get("KIT", "/home/claude/studio_library/engine/scene_kit.py")).read())
