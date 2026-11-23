@@ -1,6 +1,6 @@
 # prep_hm1.py - HEIGHT MOG: The Trenchcoat Mayor cue sheet on the shared audio kit (mix.py). 24 fps.
-# Voices are the sped-up/pitched copies (voice_fx.py: kai +1.5, mayor/guys +0.5 (Joel: +3 kid sounded weird), tempo 1.13 to land at 1:07) in part1/voice/fx/:
-#   python3 _pipeline/audio_tools/voice_fx.py stories/heightmog/part1/voice kai:1.5 mayor:0.5 guys:0.5 --id hm1 --tempo 1.13.
+# Voices are the sped-up/pitched copies (voice_fx.py: kai +1.5, mayor/guys +0.5 (Joel: +3 kid sounded weird), tempo 1.075 (Joel), 1:09.9) in part1/voice/fx/:
+#   python3 _pipeline/audio_tools/voice_fx.py stories/heightmog/part1/voice kai:1.5 mayor:0.5 guys:0.5 --id hm1 --tempo 1.075.
 # Usage: python3 prep_hm1.py [repo]  (TIKTOK=1, NOMUSIC=1) -> OUT_DIR/{env_hm1.json, hm1_audio.wav/.flac, captions_hm1.ass}
 import os, sys
 REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
@@ -29,15 +29,15 @@ CUES = [
     ("mayor", "Citizens", 0.15, "D", "w", None, "podium"),
     ("kai", "One tickle", 0.05, "N", "w", None, "tickle"),
     ("guys", "Hehe", 0.10, "O", "w", None, "sway"),
-    ("mayor", "...Please", 2.20, "D", "w", None, "reveal"),      # gap = wobble/rip/thud (1.2 s) + silence + gasp
-    ("kai", "They were shorter", 0.30, "N", "w", None, "two_shot"),
+    ("mayor", "...Please", 1.90, "D", "w", None, "reveal"),      # gap = wobble/rip/thud (1.2 s) + silence + gasp
+    ("kai", "They were shorter", 0.25, "N", "w", None, "two_shot"),
     ("kai", "I could've", 0.15, "N", "w", None, None),
     ("kai", "Taxes... cancelled", 0.30, "D", "w", None, "coat_ten_feet"),
     ("kai", "Turns out", 0.15, "N", "w", None, "strut"),
     ("kai", "Every Tuesday", 0.15, "N", "w", None, "calendar"),
     ("guys", "It's not Tuesday", 0.10, "O", "w", None, None),
     ("guys", "Your knee is in my ear!", 0.15, "O", "w", None, "eight_shoes"),
-    ("kai", "Would you", 0.30, "N", "w", None, "hat_tip"),
+    ("kai", "Would you", 0.25, "N", "w", None, "hat_tip"),
     ("kai", "Because in this town", 0.15, "N", "w", None, "loop_opening"),
 ]
 m = Mix(REPO, "hm1", story="heightmog", voices=("kai", "mayor", "guys"),
