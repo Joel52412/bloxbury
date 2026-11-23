@@ -18,20 +18,23 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "_studio_li
 FPS = 24
 # name: (file, start s, end s, kind, notes)  - times in the source clip (seconds at its true speed)
 CLIPS = {
-    "walk":         ("08_01.bvh", 0.2, 2.3, "cycle", "normal walk"),
+    "walk":         ("08_01.bvh", 0.2, 2.3, "cycle", "normal walk (mirrored halves: plain, even)", {"sym": True, "style": {"torso": 0.35, "sway": 0.25}}),
     "walk_slow":    ("91_29.bvh", 4.0, 7.5, "cycle", "relaxed walk"),
     "walk_scared":  ("91_32.bvh", 6.0, 14.0, "cycle", "scared walk: hunched, short slow steps", {"period": (1.8, 2.8)}),
     "walk_sad":     ("91_13.bvh", 6.0, 14.0, "cycle", "sad walk: head down, dragging", {"period": (1.5, 2.4)}),
-    "sneak":        ("77_29.bvh", 3.0, 10.0, "cycle", "creeping walk, crouched", {"period": (1.2, 1.9)}),
+    "sneak":        ("120_08.bvh", 2.0, 8.0, "cycle", "cartoon tiptoe sneak: knees up, soft careful steps", {"period": (1.4, 2.6), "sym": True, "smooth": 1.3, "lean": 0.5}),
     "jog":          ("16_35.bvh", 0.2, 1.3, "cycle", "jog", {"period": (0.5, 0.9), "smooth": 0.6, "lean": 0.6}),
-    "run":          ("16_55.bvh", 0.2, 1.5, "cycle", "run", {"period": (0.45, 0.8), "smooth": 1.4, "lean": 0.45}),
+    "run":          ("16_55.bvh", 0.2, 1.5, "cycle", "run: arms pump high", {"period": (0.45, 0.8), "smooth": 1.4, "lean": 0.45, "sym": True,
+                     "scale": {"Left": (1.35, 1, 1), "Right": (1.35, 1, 1)}, "offset": {"Left": (14, 0, 0), "Right": (14, 0, 0)},
+                     "style": {"arms": 1.0, "legs": 1.0}}),
     "wave":         ("143_25.bvh", 0.3, 3.15, "clip", "LEFT hand up, friendly wave, ends raised (mirror=True for the right)", {"smooth": 1.3, "rest": False}),
     "wave_hello":   ("141_16.bvh", 0.15, 2.45, "clip", "quick RIGHT-hand hello wave", {"smooth": 0.8}),
     "shrug":        ("141_21.bvh", 0.2, 2.25, "clip", "small shrug, head tilt", {"smooth": 0.8}),
     "phone":        ("79_36.bvh", 0.9, 4.25, "clip", "RIGHT hand lifts a phone to the ear, holds, lowers", {"smooth": 0.8}),
-    "scared_look":  ("79_73.bvh", 0.35, 6.2, "clip", "hands up at the chest, head darts left/right, then relaxes", {"smooth": 1.4}),
-    "idle_look":    ("77_02.bvh", 0.8, 7.7, "clip", "standing, glances left and right"),
-    "idle":         ("113_21.bvh", 0.8, 11.0, "clip", "standing still, weight shifts"),
+    "scared_look":  ("79_73.bvh", 0.35, 6.2, "clip", "hands up at the chest, glances left/right, then relaxes (toned down for R6)", {"smooth": 1.6,
+                     "scale": {"neck": (0.5, 0.5, 0.4), "chest": (0.55, 0.55, 0.5), "Left": (0.7, 0.7, 0.7), "Right": (0.7, 0.7, 0.7)}}),
+    "idle":         ("113_21.bvh", 0.8, 11.0, "clip", "plain standing idle: breathing, tiny weight shift, feet planted", {"smooth": 1.5,
+                     "centre": ("neck", "chest", "hipL", "hipR"), "scale": {"neck": (0.15, 0.15, 0.12), "chest": (0.6, 0.6, 0.6), "hipL": (0.0, 0.0, 0.0), "hipR": (0.0, 0.0, 0.0)}}),
 }
 C = np.array([[-1.0, 0, 0], [0, 0, 1.0], [0, 1.0, 0]])     # BVH (x=left, y=up, z=fwd) -> R6 (x=right, y=fwd, z=up)
 
@@ -260,7 +263,9 @@ def build(name, bvh_dir):
            "credit": "Motion data from mocap.cs.cmu.edu (NSF EIA-0196217)"}
     if kind == "cycle":
         c, a, P = find_cycle(o, dt, a, b, *opt.get("period", (0.8, 1.5)))
-        N = max(8, int(round(P * dt * FPS))); ts = a + np.arange(N + 1) * P / N
+        N = max(8, int(round(P * dt * FPS)))
+        if opt.get("sym"): N += N % 2                                  # mirrored half-cycles need an even length
+        ts = a + np.arange(N + 1) * P / N
         res.update(period_src=P * dt, seam_cost=round(float(c), 4))
     else:
         N = int(round((b - a) * dt * FPS)); ts = a + np.arange(N + 1) / (FPS * dt)
@@ -274,6 +279,15 @@ def build(name, bvh_dir):
             if p in ("hipL", "hipR"): e[:, 0] -= e[:, 0].mean() * opt.get("leg_recentre", 0.5)   # rigid R6 legs: swing around the hip
         else: e = gauss(e, opt.get("smooth", 0.0))
         ch[p] = e
+    SW = {"Left": "Right", "Right": "Left", "hipL": "hipR", "hipR": "hipL", "chest": "chest", "neck": "neck"}
+    if kind == "cycle" and opt.get("sym"):     # left step = mirrored right step: an even, plain gait (no limp, no lean)
+        h = N // 2; M = np.array([1.0, -1.0, -1.0])
+        ch = {p: 0.5 * (ch[p] + np.roll(ch[SW[p]], -h, 0) * M) for p in PARTS}
+    for p in opt.get("scale", {}):            # per-channel movement scale, e.g. {"Left": (1.4, 1, 1)}: around the cycle mean,
+        m = ch[p].mean(0) if kind == "cycle" else ch[p][:6].mean(0)     # or around a clip's start pose (it still starts there)
+        ch[p] = m + (ch[p] - m) * np.array(opt["scale"][p])
+    for p in opt.get("centre", ()): ch[p] = ch[p] - ch[p].mean(0)          # no constant head turn / tilt (plain idle)
+    for p, off in opt.get("offset", {}).items(): ch[p] = ch[p] + np.radians(off)   # degrees added to a channel
     if kind == "clip" and opt.get("rest", True):
         for p in ("Left", "Right"): ch[p] = rest_calibrate(ch[p], opt.get("rest_frames", 6))
     k = opt.get("lean", 1.0)                                  # torso pitch scale; the head keeps its world angle
@@ -287,6 +301,10 @@ def build(name, bvh_dir):
         line_yaw = math.atan2(-u[0], u[1]); rel = xy - xy[0]
         s_ = rel @ u; lat = rel @ perp; lat = lat - np.arange(N + 1) / N * lat[-1]
         yr = yaw - line_yaw; yr = yr - np.arange(N + 1) / N * (yr[-1] - yr[0])
+        yr = (yr + np.pi) % (2 * np.pi) - np.pi; yr = yr - yr[:-1].mean()   # heading relative to travel: no 360 wraps, no constant turn
+        lat = lat - lat[:-1].mean()
+        if opt.get("sym"):
+            h = N // 2; lat[:-1] = 0.5 * (lat[:-1] - np.roll(lat[:-1], -h)); yr[:-1] = 0.5 * (yr[:-1] - np.roll(yr[:-1], -h))
         res.update(stride=round(D, 4), speed=round(D / (P * dt), 4),
                    root={"s": s_[:-1].round(4).tolist(), "lat": lat[:-1].round(4).tolist(), "z": z.round(4).tolist(),
                          "yaw": yr[:-1].round(4).tolist()})
@@ -294,6 +312,7 @@ def build(name, bvh_dir):
         Y0 = yaw[0]; c0, s0 = math.cos(-Y0), math.sin(-Y0); rel = xy - xy[0]
         rx = rel[:, 0] * c0 - rel[:, 1] * s0; ry = rel[:, 0] * s0 + rel[:, 1] * c0
         res.update(root={"x": rx.round(4).tolist(), "y": ry.round(4).tolist(), "z": z.round(4).tolist(), "yaw": (yaw - Y0).round(4).tolist()})
+    if opt.get("style"): res["style"] = opt["style"]                  # per-clip GAIT_STYLE override (engine/mocap.py)
     res["n"] = len(ch["chest"])
     res["ch"] = {p: ch[p].round(4).tolist() for p in PARTS}
     return res

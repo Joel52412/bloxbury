@@ -5,10 +5,10 @@
 # check_motion passes and gesture()/look()/lean() before and after keep working.
 #   mo_walk(P, f0, f1, [p0, p1, ...], clip="walk")   walk/run along a path: real gait cycle, steps scaled to the path
 #                                                     speed, eases in/out, turns into curves, R6 feet kept ON the floor
-#                                                     clips: walk, walk_slow, walk_scared, walk_sad, sneak, jog, run
+#                                                     clips: walk, walk_slow, walk_scared, walk_sad, sneak (tiptoe), jog, run
 #   mo_clip(P, "wave", fr)                            play a captured action on the upper body, blended in/out
 #                                                     clips: wave (left hand), wave_hello (right), shrug, phone (right
-#                                                     hand to ear), scared_look, idle_look, idle; mirror=True swaps sides
+#                                                     hand to ear), scared_look, idle (plain, feet planted); mirror=True swaps sides
 #   mo_clip(..., mode="add")                          layer only the clip's MOVEMENT on top of the pose that is there
 #                                                     (an idle on a seated or leaning pose)
 #   mo_list()                                         names, lengths, notes
@@ -81,7 +81,9 @@ _LEG_CORNERS = [_MV2((x, y, -2.0)) for x in (-0.5, 0.5) for y in (-0.5, 0.5)]
 
 def mo_contact(eL, eR):
     """Root height that puts the lowest corner of the lower R6 leg exactly on the floor (no feet through the floor)."""
-    low = min((_ME(e, "XYZ").to_matrix() @ c).z for e in (eL, eR) for c in _LEG_CORNERS)
+    zs = [(_ME(e, "XYZ").to_matrix() @ c).z for e in (eL, eR) for c in _LEG_CORNERS]
+    lo = min(zs); k = 0.015                         # soft minimum: no kink when the weight passes foot to foot (<0.03 stud)
+    low = lo - k * math.log(sum(math.exp(-(z - lo) / k) for z in zs))
     return -2.0 - low
 
 
@@ -169,14 +171,14 @@ def mo_walk(P, f0, f1, pts, clip="walk", z=0.0, accel=0.2, blend=6, phase=0.0, t
     v_cruise = L / cum[-1]                                                  # studs per frame at full speed
     r = max(0.4, min(2.5, v_cruise / v_nat))                                 # half the speed change in stride, half in cadence
     amp = max(0.75, min(1.15, r ** 0.5)) * gain
-    st = dict(GAIT_STYLE, **(style or {}))
+    st = dict(GAIT_STYLE, **c.get("style", {})); st.update(style or {})      # studio default < clip's own < this call
     stride = D * amp * st["legs"]                                           # leg swing scale = stride scale: feet don't slide
     parts = list(MO_PARTS)
     old = {p: _mo_old(P, p, f0, f1) for p in parts}
     for p in parts: _mo_clear(P, p, f0 + 1, f1)
     _clear(P["root"], "location", f0 + 1, f1); _clear(P["root"], "rotation_euler", f0 + 1, f1)
     yaw_prev = _cur(P["root"], "rotation_euler", 3, f0)[2]
-    rest = {p: ARM_REST.get(p, (0.0, 0.0, 0.0)) for p in parts}
+    rest = {p: ARM_REST.get(p, (0.0, 0.0, 0.0)) for p in parts}; rows = []
     for i in range(n + 1):
         fr = f0 + i; sv = cum[i] / cum[-1] * L
         p, d = at_s(sv)
@@ -198,7 +200,11 @@ def mo_walk(P, f0, f1, pts, clip="walk", z=0.0, accel=0.2, blend=6, phase=0.0, t
         perp = _MV2((d.y, -d.x, 0))
         loc = p + perp * rt["lat"] * w * amp * st["sway"]
         flight = max(0.0, rt["z"] - mo_contact(pose["hipL"], pose["hipR"])) * w
-        kf(P["root"], "location", fr, (loc.x, loc.y, z + mo_contact(cur["hipL"], cur["hipR"]) + flight))
+        rows.append((fr, loc.x, loc.y, z + mo_contact(cur["hipL"], cur["hipR"]), flight))
         kf(P["root"], "rotation_euler", fr, (0, 0, yaw + rt["yaw"] * w * amp * st["sway"]))
+    hz = [r[3] + r[4] for r in rows]   # height = foot contact + flight, smoothed over ~3 frames: the lowest corner switching
+    for k, (fr, x, y, _, _) in enumerate(rows):       # from foot to foot on a fast step must not flicker (<0.02 stud dip)
+        g = [(j, math.exp(-0.5 * ((j - k) / 1.3) ** 2)) for j in range(max(0, k - 4), min(len(hz), k + 5))]
+        kf(P["root"], "location", fr, (x, y, sum(hz[j] * wj for j, wj in g) / sum(wj for _, wj in g)))
     for q in parts: _ST[(id(P), q)] = cur[q] if q not in ("Left", "Right") else (cur[q][0], cur[q][2])
     return yaw_prev
