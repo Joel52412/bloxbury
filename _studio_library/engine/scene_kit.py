@@ -512,19 +512,97 @@ def frame_list(spec):
     return out
 
 
+def motion_flips(f0, f1):
+    """Frames where an object in view (or the camera) starts or stops moving.
+    Cycles bug (Blender 5.3, found 23 Nov): with persistent data + motion blur, an object whose motion starts or stops
+    keeps stale motion data on that frame and renders as a black/unlit silhouette for that ONE frame. Moving(f) = its
+    world matrix differs between shutter open (f) and close (f+0.5, motion_blur START). Cached per range in OUT."""
+    from bpy_extras.object_utils import world_to_camera_view
+    cache = OUT + "/.motion_flips_%d_%d.json" % (f0, f1)
+    try: return set(json.load(open(cache)))
+    except (OSError, ValueError): pass
+    obs = [o for o in s.objects if o.type in ("MESH", "CURVE", "FONT", "SURFACE", "META") and not o.hide_render]
+    cam = s.camera; sh = s.render.motion_blur_shutter
+    def in_view(o, m):                                             # roughly in view: any bbox corner inside +10%
+        for c in o.bound_box:
+            v = world_to_camera_view(s, cam, m @ Vector(c))
+            if v.z > 0 and -0.1 < v.x < 1.1 and -0.1 < v.y < 1.1: return True
+        return False
+    flips, prev = [], None
+    for f in range(f0, f1 + 1):
+        s.frame_set(f); a = [o.matrix_world.copy() for o in obs]; ca = cam.matrix_world.copy()
+        s.frame_set(f, subframe=sh); mv = [x != o.matrix_world for x, o in zip(a, obs)]; cmv = ca != cam.matrix_world
+        if prev is not None and (cmv != prev[1] or any(x != y and in_view(o, m) for x, y, o, m in zip(mv, prev[0], obs, a))):
+            flips.append(f)
+        prev = (mv, cmv)
+    s.frame_set(f0)
+    try: json.dump(flips, open(cache, "w"))
+    except OSError: pass
+    return set(flips)
+
+
+def dark_shots(base):
+    """Shots dark enough to show denoiser blotches at the base settings. One tiny render per shot (mid frame,
+    72x128, 4 samples, ~0.3 s each), mean luma 0-1. Shots between 0.03 (intended black) and DARK_LUMA (default 0.13),
+    darkest first, get DARK_SAMPLES (default 2x base) at noise threshold 0.01 until they cover DARK_BUDGET of the
+    frames (default 0.08). Measured 23 Nov on Part 3 dark shots (CPU, vs a 256-sample reference): 64 spp + threshold
+    0.01 = +1.8 dB, 22% less frame-to-frame flicker, 1.87x time per boosted frame -> <=7% extra render time.
+    (64 spp at the normal 0.02 threshold gained nothing: the threshold, not the cap, limits dark shots.)
+    Cached in OUT. Returns {frame: samples}."""
+    cache = OUT + "/.dark_shots_%d.json" % base
+    try: return {int(k): v for k, v in json.load(open(cache)).items()}
+    except (OSError, ValueError): pass
+    r = s.render; keep = (r.resolution_x, r.resolution_y, s.cycles.samples, r.filepath, r.use_motion_blur)
+    r.resolution_x, r.resolution_y, s.cycles.samples, r.use_motion_blur = 72, 128, 4, False
+    lum = []
+    for name, f0, f1 in SHOTS:
+        s.frame_set((f0 + f1) // 2); r.filepath = os.path.join(bpy.app.tempdir or "/tmp", "kit_lum.png"); bpy.ops.render.render(write_still=True)
+        im = bpy.data.images.load(r.filepath, check_existing=False); px = list(im.pixels)
+        lum.append((sum(0.2126 * px[i] + 0.7152 * px[i + 1] + 0.0722 * px[i + 2] for i in range(0, len(px), 4)) / (len(px) // 4),
+                    name, f0, f1))
+        bpy.data.images.remove(im)
+    r.resolution_x, r.resolution_y, s.cycles.samples, r.filepath, r.use_motion_blur = keep
+    thr = float(os.environ.get("DARK_LUMA", 0.13)); budget = float(os.environ.get("DARK_BUDGET", 0.08)) * NF
+    hi = int(os.environ.get("DARK_SAMPLES", 2 * base)); out, used = {}, 0
+    for l, name, f0, f1 in sorted(lum):
+        if l >= thr: break
+        if l < 0.03: continue                                      # intended black: nothing to clean
+        if used + (f1 - f0 + 1) > budget: continue
+        used += f1 - f0 + 1; out.update({f: hi for f in range(f0, f1 + 1)}); print("DARK SHOT %s %.3f -> %d samples" % (name, l, hi))
+    print("SHOT LUMA", [(n, round(l, 3)) for l, n, _, _ in sorted(lum)][:12], "boosted frames", used)
+    try: json.dump(out, open(cache, "w"))
+    except OSError: pass
+    return out
+
+
+def _render_frame(fr, fresh):
+    """One frame. fresh=True drops Cycles' persistent data for it (rebuilt from scratch = correct motion data)."""
+    s.render.use_persistent_data = not fresh
+    s.frame_set(fr); s.render.filepath = OUT + "/%04d.png" % fr; bpy.ops.render.render(write_still=True)
+    s.render.use_persistent_data = True
+
+
 def render():
-    """RENDER=1: FRAMES=a,b stills, RANGES=a-b,c re-render (only the frames render_cache.py says changed; existing
-    or claimed frames are skipped, so several Blenders share one queue like animation placeholders), else the range."""
+    """RENDER=1: FRAMES=a,b stills, RANGES=a-b,c only those frames (render_cache.py: what a tweak changed), else the
+    whole range. Frames come from a shared queue (atomic 0-byte placeholder
+    per frame, so several GPUs/helpers can work one folder); frames where something starts or stops moving render
+    without persistent data (see motion_flips). Persistent data stays on elsewhere (~30% faster per frame)."""
     if os.environ.get("RENDER"):
-        if os.environ.get("RANGES"):
-            for fr in frame_list(os.environ["RANGES"]):
-                p = OUT + "/%04d.png" % fr
-                try: fd = os.open(p, os.O_CREAT | os.O_EXCL | os.O_WRONLY); os.close(fd)   # claim (0-byte placeholder)
-                except FileExistsError: continue
-                s.frame_set(fr); s.render.filepath = p; bpy.ops.render.render(write_still=True)
-        elif os.environ.get("FRAMES"):
-            for fr in [int(x) for x in os.environ["FRAMES"].split(",")]:
-                s.frame_set(fr); s.render.filepath = OUT + "/%04d.png" % fr; bpy.ops.render.render(write_still=True)
+        os.makedirs(OUT, exist_ok=True)
+        if os.environ.get("FRAMES"):
+            frames = [int(x) for x in os.environ["FRAMES"].split(",")]
+            flips = motion_flips(min(frames), max(frames)) if s.render.use_motion_blur else set()
+            for fr in frames: _render_frame(fr, fr in flips)
         else:
-            bpy.ops.render.render(animation=True)
+            frames = frame_list(os.environ["RANGES"]) if os.environ.get("RANGES") else list(range(s.frame_start, s.frame_end + 1))
+            flips = motion_flips(max(1, min(frames) - 1), max(frames)) if s.render.use_motion_blur else set()
+            print("MOTION FLIPS (fresh render, no persistent data):", sorted(flips))
+            base, thr0 = s.cycles.samples, s.cycles.adaptive_threshold
+            dark = dark_shots(base) if base >= 16 and s.render.engine == "CYCLES" and not os.environ.get("NODARK") else {}
+            for fr in frames:
+                try: os.close(os.open(OUT + "/%04d.png" % fr, os.O_CREAT | os.O_EXCL))   # claim the frame
+                except FileExistsError: continue                                         # done or someone's on it
+                s.cycles.samples = dark.get(fr, base); s.cycles.adaptive_threshold = 0.01 if fr in dark else thr0
+                _render_frame(fr, fr in flips)
+            s.cycles.samples, s.cycles.adaptive_threshold = base, thr0
     print("DONE", NF)

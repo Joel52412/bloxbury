@@ -25,7 +25,7 @@ case "$CHK" in *"FRAME CHECK OK"*) status frame_check=OK ;; *) status "frame_che
 status stage=assembling
 sh $B/_pipeline/make_part.sh $F $OUT $AU $CA || fail "make_part failed"
 # video-only near-lossless master (no grain/captions): later story tweaks re-render only the changed frames and
-# render_cache.py splices them into it. Joel keeps it in series/<story>/render_cache/<part>_master.mp4.
+# render_cache.py splices them into it. Joel keeps it in stories/<story>/render_cache/<id>_master.mp4.
 M="${OUT%.mp4}_master.mp4"
 ffmpeg -y -loglevel error -framerate 24 -i $F/%04d.png -frames:v $N -c:v libx264 -preset fast -crf 10 -pix_fmt yuv420p $M &&
   status "master=workspace/$(basename $M)" master_size=$(stat -c %s $M) || status master=failed

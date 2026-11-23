@@ -19,7 +19,7 @@
 #   python3 render_cache.py accept p3 --master <frames dir | video>   after a FULL render (pod_finish.sh makes
 #        <output>_master.mp4): stores that render as the cache, keys from the last plan (same settings).
 #
-# Cache: <repo>/series/<story>/render_cache/ (STORY env or --story, default bloxbury): <part>.json (keys of the master,
+# Cache: <repo>/stories/<story>/render_cache/ (STORY env or --story, default bloxbury): <part>.json (keys of the master,
 # small, kept in git), <part>.next.json (keys of the scene as it is now), <part>_master.mp4 (laptop only, *.mp4 is
 # gitignored).
 # What counts for a frame: lights always; objects inside the view (widened 30%, CULL_WIDE), off-screen objects that are
@@ -36,7 +36,7 @@ SECURE_4090 = 0.89             # $/hr
 
 
 def cache_dir(story):
-    d = os.environ.get("RENDER_CACHE") or os.path.join(REPO, "series", story, "render_cache")
+    d = os.environ.get("RENDER_CACHE") or os.path.join(REPO, "stories", story, "render_cache")
     os.makedirs(d, exist_ok=True); return d
 
 
@@ -330,7 +330,12 @@ def build_keys(script):
     sh = s.render.motion_blur_shutter if s.render.use_motion_blur else 0.0
     off = {"START": (0.0, sh), "CENTER": (-sh / 2, sh / 2), "END": (-sh, 0.0)}.get(s.render.motion_blur_position, (0.0, sh))
     offs = sorted({0.0, *off}) if sh else [0.0]
-    keys = [hashlib.md5("".join(state(f + o) for o in offs).encode()).hexdigest()[:20] for f in range(fs, fe + 1)]
+    # per-frame samples: scene_kit.render() boosts dark shots (dark_shots), so a frame's sample count is an input too
+    dark = {}
+    if "dark_shots" in g and s.cycles.samples >= 16 and s.render.engine == "CYCLES" and not os.environ.get("NODARK"):
+        import io, contextlib
+        with contextlib.redirect_stdout(io.StringIO()): dark = g["dark_shots"](s.cycles.samples)
+    keys = [hashlib.md5(("".join(state(f + o) for o in offs) + str(dark.get(f, ""))).encode()).hexdigest()[:20] for f in range(fs, fe + 1)]
     shots = [list(x) for x in g.get("SHOTS", [])]
     print("hashed in %.0f s (%.1f ms/frame)" % (time.time() - t0, 1000 * (time.time() - t0) / len(keys)))
     return {"part": g.get("PART", os.path.basename(script)[:-3]), "script": os.path.basename(script), "nf": nf,

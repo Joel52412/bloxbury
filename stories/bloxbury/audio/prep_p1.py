@@ -1,18 +1,18 @@
 # prep_p1.py - Part 1 (redesign) cue sheet, audio mix, lip-sync envelope and word-timed captions. 24 fps.
-# Source line timings come from pocketsphinx alignment of the CURRENT milo.mp3 (see _pipeline/data/words_p1.json).
+# Source line timings come from pocketsphinx alignment of the CURRENT milo.mp3 (see stories/bloxbury/data/words_p1.json).
 # The old cues.py used timings from an older milo.mp3 (spoken "KNOCK. KNOCK. KNOCK.", separate closet.mp3) - retired.
 # Usage: python3 prep_p1.py [repo_root]   -> writes OUT_DIR/{env_p1.json, part1_audio.wav, captions_p1.ass}
 # Shipped before the cue-sheet kit: absolute source cuts, its own caption style, peak-normalised (no loudnorm). Primitives from mix.py.
 import numpy as np, json, os, sys
 
-REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-AUD = REPO + "/series/bloxbury/part1/voice/"
+REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+AUD = REPO + "/stories/bloxbury/part1/voice/"
 SFXD = REPO + "/assets/sfx/"
 sys.path.insert(0, REPO + "/_pipeline/audio_tools")
 from mix import load, put, envelope, write_wav
 OUT = os.environ.get("OUT_DIR", "/home/claude/talk/"); os.makedirs(OUT, exist_ok=True)
 FPS, SR = 24, 48000
-WORDS = json.load(open(REPO + "/_pipeline/data/words_p1.json"))
+WORDS = json.load(open(REPO + "/stories/bloxbury/data/p1/words_p1.json"))
 
 # ---- voice cues: (file, src_start, src_end, dest_start, caption, style, effect)   style "w" white / "r" red
 VOICE = [
