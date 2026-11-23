@@ -1,7 +1,7 @@
 # prep_p3.py - Part 3 "Don't Say It": cue sheet, pacing, mix, lip-sync envelopes, captions. 24 fps.
 # Lines from _pipeline/data/p3/lines_*.json (align_full + split_lines; milo 12/13 + mum "Bug?" fixed by hand from the
 # energy envelope, scan for in-word gaps/clicks clean 22 Nov). "Which Milo..." regenerated (pitch cracks) -> milo_p3_fix.mp3. Cues are SEQUENTIAL: dest = previous line end + gap.
-# Usage: python3 prep_p3.py [repo]  (TIKTOK=1 -> music span <=55 s)  -> OUT_DIR/{env_p3.json, part3_audio.wav, captions_p3.ass}
+# Usage: python3 prep_p3.py [repo]  (TIKTOK=1 -> music span <=55 s)  -> OUT_DIR/{env_p3.json, part3_audio.wav+.flac, captions_p3.ass}
 import numpy as np, subprocess, json, os, sys, wave, re
 REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 sys.path.insert(0, REPO + "/_pipeline/audio_tools")
@@ -157,6 +157,9 @@ subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", OUT + "part3_raw.wav
                 f"loudnorm=I=-16:TP=-2:LRA=11:measured_I={mj['input_i']}:measured_TP={mj['input_tp']}:measured_LRA={mj['input_lra']}:"
                 f"measured_thresh={mj['input_thresh']}:offset={mj['target_offset']}:linear=true", "-ar", str(SR),
                 OUT + ("part3_nomusic.wav" if NOMUSIC else "part3_tiktok.wav" if TIKTOK else "part3_audio.wav")], check=True)
+# the repo/pods keep the mix as lossless FLAC (half the size; *.wav is gitignored): copy partN_*.flac to _pipeline/data/pN/
+_w = OUT + ("part3_nomusic.wav" if NOMUSIC else "part3_tiktok.wav" if TIKTOK else "part3_audio.wav")
+subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-i", _w, "-c:a", "flac", _w[:-4] + ".flac"], check=True)
 
 def envelope(sig):
     rms, cen = [], []
