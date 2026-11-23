@@ -67,7 +67,7 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 
 ## Studio status (23 Nov)
 - Parts 1-3 of BLOXBURY delivered. On main: motion fixes, mocap layer (`mocap.py`: 7 gaits + 6 actions, Joel-approved 23 Nov), speech-driven lip-sync + `talk_face`, shared scene kit + audio kit, pod hardening (watchdog, x264 export, auto TikTok + motion audit, FLAC mixes).
-- Stories folder split (lean core + one folder per story) in review.
+- Stories: BLOXBURY (Parts 1-3), HEIGHT MOG one-off (audio approved, asset sheet next). New shared tools: `voice_fx.py` (TikTok speed/pitch), `make_animatic.py <id>`.
 - Re-render only changed frames (`render_cache.py` + `pod_patch.sh`): PR #14 in review. Parts 1-3 have no cache (frames deleted); it starts with the next full render (`accept`).
 - Previews free (23 Nov): `preview_local.py` + `make_storyboard.py`. Laptop folder is a git clone of main (set up 23 Nov).
 - TODO: GHCR render image private (use runpod/pytorch).

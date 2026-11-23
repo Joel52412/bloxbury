@@ -15,5 +15,5 @@ In this town, the taller you are, the more power you get. Kai (4 ft 1) notices t
 - **Part 1 "The Trenchcoat Mayor"** (~64 s: min 1:01 for TikTok pay, max 1:10).
 
 ## Status (23 Nov)
-- Audio done: voices 1.075× + light pitch (Joel OK), all 9 SFX in assets/sfx (picks, trims, EQ in prep_hm1.py), mix on Numbers_piano = 1:09.9 (at the cap; cut "I could've exposed them" if we need room). Audio animatic with SFX sent.
+- Audio APPROVED by Joel 23 Nov 23:20. voices 1.075× + light pitch (Joel OK), all 9 SFX in assets/sfx (picks, trims, EQ in prep_hm1.py), mix on Numbers_piano = 1:09.9 (at the cap; cut "I could've exposed them" if we need room). Audio animatic with SFX sent.
 - Next: asset sheet (`scripts/hm1_assets.py`) for Kai, the coat stack (3 short guys + trenchcoat, mustache, top hat), stage/podium, bus, car, dog; then scene `hm1.py`.
