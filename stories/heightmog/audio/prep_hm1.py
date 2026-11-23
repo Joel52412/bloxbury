@@ -44,18 +44,20 @@ m = Mix(REPO, "hm1", story="heightmog", voices=("kai", "mayor", "guys"),
         voice_dir=REPO + "/stories/heightmog/part1/voice/fx/")
 for c in CUES: m.cue(*c)
 k = m.marks
-TOPPLE = k["Hehe"][1] + 0.1                       # coat goes over: music hard-drops here
-MUTES = [(TOPPLE, k["Taxes... cancelled"][0])]    # back in when Kai takes the top
-# SFX (Joel's ElevenLabs files, add when they arrive in assets/sfx/):
-# m.sfx("Crowd_groan", 1, 0, 2.0, -34, at=k["Taxes... doubled"][1] + 0.05)
-# m.sfx("Bus_leave", 1, 0, 3.0, -36, at=k["Me? Four"][0])
-# m.sfx("Pen_drop", 1, 0, 1.0, -34, at=k["He never bends"][0] + 0.3)
-# m.sfx("Dog_sniff", 1, 0, 2.0, -36, at=k["Once, a dog"][0] + 0.4)
-# m.sfx("Shoe_shuffle", 1, 0, 2.0, -36, at=k["And his coat"][0] + 0.5)
-# m.sfx("Mic_tap", 1, 0, 1.0, -34, at=k["Citizens"][0] - 0.6)
-# m.sfx("Coat_topple", 1, 0, 3.0, -28, at=TOPPLE)
-# m.sfx("Crowd_gasp", 1, 0, 2.0, -32, at=TOPPLE + 1.3)
-# m.sfx("Crowd_cheer", 1, 0, 3.0, -32, at=k["Taxes... cancelled"][1] + 0.05)
+TOPPLE = k["Hehe"][1] + 0.1                       # giggle ends, coat goes over
+THUD = TOPPLE + 0.6                               # Coat_topple #1 thuds land here; music hard-drops on the hit
+MUTES = [(THUD, k["Taxes... cancelled"][0])]      # back in when Kai takes the top
+# SFX: Joel's ElevenLabs files in assets/sfx (picked + edited 23 Nov; all trims/EQ live here, files untouched)
+HP = "highpass=f=110"                              # crowds: cut rumble so they sit under the voices
+m.sfx("Crowd_groan", 2, 0.30, 2.60, -36, fo=0.6, filt=HP, at=k["Taxes... doubled"][1] + 0.05)
+m.sfx("Bus_leave", 1, 3.00, 6.00, -38, fi=0.08, fo=0.8, at=k["Me? Four"][0] + 0.1)     # door hiss + pull-away only
+m.sfx("Pen_drop", 3, 0.82, 1.90, -40, fi=0.005, fo=0.3, filt="lowpass=f=9000", at=k["He never bends"][0] + 0.25)
+m.sfx("Dog_sniff", 1, 0.10, 2.40, -37, fo=0.4, at=k["Once, a dog"][0] + 0.5)
+m.sfx("Shoe_shuffle", 4, 0.30, 2.30, -37, fo=0.5, filt="lowpass=f=8000", at=k["And his coat"][0] + 0.6)
+m.sfx("Mic_tap", 4, 0.36, 0.85, -38, fi=0.005, fo=0.1, at=k["Citizens"][0] - 0.6)       # two taps
+m.sfx("Coat_topple", 1, 2.18, 4.10, -30, fi=0.15, fo=0.5, filt="alimiter=limit=0.7", at=THUD - 0.6)  # rustle under the giggle -> thuds
+m.sfx("Crowd_gasp", 1, 0.15, 1.40, -31, fo=0.5, filt=HP, at=THUD + 0.15)
+m.sfx("Crowd_cheer", 3, 0.10, 3.00, -36, fo=0.9, filt=HP, at=k["Taxes... cancelled"][1] + 0.05)
 TOTAL = round(m.t + 0.3, 2)
 m.music({"file": "assets/music/Numbers_piano.mp3", "vol": 0.2, "fade_in": 0.0, "fade_out": 0.4, "pause": True},
         MUTES, duck=True, low_trim=True)

@@ -124,7 +124,7 @@ def sfx_path(sfxd, key, var=None):
     names = sorted(os.listdir(sfxd))
     if var is None:
         return sfxd + {os.path.splitext(x)[0].rsplit("-", 1)[0]: x for x in names}[key]
-    return sfxd + next(x for x in names if x.lower().startswith(key.lower()) and re.search(r"[_#]%s-\d+\." % var, x))
+    return sfxd + next(x for x in names if x.lower().startswith(key.lower()) and re.search(r"[_#]%s(-\d+)?\." % var, x))
 
 
 # ================================================================== the mix
