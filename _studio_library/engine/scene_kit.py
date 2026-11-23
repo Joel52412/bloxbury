@@ -503,10 +503,26 @@ def render_settings():
     s.render.use_overwrite = False; s.render.use_placeholder = True
 
 
+def frame_list(spec):
+    """"5,12-40,300-310" -> [5, 12, 13, ... 40, 300, ... 310] (render_cache.py writes these RANGES)."""
+    out = []
+    for part in spec.replace(" ", "").split(","):
+        if part:
+            a, _, b = part.partition("-"); out += range(int(a), int(b or a) + 1)
+    return out
+
+
 def render():
-    """RENDER=1: FRAMES=a,b stills, else the whole range."""
+    """RENDER=1: FRAMES=a,b stills, RANGES=a-b,c re-render (only the frames render_cache.py says changed; existing
+    or claimed frames are skipped, so several Blenders share one queue like animation placeholders), else the range."""
     if os.environ.get("RENDER"):
-        if os.environ.get("FRAMES"):
+        if os.environ.get("RANGES"):
+            for fr in frame_list(os.environ["RANGES"]):
+                p = OUT + "/%04d.png" % fr
+                try: fd = os.open(p, os.O_CREAT | os.O_EXCL | os.O_WRONLY); os.close(fd)   # claim (0-byte placeholder)
+                except FileExistsError: continue
+                s.frame_set(fr); s.render.filepath = p; bpy.ops.render.render(write_still=True)
+        elif os.environ.get("FRAMES"):
             for fr in [int(x) for x in os.environ["FRAMES"].split(",")]:
                 s.frame_set(fr); s.render.filepath = OUT + "/%04d.png" % fr; bpy.ops.render.render(write_still=True)
         else:
