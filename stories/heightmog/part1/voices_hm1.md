@@ -2,7 +2,7 @@
 Save as `stories/heightmog/part1/voice/<who>_hm1.mp3` (kai, mayor, guys). Music: `assets/music/Numbers_piano.mp3`.
 
 ## New voices (ElevenLabs Voice Design, guidance ~35%)
-Mix: every voice sped up 1.1× and pitched up (rubberband, formants kept); Kai +3 semitones total, others +1. Record at normal speed.
+Mix: every voice sped up 1.13× and pitched up (rubberband, formants kept); Kai +3 semitones total, others +1. Record at normal speed.
 Paste only the Prompt into the Prompt box and the Preview text into the Preview Text box.
 ### KAI (narrator + in-scene lines)
 Prompt (ElevenLabs blocks child voices, so design an adult and pitch it up ~+3 semitones, formants kept, in our mix):

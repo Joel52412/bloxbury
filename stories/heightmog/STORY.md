@@ -15,4 +15,4 @@ In this town, the taller you are, the more power you get. Kai (4 ft 1) notices t
 - **Part 1 "The Trenchcoat Mayor"** (~64 s: min 1:01 for TikTok pay, max 1:10).
 
 ## Status (23 Nov)
-- Script v4 approved 23 Nov (~68.8 s raw, ~64 s after the 1.1× voice speed-up). Waiting on voice files (kai, mayor, guys) + 9 SFX. Next: audio (align, prep_hm1), animatic, asset sheet for the new cast and props.
+- Voices in (23 Nov; Joel skipped "He wears the coat... in July" and Kai's "It's Tuesday", both dropped). Sped 1.13× + pitched (voice_fx.py), mix on Numbers_piano = 1:07.6, audio animatic sent. Waiting on Joel's pacing OK + 9 SFX (cues commented in prep_hm1.py). Next: asset sheet for the new cast and props.
