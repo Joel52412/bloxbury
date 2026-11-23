@@ -139,7 +139,13 @@ def mo_clip(P, name, fr, speed=1.0, t0=0.0, t1=None, mirror=False, parts=("chest
     return f1
 
 
-def mo_walk(P, f0, f1, pts, clip="walk", z=0.0, accel=0.2, blend=6, phase=0.0, turn=0.25, gain=1.0, end_rest=True):
+# Gait strength per body region (Joel 23 Nov: raw mocap walk "slightly over exaggerated" on a blocky R6): stiff R6 limbs
+# read bigger than real ones, so swings are toned down; legs keep most of theirs so steps still match the ground speed.
+GAIT_STYLE = {"legs": 0.85, "arms": 0.6, "torso": 0.5, "sway": 0.35}
+_REGION = {"hipL": "legs", "hipR": "legs", "Left": "arms", "Right": "arms", "chest": "torso", "neck": "torso"}
+
+
+def mo_walk(P, f0, f1, pts, clip="walk", z=0.0, accel=0.2, blend=6, phase=0.0, turn=0.25, gain=1.0, end_rest=True, style=None):
     """Walk/run along a polyline from f0 to f1 with a captured gait. Speeds up and slows down at the ends (accel = share
     of the time), the step length/rate adapts to the speed the path needs (sqrt split, so feet barely slide), the body
     turns into curves (turn = smoothing per frame), the clip's own sway/bob rides on top, and the lower foot always sits
@@ -161,8 +167,10 @@ def mo_walk(P, f0, f1, pts, clip="walk", z=0.0, accel=0.2, blend=6, phase=0.0, t
     cum = [0.0]
     for k in range(1, n + 1): cum.append(cum[-1] + (prof[k] + prof[k - 1]) / 2)
     v_cruise = L / cum[-1]                                                  # studs per frame at full speed
-    r = max(0.4, min(2.5, v_cruise / v_nat)); k_len = r ** 0.5              # half the change in stride, half in cadence
-    amp = max(0.7, min(1.35, k_len)) * gain
+    r = max(0.4, min(2.5, v_cruise / v_nat))                                 # half the speed change in stride, half in cadence
+    amp = max(0.75, min(1.15, r ** 0.5)) * gain
+    st = dict(GAIT_STYLE, **(style or {}))
+    stride = D * amp * st["legs"]                                           # leg swing scale = stride scale: feet don't slide
     parts = list(MO_PARTS)
     old = {p: _mo_old(P, p, f0, f1) for p in parts}
     for p in parts: _mo_clear(P, p, f0 + 1, f1)
@@ -172,7 +180,7 @@ def mo_walk(P, f0, f1, pts, clip="walk", z=0.0, accel=0.2, blend=6, phase=0.0, t
     for i in range(n + 1):
         fr = f0 + i; sv = cum[i] / cum[-1] * L
         p, d = at_s(sv)
-        ph = phase * N + sv / (D * k_len) * N                                 # clip frame from distance -> no sliding
+        ph = phase * N + sv / stride * N                                 # clip frame from distance -> no sliding
         w = prof[i]                                                            # gait strength follows the speed
         pose = _mo_pose(c, ph, cyc=True); rt = _mo_root(c, ph, cyc=True)
         yaw_t = math.atan2(-d.x, d.y)
@@ -183,14 +191,14 @@ def mo_walk(P, f0, f1, pts, clip="walk", z=0.0, accel=0.2, blend=6, phase=0.0, t
         b_in = _smooth01(i / max(1, blend))
         cur = {}
         for q in parts:
-            g = tuple(rv + (pv - rv) * amp for pv, rv in zip(pose[q], rest[q] if q in ARM_REST else (0, 0, 0)))
+            g = tuple(rv + (pv - rv) * amp * st[_REGION[q]] for pv, rv in zip(pose[q], rest[q] if q in ARM_REST else (0, 0, 0)))
             tgt = _lerp3(rest[q] if end_rest or q in ("hipL", "hipR") else old[q][i], g, w)
             cur[q] = _lerp3(old[q][i], tgt, b_in) if i < blend else tgt
             _mo_key(P, q, fr, cur[q])
         perp = _MV2((d.y, -d.x, 0))
-        loc = p + perp * rt["lat"] * w * amp
+        loc = p + perp * rt["lat"] * w * amp * st["sway"]
         flight = max(0.0, rt["z"] - mo_contact(pose["hipL"], pose["hipR"])) * w
         kf(P["root"], "location", fr, (loc.x, loc.y, z + mo_contact(cur["hipL"], cur["hipR"]) + flight))
-        kf(P["root"], "rotation_euler", fr, (0, 0, yaw + rt["yaw"] * w * amp))
+        kf(P["root"], "rotation_euler", fr, (0, 0, yaw + rt["yaw"] * w * amp * st["sway"]))
     for q in parts: _ST[(id(P), q)] = cur[q] if q not in ("Left", "Right") else (cur[q][0], cur[q][2])
     return yaw_prev
