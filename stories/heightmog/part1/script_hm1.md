@@ -1,54 +1,56 @@
-# HEIGHT MOG (hm1) script v1, ~60 s
-Premise: in this town, if someone is taller than you, you must obey them. Kai, the shortest kid in town, takes down the tallest.
-Voices: KAI (narrator, voiceover; mouth moves only on his in-scene lines), TOWER (deep, slow giant kid), PIP (Kai's tiny sister).
+# HEIGHT MOG: The Trenchcoat Mayor (hm1) script v2, ~60 s
+Premise: in this town, the taller you are, the more power you get. Kai (4 ft 1) discovers the 9-foot mayor is three short guys in a trenchcoat... and joins them.
+Voices: KAI (narrator, voiceover; mouth moves only on in-scene lines), MAYOR (the top guy: fake booming voice, real squeaky one), GUYS (middle + bottom guy, one voice, bottom pitched down in the mix).
+Music: `Numbers_piano.mp3` under everything, hard drop at the topple (40.0 s), back in at 47.5 s.
 
 ## Beat sheet
 | Time | Beat | Open question |
 |---|---|---|
-| 0-4.5 s | Hook: a giant kid takes a tiny kid's fries | Why does he just hand them over? |
-| 4.5-12.5 s | The rules montage (quick cuts every ~2 s) | How bad is it for short people? |
-| 12.5-22 s | Kai is the shortest kid, and every trick fails | Can he ever win? |
-| 22-32 s | Target: Tower, tallest kid ever | Who could beat HIM? |
-| 32-44 s | The plan: a dropped Robux, Tower kneels, "for one second I was taller" | Does it work? |
-| 44-52 s | Payoff: Tower is stuck kneeling, Kai runs the town | |
-| 52-60 s | Button: little sister on a chair, "Fries." Choice question, loops to line 1 | Tall or smart? |
+| 0-10 s | Hook + rules montage (cuts every ~1.7 s) | Why is the mayor's coat wobbling? |
+| 10-14.5 s | The 9-foot mayor, nobody says no | Who is this guy? |
+| 14.5-29 s | Clues: never sits, never bends, six shoes, three voices | What is under that coat? |
+| 29-40 s | The speech, the tickle, the topple | Does Kai expose them? |
+| 40-47 s | Reveal: three short guys. "Please don't tell." | What will Kai do? |
+| 47-60 s | Twist: Kai joins as the new top. Choice question, loops to line 1 | Expose or join? |
 
 ## Script
 | ~Time | Who | Line | Picture |
 |---|---|---|---|
-| 0.0 | KAI (VO) | In this town, if someone's taller than you... you have to obey them. | Frame 0, lit burger counter, low angle: TOWER (≈2.2× height) looms over KAI, who holds a carton of fries. Tower's huge hand comes down into frame by ~2.5 s. |
-| 3.6 | TOWER | Fries. | Close on Tower's face way above. Kai hands the fries up without a word. |
-| 4.6 | KAI (VO) | My mom is taller than my dad. He's been doing the dishes since twenty nineteen. | Kitchen: Dad at the sink with a mountain of plates; Mom (taller) points at more. |
-| 8.2 | KAI (VO) | Our dog is taller than our neighbour. | Street: a big dog walks the short neighbour on a leash. |
-| 10.3 | KAI (VO) | And standing on a box? Five years. | A man on a crate gets cuffed by a (taller) cop. |
-| 12.6 | KAI (VO) | Me? I'm the shortest kid in town. Even the kindergarteners mog me. | Kai walks the street; a kindergartner, a head taller, takes his cap. |
-| 16.2 | KAI (VO) | So I tried everything. Lifts. | Kai in towering shoe lifts wobbles... and tips over. |
-| 18.6 | KAI (VO) | Spiky hair. Hair doesn't count. | A cop measures him with a ruler and flattens the spikes. |
-| 20.6 | KAI (VO) | Tip-toes. Calf cramp. | Kai on tip-toes, face scrunches, drops. |
-| 22.4 | KAI (VO) | Then there's Tower. Tallest kid in town. Seven foot two... in sixth grade. | Slow tilt up Tower, from sneakers to head (one push, eased). |
-| 26.8 | KAI (VO) | Even the mayor carries his backpack. | The mayor (suit, sash) staggers under Tower's backpack. |
-| 29.2 | KAI (VO) | Nobody has ever looked down on Tower. | Tower in silhouette against the sun; everyone around him looks up. |
-| 31.6 | KAI (VO) | So I made a plan. | Kai's eyes narrow (to-camera close). |
-| 33.0 | TOWER | Fries. | Burger counter again (same framing as shot 1: pattern). |
-| 34.0 | KAI | Sure... oh no. I dropped a Robux. | Kai talks in-scene (lip-sync). A gold Robux coin drops, bounces, spins on the tiles. |
-| 36.6 | | (Coin rings out, music drops) | Tower's eyes snap to the coin. He kneels down to grab it. |
-| 38.4 | KAI (VO) | For one second... I was taller. | Slow-down: Kai's head now ABOVE Tower's. Tiny crowd gasp. |
-| 41.2 | KAI | Stay. Down. | Kai, bossy, points at the floor. |
-| 42.6 | TOWER | ...Yes, sir. | Tower freezes in the kneel. |
-| 44.0 | KAI (VO) | He's been kneeling for three weeks. | Same spot, later: Tower still kneeling, people step around him, a pigeon on his head. |
-| 46.6 | KAI (VO) | Free fries. Every day. | Kai with a stack of fries cartons. |
-| 48.6 | KAI (VO) | I run this town now. | Kai on a bench "throne", the mayor fanning him with a menu. |
-| 51.2 | PIP | Fries. | Pip, his tiny sister, stands on a chair beside him: now taller. Hand out. |
-| 52.4 | | (beat) | Kai looks at the chair. Looks at camera. Hands the fries up (same gesture as shot 2). |
-| 53.6 | KAI (VO) | Would you rather be tall... or smart? | Pip eating his fries on the chair. |
-| 56.0 | KAI (VO) | Because in this town... | Cut back to the opening framing: loops into line 1. |
-| ~58 | | end | |
+| 0.0 | KAI (VO) | In this town, the taller you are, the more power you get. | Frame 0, bright town square, low angle: the 9-ft MAYOR in a long trenchcoat on a stage; tiny KAI in front, looking up. The coat wobbles once at ~2.8 s. |
+| 3.4 | KAI (VO) | Six foot? Nice car. | Tall guy leaning on a shiny car, sunglasses. |
+| 5.0 | KAI (VO) | Five foot? Bus. | Average guy steps onto a bus. |
+| 6.4 | KAI (VO) | Me? Four foot one. I walk behind the bus. | The bus pulls away; Kai jogs in its fumes, backpack bouncing. |
+| 9.8 | KAI (VO) | And our mayor? Nine feet tall. Nobody has ever told him no. | People bow as the mayor stiffly walks past (one long, oddly smooth glide). |
+| 13.0 | MAYOR | Taxes... doubled. | Close on the mayor's mustache way up high. Crowd groans. |
+| 14.6 | KAI (VO) | But something about him was off. | Kai squints at him (to-camera close). |
+| 16.6 | KAI (VO) | He never sits. | Town dinner: everyone seated, the mayor standing at the table, plate at his chin. |
+| 18.4 | KAI (VO) | He never bends down. | The mayor drops a pen. Stares at it. An aide picks it up. |
+| 20.6 | KAI (VO) | And his coat... has six shoes. | Insert at the coat hem: six sneakers shuffle; one pair faces backwards. |
+| 23.4 | KAI (VO) | Then I heard him backstage. | Kai peeks round a curtain; the coat stands alone in the dark wing. |
+| 25.0 | MAYOR | Stop moving. | (coat on screen, top) |
+| 25.9 | GUYS (middle) | Your knee is in my ear. | (coat's middle button bulges) |
+| 27.4 | GUYS (bottom) | I'm hungry. | (coat hem shuffles) |
+| 28.6 | KAI (VO) | So at his big speech... I made my move. | Stage, crowd, flags. Kai crawls through legs toward the podium. |
+| 31.4 | MAYOR | Citizens! From today, short people are banned from the— | Mayor at the podium, arm raised. |
+| 34.6 | KAI (VO) | One tickle. | Kai's hand slides under the coat hem. |
+| 35.8 | GUYS (bottom) | (giggle, snort) | The coat jolts... sways... (anticipation, overshoot) |
+| 37.4 | | (wobble, fabric rip, thud) | ...and topples off the stage. Music cuts. |
+| 40.0 | | (silence, then crowd gasp) | The coat flops open: three short guys in a heap, the top one still in the mustache. |
+| 42.0 | MAYOR (real voice) | ...Please don't tell. | The three look up at Kai, tiny and sweaty. |
+| 44.0 | KAI (VO) | They were shorter than me. | Two-shot: Kai is, for once, the tallest in frame. |
+| 45.8 | KAI (VO) | I could've exposed them... | Kai looks at the crowd, then at the empty coat. |
+| 47.6 | KAI | Taxes... cancelled. | Music back. The coat stands again, now TEN feet tall; Kai's voice comes out deep from the top. Crowd cheers. |
+| 50.4 | KAI (VO) | Turns out the top spot was open. | Coat struts through the square, even smoother than before. |
+| 52.8 | GUYS (bottom) | Your knee is in my ear. | Insert at the hem: now EIGHT shoes. |
+| 54.6 | KAI (VO) | Would you expose them... or join them? | The coat tips its hat to camera. |
+| 57.4 | KAI (VO) | Because in this town... | Cut to the opening framing: loops into line 1. |
+| ~59 | | end | |
 
 ## Rewatch details
-- Shot 1: a sign behind the counter, "TALL LAW: whoever is taller RIGHT NOW is the boss", sets up the twist.
-- Shot 1: Pip is already in the background, eyeing a chair.
+- Shot 1: six shoes under the coat, one pair backwards, and the coat wobbles at ~2.8 s.
+- Shot at 9.8 s: the middle button gaps for 4 frames and an eye peeks out.
 
 ## Notes
-- Narration is voiceover (no mouth movement). Lip-sync only: TOWER "Fries." x2 and "Yes, sir.", KAI "Sure... oh no. I dropped a Robux." and "Stay. Down.", PIP "Fries."
-- Height: characters scaled by rank (Tower ≈2.2×, Mom 1.15× Dad, kindergartner 1.1× Kai). Scaling R6 rigs keeps them Roblox-makeable.
-- Captions: yellow for all; nothing red (no monster).
+- Narration is voiceover (no mouth movement). Lip-sync only for the MAYOR's mustache mouth (in-coat lines) and his real "Please don't tell."; middle/bottom lines come from inside the coat (no visible mouth).
+- Height ratios: Kai 1.0, short guys ~0.9 each, average 1.25, tall guy 1.5, mayor stack ≈2.2.
+- Captions all yellow (no monster/fake); inside-coat lines white (off-screen speaker).
