@@ -7,6 +7,7 @@ REPO = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.pat
 sys.path.insert(0, REPO + "/_pipeline/audio_tools")
 from music_bed import music_bed
 from captions import write_ass
+from visemes import viseme_tracks
 AUD = REPO + "/series/bloxbury/part3/voice/"; SFXD = REPO + "/assets/sfx/"; D = REPO + "/_pipeline/data/p3/"
 OUT = os.environ.get("OUT_DIR", "/home/claude/talk/"); os.makedirs(OUT, exist_ok=True)
 FPS, SR = 24, 48000
@@ -174,7 +175,9 @@ caps = [{"who": who, "text": o["text"], "style": st, "mode": mode, "fx": fx, "t0
         for who, o, d, mode, st, fx, sig in placed]
 json.dump({"fps": FPS, "total": TOTAL, "nf": N, "outro0": OUTRO0, "black_cut": BLACK_CUT, "scenes": SCENES, "mutes": MUTES,
            "rms": {k: v[0] for k, v in envs.items()}, "cen": {k: v[1] for k, v in envs.items()},
-           "lines": caps, "lipsync_modes": ["D", "C"]}, open(OUT + "env_p3.json", "w"))
+           "lines": caps, "lipsync_modes": ["D", "C"],
+           **viseme_tracks([(who, o["text"], d, sig) for who, o, d, mode, st, fx, sig in placed], N, FPS, SR)},
+          open(OUT + "env_p3.json", "w"))
 write_ass(caps, OUT + "captions_p3.ass", BLACK_CUT)
 print("frames", N, "total", TOTAL, "black", BLACK_CUT, "lines", len(caps))
 for s, a, b in SCENES: print(f"  {a:6.2f}-{b:6.2f} {s}")
