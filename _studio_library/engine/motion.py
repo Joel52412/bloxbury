@@ -45,13 +45,32 @@ def pose_arm(P, side, fr, target=None, euler=None):
 PACE = 1.5
 
 
+_EK = {}
+
+
+def _ease_k(ant, over):
+    """Weights for the wind-up / overshoot bumps so the curve dips by exactly ant and passes the target by exactly over."""
+    key = (round(ant, 4), round(over, 4))
+    if key not in _EK:
+        us = [i / 400 for i in range(401)]; ko = ka = 0.0
+        for _ in range(60):
+            ys = [_ease_raw(u, ka, ko) for u in us]
+            if over > 0: ko += (over - (max(ys) - 1)) * 50
+            if ant > 0: ka += (ant + min(ys)) * 50
+        _EK[key] = (ka, ko)
+    return _EK[key]
+
+
+def _ease_raw(u, ka, ko):
+    e = u * u * u * (u * (u * 6 - 15) + 10)                       # smootherstep
+    return e - ka * u * u * (1 - u) ** 4 + ko * u ** 4 * (1 - u) ** 2
+
+
 def _ease(u, ant, over):
-    """0..1 -> 0..1 slow-in / slow-out, dipping back by ~ant at the start and passing the end by ~over."""
-    u = max(0.0, min(1.0, u))
-    e = u * u * u * (u * (u * 6 - 15) + 10)                       # smootherstep: zero velocity AND acceleration at both ends
-    dip = -ant * math.sin(math.pi * min(1.0, u / 0.3)) if u < 0.3 else 0.0          # gentle wind-up in the first 30%
-    bump = over * math.sin(math.pi * (u - 0.55) / 0.45) if u > 0.55 else 0.0       # rises past the target, settles back
-    return e + dip + bump
+    """0..1 -> 0..1: wind-up dip (deepest ~18%), eased travel, overshoot (peak ~83%), settle. Every term has ZERO speed at
+    both ends, so a beat never starts or stops on a dime (23 Nov fix: the old sin() dip/bump started and ended mid-speed)."""
+    u = max(0.0, min(1.0, u)); ka, ko = _ease_k(ant, over)
+    return _ease_raw(u, ka, ko)
 
 
 def _dur(dur):
@@ -73,15 +92,14 @@ def _clear(ob, path, f0, f1):
 
 
 def _beat(ob, path, fr, v1, dur, ant, over, mirror=None):
-    """Write one eased beat on ob.path (3-vector) from its real value at fr to v1 over dur frames."""
-    v0 = _cur(ob, path, 3, fr)
+    """Write one eased beat on ob.path (3-vector) from fr to v1 over dur frames. The OLD motion keeps running underneath
+    and is blended out (v = old + (v1 - old) * ease), so a beat that interrupts another inherits its speed: no hitch."""
+    old = [_cur(ob, path, 3, fr + i) for i in range(dur + 1)]
     _clear(ob, path, fr + 1, fr + dur + 1)
     if mirror is not None: _clear(mirror, path, fr + 1, fr + dur + 1)
-    kf(ob, path, fr, tuple(v0))
-    if mirror is not None: kf(mirror, path, fr, tuple(-x for x in v0))
-    for i in range(1, dur + 1):
+    for i in range(dur + 1):
         k = _ease(i / dur, ant, over)
-        v = tuple(a + (b - a) * k for a, b in zip(v0, v1))
+        v = tuple(a + (b - a) * k for a, b in zip(old[i], v1))
         kf(ob, path, fr + i, v)
         if mirror is not None: kf(mirror, path, fr + i, tuple(-x for x in v))
 
@@ -242,9 +260,10 @@ def _fc(ob, path, idx):
         if fc.data_path == path and fc.array_index == idx: return fc
 
 
-def bake_life(step=3):
-    """Add breathing, head drift, eye-line darts, weight sway and (scared) tremble ON TOP of every existing key:
-    sample each channel, add the signal, write keys every `step` frames inside each life window."""
+def bake_life(step=1, fade=6):
+    """Add breathing, head drift and weight sway ON TOP of every existing key, on EVERY frame of each life window
+    (23 Nov fix: step=3 over per-frame keys moved only every 3rd frame -> an 8 Hz judder, the "jagged" look in Part 3).
+    Fades in/out over `fade` frames; keeps each existing key's interpolation (CONSTANT holds before cuts stay held)."""
     import bpy
     for P, f0, f1, mood, seed in _LIFE:
         breath, trem, drift = MOODS[mood]
@@ -257,10 +276,13 @@ def bake_life(step=3):
                  (P["Right"], "rotation_euler", 0, lambda t: math.radians(1.4 * breath) * math.sin(t * 2 * math.pi / 3.6 + 0.9) + math.radians(0.8 * trem) * math.sin(t * 5.7 + 2))]
         for ob, path, idx, sig in chans:
             fc = _fc(ob, path, idx)
+            interp = {int(round(k.co.x)): k.interpolation for k in fc.keyframe_points if f0 <= k.co.x <= f1}
             base = {fr: fc.evaluate(fr) for fr in range(f0, f1 + 1, step)}
             for fr, v in base.items():
-                kp = fc.keyframe_points.insert(fr, v + sig(fr / FPS), options={"FAST"})
-                kp.interpolation = "BEZIER"
+                w = min(1.0, (fr - f0 + 1) / fade, (f1 - fr + 1) / fade)
+                w = w * w * (3 - 2 * w)
+                kp = fc.keyframe_points.insert(fr, v + sig(fr / FPS) * w, options={"FAST"})
+                kp.interpolation = interp.get(fr, "BEZIER")
             fc.update()
 
 
@@ -296,23 +318,30 @@ def smear(name, point_fn, fa, fb, show, width=0.35, col=(1.0, 0.92, 0.82), alpha
     return o
 
 
-def check_motion(chars, shots, f_end, parts=("Left", "Right", "neck", "chest"), max_jerk=8.0, quiet=()):
-    """POP check: within a shot, an angle channel must not jump in speed from one frame to the next (sudden start/stop).
-    jerk = |v(f) - v(f-1)| in degrees/frame. Reports the worst offenders; deliberate quick actions go in quiet=(frames)."""
-    import bpy
+def check_motion(chars, shots, f_end, parts=("Left", "Right", "neck", "chest"), max_jerk=8.0, chatter=0.6, quiet=()):
+    """Motion QA on every rotation channel, frame by frame (cut frames skipped; deliberate quick actions in quiet=(frames)).
+    POP     - speed jumps from one frame to the next by > max_jerk deg/f^2 (sudden start/stop).
+    CHATTER - the acceleration flips sign 3+ times in 4 frames with > `chatter` deg/f^2: a stutter/judder no smooth move
+              makes (23 Nov: the life layer keyed every 3rd frame over per-frame keys -> Part 3 looked jagged).
+    Returns pops + chatters; anything returned = not ready for a preview."""
     cut = set()
     for _, a, b in shots: cut.update((a - 1, a, a + 1, b, b + 1))
-    probs = []
+    probs = []; chat = []
     for name, P in chars.items():
         for part in parts:
             for fc in _fcurves(P[part]):
                 if fc.data_path != "rotation_euler": continue
                 v = [math.degrees(fc.evaluate(f)) for f in range(1, f_end + 1)]
-                for f in range(3, f_end - 1):
-                    if any(abs(f - c) <= 2 for c in cut) or any(abs(f - q) <= 4 for q in quiet): continue
-                    j = abs((v[f] - v[f - 1]) - (v[f - 1] - v[f - 2]))
-                    if j > max_jerk: probs.append((round(j, 1), name, part, fc.array_index, f + 1))
-    probs.sort(reverse=True)
-    print("MOTION CHECK", "OK" if not probs else "%d pops (worst first)" % len(probs))
+                acc = [0.0, 0.0] + [(v[f] - v[f - 1]) - (v[f - 1] - v[f - 2]) for f in range(2, len(v))]
+                last = -99
+                for f in range(3, len(v) - 1):
+                    if any(abs(f + 1 - c) <= 2 for c in cut) or any(abs(f + 1 - q) <= 4 for q in quiet): continue
+                    if abs(acc[f]) > max_jerk: probs.append((round(abs(acc[f]), 1), name, part, fc.array_index, f + 1))
+                    w = acc[f - 3:f + 1]
+                    if f - last > 6 and all(abs(x) > chatter for x in w) and all(w[k] * w[k + 1] < 0 for k in range(3)):
+                        chat.append((round(max(abs(x) for x in w), 1), name, part, fc.array_index, f + 1)); last = f
+    probs.sort(reverse=True); chat.sort(reverse=True)
+    print("MOTION CHECK", "OK" if not probs and not chat else "%d pops, %d chatters (worst first)" % (len(probs), len(chat)))
     for p in probs[:12]: print("    POP %.1f deg/f^2 %s %s[%d] at frame %d" % p)
-    return probs
+    for p in chat[:12]: print("    CHATTER %.1f deg/f^2 %s %s[%d] at frame %d" % p)
+    return probs + chat
