@@ -144,7 +144,8 @@ def build_face_v2(P):
     for side, sx in (("L", -0.19), ("R", 0.19)):
         base = V((sx, fsurf(sx), EZ - EH / 2 + 0.6))           # eye pivot at the bottom of the eye
         pe = empty(f"{nm}_Eye{side}", base, col=COL_CHARS, parent=head)
-        pb = empty(f"{nm}_Blink{side}", V((0, 0, 0)), col=COL_CHARS, parent=pe)
+        ea = empty(f"{nm}_EyeAcc{side}", V((0, 0, 0)), col=COL_CHARS, parent=pe)   # emphasis layer (talk_face), never keyed by expr
+        pb = empty(f"{nm}_Blink{side}", V((0, 0, 0)), col=COL_CHARS, parent=ea)
         f = Face(head, "eye"); f.oval(sx, EZ, EW, EH, M_INK)
         f.oval(sx + EW * 0.24, EZ + EH * 0.26, EW * 0.34, EH * 0.24, M_SHINE70, lift=0.008)
         adopt(f.objs, pb, base)
@@ -160,7 +161,9 @@ def build_face_v2(P):
         pbr = empty(f"{nm}_Brow{side}", V((sx, fsurf(sx), bz + 0.6)), col=COL_CHARS, parent=head)
         f = Face(head, "brow")
         f.line([(sx - 0.09, bz - 0.006 * (1 if sx < 0 else -1)), (sx + 0.09, bz + 0.006 * (1 if sx < 0 else -1))], M_INK, r=0.024)
-        adopt(f.objs, pbr, (sx, fsurf(sx), bz + 0.6))
+        ba = empty(f"{nm}_BrowAcc{side}", V((0, 0, 0)), col=COL_CHARS, parent=pbr)  # emphasis layer (talk_face)
+        adopt(f.objs, ba, (sx, fsurf(sx), bz + 0.6))
+        rig["browAcc" + side], rig["eyeAcc" + side] = ba, ea
         rig["eye" + side], rig["blink" + side], rig["spark" + side], rig["brow" + side] = pe, pb, sp, pbr
     for k, fn in MOUTHS.items():
         f = Face(head, "m_" + k); fn(f); rig["mouths"][k] = f.objs
@@ -361,6 +364,38 @@ def _nod_shape(d):
     return 0.5 * (1 + math.cos(math.pi * w)) - 0.15 * math.sin(math.pi * w) ** 2
 
 
+BROW_LIFT, EYE_WIDEN = 0.032, 0.07     # talk_face: subtle on purpose ("too much salt ruins the dish")
+
+
+def _widen_shape(d):
+    """Eye-widen pulse: in over 3 frames, holds, eases out by +16. Zero speed at both ends."""
+    if d < -3 or d > 16: return 0.0
+    if d <= 0:
+        u = (d + 3) / 3.0; return u * u * (3 - 2 * u)
+    if d <= 6: return 1.0
+    u = (d - 6) / 10.0; return 1 - u * u * (3 - 2 * u)
+
+
+def talk_face(rig, hits, levels):
+    """Brows lift on stressed syllables (the same hits the head nods on), eyes widen once on the line's loudest word.
+    Keyed per frame on separate layers (BrowAcc/EyeAcc) so expr() keys never fight it. Story-agnostic, automatic."""
+    if not hits or "browAccL" not in rig: return
+    top = max(levels); a = min(hits) - 3; b = max(hits) + 16
+    strong = [(h, v) for h, v in zip(hits, levels) if v >= 0.65 * top]
+    big = max(zip(hits, levels), key=lambda t: t[1])[0]
+    def cur(ob, path, i, fr, dflt):                         # windows of neighbouring lines add up instead of cutting
+        fc = next((c for c in _fcurves(ob) if c.data_path == path and c.array_index == i), None)
+        return fc.evaluate(fr) if fc else dflt
+    for side in ("L", "R"):
+        ba, ea = rig["browAcc" + side], rig["eyeAcc" + side]
+        old = {fr: (cur(ba, "location", 2, fr, 0.0), cur(ea, "scale", 0, fr, 1.0), cur(ea, "scale", 2, fr, 1.0)) for fr in range(a, b + 1)}
+        for fr in range(a, b + 1):
+            lift = BROW_LIFT * min(1.0, sum(_nod_shape(fr - h) * (0.6 + 0.4 * v / top) for h, v in strong))
+            w = EYE_WIDEN * _widen_shape(fr - big); z, sx, sz = old[fr]
+            kf(ba, "location", fr, min(z + lift, BROW_LIFT * 1.2), index=2)
+            kf(ea, "scale", fr, (min(sx + w * 0.5, 1 + EYE_WIDEN), 1, min(sz + w, 1 + EYE_WIDEN * 1.2)))
+
+
 def accents(P, rig, f0, f1, nod=5.5, pop=0.03):
     """Head nods on stressed syllables (local loudness peaks), ADDED on top of whatever the head already does and keyed on
     every frame of the window, so overlapping nods sum smoothly instead of fighting each other's keys."""
@@ -372,6 +407,7 @@ def accents(P, rig, f0, f1, nod=5.5, pop=0.03):
         if v > 0.5 and sm[fr - 1] >= sm[fr - 2] and sm[fr - 1] >= sm[fr] and fr - last >= 6:
             hits.append(fr); last = fr
     if not hits: return hits
+    talk_face(rig, hits, [sm[h - 1] / peak for h in hits])
     hd = P["head"]; a = min(hits) - 3; b = max(hits) + 10
     hd.keyframe_insert("rotation_euler", frame=a, index=0)
     fc = next(c for c in _fcurves(hd) if c.data_path == "rotation_euler" and c.array_index == 0)
