@@ -298,7 +298,7 @@ lid_m = BR["screen"].matrix_world
 lid_w = BR["lid"].matrix_world
 def scr_px(px, py): return lid_w @ V(((px / 800 - 0.5) * 2.4, -0.03, 0.88 + (0.5 - py / 500) * 1.5))   # screen image px -> world
 ROW = scr_px(400, 122); JOIN = scr_px(690, 122)
-park(theo, f0)
+park(theo, f0); kc(BR["light"], "energy", f0, 0.0)
 insert("04 server list", t0, t1, SCR_PT, ROW.lerp(JOIN, 0.55), SCR_N, 2.7, 1.5, lens=40, land=0.75, fstop=4.0)
 BOARD["04 server list"] = [F(t0) + 10, F(t1) - 8]
 
@@ -307,7 +307,7 @@ t0, t1 = win("click"); f0, f1 = F(t0), F(t1) - 1
 fc = F(17.22) + 1
 SCRM = BR["screen"].active_material.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"]
 kx(SCRM, "default_value", 1, 1.1, interp="CONSTANT"); kx(SCRM, "default_value", fc, 1.1); kx(SCRM, "default_value", f1, 400.0)
-kf(BR["light"], "energy", fc, 260); kf(BR["light"], "energy", f1, 30000)
+kc(BR["light"], "energy", f0, 700); kf(BR["light"], "energy", fc, 700); kf(BR["light"], "energy", f1, 30000)
 kx(s.view_settings, "exposure", 1, 0.0, interp="CONSTANT"); kx(s.view_settings, "exposure", fc, 0.0); kx(s.view_settings, "exposure", f1, 4.0)
 kx(s.view_settings, "exposure", f1 + 1, 0.0, interp="CONSTANT")
 gesture(theo, "Right", f0 + 4, euler=(70, -14), dur=5)
@@ -339,7 +339,7 @@ stage(f0, (bramble, V((-2.2, 8.6, 0.9)), 180), *town(f0, idx=(0, 2, 6)), keep=(t
 place(theo, f0, V((2.6, -2.4, Z0)), 160); standing(theo, f0)
 TH0, TH1 = V((-12, 14, Z0)), V((14, -4, Z0))
 place(thief, f0, TH0, 120); mo_walk(thief, f0, f1, [TH0.xy, (0, 3.0), TH1.xy], clip="run", z=Z0)
-WV0 = V((0.6, 10.4, Z0)); WTOP = V((0.4, 7.0, 4.6)); WV1 = V((0.2, 3.4, Z0))
+WV0 = V((0.6, 10.4, Z0)); WTOP = V((0.4, 7.0, 3.6)); WV1 = V((0.2, 3.4, Z0))
 place(wren, f0, WV0, 180); standing(wren, f0)
 fj = f0 + 22; fl = fj + 12
 for i in range(fl - fj + 1):
@@ -460,12 +460,13 @@ C("11b listening", t0, t1, theo, rimc=(140, 165, 255), rime=1500, u=V((-0.4, -1,
 target("11b listening", theo)
 # the glove: 4 frames, Ashby's white hand out of the dark behind Theo
 t0, t1 = 46.73, 46.73 + 4 / 24; f0 = F(t0)
-ASH = AO + V((0.4, 4.6, 0))
+ASH = AO + V((3.0, 2.4, 0))
 stage(f0, (theo, TA, 180), (ashby, ASH, 180), keep=(wren,))
-pose_arm(ashby, "Right", f0, euler=(85, 8)); gesture(ashby, "Right", f0, euler=(95, 4), dur=5)
+kc(AL["lantern"], "energy", f0, 5000); kc(AL["lantern"], "energy", f0 + 5, 1500)          # the glove catches the lantern
+pose_arm(ashby, "Right", f0, euler=(50, 8)); gesture(ashby, "Right", f0, euler=(58, 4), dur=5)
 s.frame_set(f0); GL = ashby["gripRight"].matrix_world.translation.copy() + V((0, 0, -0.3))
-C("11c glove", t0, t1, GL.lerp(head(theo, TA), 0.4), u=V((0.12, -1, 0)), size=0.4, span=4.5, lens=40, tilt=2, sy=0.0, move="static", extra=[], fstop=2.0,
-  rimc=(140, 165, 255), rime=600)
+C("11c glove", t0, t1, V((GL.x - 0.6, GL.y, GL.z - 0.2)), u=V((0.1, -1, 0)), size=0.4, span=2.0, lens=50, tilt=2, sy=0.0, move="static", extra=[], fstop=2.0,
+  rimc=(170, 190, 255), rime=1400)
 black("11d black", 46.73 + 4 / 24, win("alley")[1])
 
 # ================================================================== 12 respawn 2: the same ring (reused frames), he catches the apple
@@ -512,9 +513,9 @@ eyes((RG["theo"], t0, t1), (RG["wren"], t0, t1))
 t0, t1 = 55.0, 56.69; f0 = F(t0)
 SK = 9
 place(wren, f0, STEP(SK), -90)
-crack = INN["steps"][SK]
+crack = INN["steps"][SK]; kc(INN["lantern"], "energy", f0, 3000)
 kf(crack, "rotation_euler", F(56.3), (0, 0, 0)); kf(crack, "rotation_euler", F(56.55), (DG(-9), DG(4), 0))
-C("13b crack", t0, t1, STEP(SK) + V((0, 0, 0.4)), rimc=(255, 200, 150), rime=500, u=V((-1, -0.3, 0.0)), size=0.4, span=3.0, lens=40, tilt=20,
+C("13b crack", t0, t1, STEP(SK) + V((0, 0, 0.4)), rimc=(255, 200, 150), rime=2000, u=V((-1, -0.3, 0.0)), size=0.4, span=2.2, lens=45, tilt=20,
   sy=0.0, move="push", amt=1.15, extra=[], fstop=1.8)
 black("13c black", 56.69, win("stairs")[1])
 
@@ -545,7 +546,7 @@ C("14b the dark", t0, t1, CO + V((-5.5, -10.0, 4.6)), u=V((0.45, 1, 0.05)), size
   extra=[], board=(0.8,), fstop=2.0)
 t0, t1 = 60.76, 61.26; f0 = F(t0)
 FL = CEL["flame"]
-kf(FL, "scale", f0, (1, 1, 1)); kf(FL, "scale", f0 + 6, (0.2, 0.2, 0.1)); kf(FL, "scale", f0 + 7, (0.001, 0.001, 0.001))
+FS0 = FL.scale.copy(); kf(FL, "scale", f0, tuple(FS0)); kf(FL, "scale", f0 + 6, tuple(FS0 * 0.25)); kf(FL, "scale", f0 + 7, tuple(FS0 * 0.01))
 kf(CEL["light"], "energy", f0, 120); kf(CEL["light"], "energy", f0 + 7, 0.0)
 insert("14c candle out", t0, t1, CEL["candle_pt"], CEL["candle_pt"], V((-0.3, -1, 0.1)), 1.6, 1.5, lens=50, land=0.6, fstop=2.0)
 BOARD["14c candle out"] = [f0 + 2]; kc(RIM, "energy", f0, 0.0)
@@ -594,7 +595,7 @@ place(theo, f0, G0, facing((G1 - G0).xy)); mo_walk(theo, f0, f1 - 12, [G0.xy, G1
 gesture(theo, "Right", f1 - 10, euler=(62, -30), dur=5); gesture(wren, "Left", f1 - 8, euler=(55, 15), dur=6)
 look(wren, f1 - 20, z=30, dur=10); expr(RG["wren"], f1 - 8, "shocked")
 expr(RG["theo"], f0, "determined" if "determined" in EX else "annoyed", ramp=0)
-C("17 grab", t0, t1, V((-1.4, 1.6, 3.4)), rimc=(255, 220, 190), rime=800, u=V((-1, -0.35, 0)), size=0.45, span=6.5, lens=35, tilt=6, sy=0.05,
+C("17 grab", t0, t1, V((-1.4, 1.6, 3.4)), rimc=(255, 220, 190), rime=800, u=V((-0.3, -1, 0)), size=0.45, span=6.5, lens=35, tilt=6, sy=0.05,
   move="arc", amt=20, extra=[head(wren, WS)], board=(0.4, 0.92))
 eyes((RG["theo"], t0, t1))
 
@@ -632,7 +633,7 @@ for P in VIS:                                         # everyone but Theo stops 
 
 # ================================================================== 19 "Everything stopped. Except me." Theo turns his head (swivel, not a reverse)
 t0, t1 = win("freeze"); f0 = F(t0)
-look(theo, f0 + 6, z=40, dur=16); look(theo, f0 + 40, z=-25, dur=16)
+look(theo, f0 + 6, z=-40, dur=16); look(theo, f0 + 40, z=25, dur=16)
 expr(RG["theo"], f0, "scared", ramp=0)
 live(theo, t0, 89.33, "scared")
 FWT = (WT - TT).normalized(); U19 = V((FWT.x * math.cos(DG(35)) - FWT.y * math.sin(DG(35)), FWT.x * math.sin(DG(35)) + FWT.y * math.cos(DG(35)), 0))
@@ -692,20 +693,21 @@ t0, t1 = win("apple_glove", b=97.6); f0, f1 = F(t0), F(t1) - 1
 SH = V((-1.0, -7.5, Z0))
 stage(f0, (ashby, SH, 0), keep=(theo, bramble))
 for i in range(0, f1 - f0 + 1):
-    u = ease(i / (f1 - f0)); kf(APL, "location", f0 + i, V((0.8, 3.0, 0.42)).lerp(SH + V((0.2, 1.4, 0.42)), u))
+    u = ease(i / (f1 - f0)); kf(APL, "location", f0 + i, V((0.8, 3.0, 0.42)).lerp(SH + V((1.5, 1.1, 0.42)), u))
     kf(APL, "rotation_euler", f0 + i, (DG(900 * u), 0, 0))
 C("22 apple rolls", t0, t1, SH + V((0.5, 2.6, 0.6)), u=V((1, -0.1, 0.0)), size=0.4, span=4.0, lens=32, tilt=-2, sy=-0.1, move="push", amt=1.12,
   extra=[], fstop=2.0, rimc=(255, 220, 190), rime=400)
 t0, t1 = 97.6, win("apple_glove")[1]; f0, f1 = F(t0), F(t1) - 1
-APR = SH + V((0.2, 1.4, 0.42))
+APR = SH + V((1.5, 1.1, 0.42))
 apple_at(f0, APR)
 place(ashby, f0, SH, 0)
 lean(ashby, f0 + 4, x=-40, dur=10); gesture(ashby, "Right", f0 + 4, euler=(45, -2), dur=10)
 gesture(ashby, "Right", F(98.62) + 2, euler=(85, -2), dur=8); lean(ashby, F(98.62) + 2, x=-10, dur=8)
 def apple_glove(fr):
-    s.frame_set(fr); return ashby["gripRight"].matrix_world.translation + V((0, 0.25, -1.9))
+    s.frame_set(fr); g = ashby["gripRight"].matrix_world.translation + V((0, 0.1, -0.35))
+    return APR.lerp(g, ease(min(1.0, (fr - F(98.62)) / 4)))             # quick snatch: 4 frames from the cobbles into the glove
 for fr in range(F(98.62), f1 + 30): kf(APL, "location", fr, apple_glove(fr))
-C("22b glove", t0, t1, APR + V((0, 0, 0.5)), u=V((0.9, 0.45, 0)), size=0.4, span=2.0, lens=45, tilt=6, sy=-0.25, move="rise", amt=8,
+GE = apple_glove(f1); C("22b glove", t0, t1, APR.lerp(GE, 0.55), u=V((0.9, 0.45, 0)), size=0.4, span=max(2.0, (GE - APR).length + 1.0), lens=45, tilt=10, sy=0.0, move="rise", amt=6,
   extra=[], fstop=1.8, rimc=(255, 220, 190), rime=400, board=(0.2, 0.85))
 
 # ================================================================== 23 only a smile: "Welcome back, Theo."

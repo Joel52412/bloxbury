@@ -20,4 +20,8 @@ Inspired by the Re:Zero death-loop idea, with our own characters, world and plot
 - **Part 4 "Sunrise"** (plan): two loopers can talk through the freeze. Theo stops running (the choice he always made) and talks Ashby round; Wren lights the lantern; dawn, day 4. Final: a red ring flickers under Wren: "That's the first time I've died today." 
 
 ## Status (24 Nov)
-- Part 1 audio mix v3 APPROVED by j 24 Nov 10:29 (114 s, `audio/prep_rs1.py`, data/rs1). Stair_crack still missing (gap left after "The stairs gave way"). Next: build Lanternfall (production look) + rs1 scene, then storyboard → j.
+- Part 1 audio mix v3 APPROVED 24 Nov (114 s, `audio/prep_rs1.py`, data/rs1). Stair_crack SFX still missing (gap after "The stairs gave way").
+- Part 1 built: world `scripts/rs_world.py` (@world lanternfall: square, apple stall, alley, inn stairs, cellar, bedroom, respawn ring, the hand), cards `scripts/rs_cast.py` (Theo, Wren, Bramble, Ashby, Thief, `lf_extra`), scene `scripts/rs1.py` (52 cuts; FACE/LIPSYNC/SHOT/FRAMING OK). Ashby shows only gloves, shoes and a smile in Part 1.
+- Storyboard with sound sent 24 Nov 13:10 (`make_storyboard.py rs1`: held key panels per shot from `board` in shots json). Waiting on j's notes.
+- Respawn moment rendered once: `reuse` in shots_rs1.json = frames 1-38 copied to 1181 and 2681. TODO before final: pod side copies reused frames instead of rendering them.
+- Next: j's notes → `MOTION=1` check_motion → motion preview (`preview_local.py rs1.py`) → ask j before the paid final.

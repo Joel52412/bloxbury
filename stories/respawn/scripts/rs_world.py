@@ -579,7 +579,7 @@ def cellar(origin=(300, 400, 0)):
     for k in range(3): sack("CelSack%d" % k, (-7 + k * 1.3, -6 + k * 0.6, 0), r, s=1.1)
     crate("CelCrate", (1.5, 1.5, 0), r, w=1.8, d=1.6, h=1.6, apples=False)
     rcyl("Candle", 0.13, 0.8, V((1.5, 1.5, 2.0)), dmat("lf_wax", (236, 226, 200), rough=0.5), r, seg=12)
-    flame = ball("CandleFlame", (0.09, 0.09, 0.22), V((1.5, 1.5, 2.55)), glowm("lf_flame", (255, 190, 90), 5.0), r)
+    flame = ball("CandleFlame", (0.05, 0.05, 0.12), V((1.5, 1.5, 2.5)), glowm("lf_flame", (255, 200, 110), 3.0), r)
     rcyl("CandleDish", 0.36, 0.08, V((1.5, 1.5, 1.62)), m["brass"], r, seg=16)
     ld = bpy.data.lights.new("CandleL", "POINT"); ld.energy = 0.0; ld.color = lin((255, 160, 80)); ld.shadow_soft_size = 0.08
     o = bpy.data.objects.new("CandleL", ld); bpy.context.scene.collection.objects.link(o); o.parent = r; o.location = V((1.5, 1.5, 2.75))
