@@ -116,6 +116,9 @@ def tod(f, name):
     time_of_day(f, name)
 
 
+QUIET = []                                                             # deliberate quick actions (check_motion skips them)
+
+
 def lights(f, **on):
     """Key every set light for the shot starting at f (CONSTANT): names not given go to 0."""
     table = dict(moon=MOON, innwin=INNWIN, sqfill=SQFILL, alley_lan=AL["lantern"], inn_lan=INN["lantern"], candle=CEL["light"],
@@ -321,8 +324,8 @@ t0, t1 = win("arrival"); f0, f1 = F(t0), F(t1) - 1
 stage(f0, *town(f0, 8), (bramble, BRAM, 180), keep=(theo,))
 place(theo, f0, SPOT, 180); standing(theo, f0)
 ring_flash(RING, f0 + 1, strength=0.8)
-mo_walk(theo, f0 + 6, f1 - 4, [SPOT.xy, (0.6, -3.2)], clip="walk_scared", z=Z0)
-look(theo, f0 + 20, z=35, dur=10); look(theo, f0 + 40, z=-30, dur=12)
+mo_walk(theo, f0 + 6, f1 - 4, [SPOT.xy, (0.6, -3.2)], clip="walk_scared", z=Z0, accel=0.35, blend=10)
+# (no extra head turns here: walk_scared carries its own head motion; a look() layered on mo_walk snaps at its end)
 expr(RG["theo"], f0, "scared", ramp=0)
 for k, P in enumerate(TOWN[:8]):
     x, y, _ = TOWN_SPOTS[k]; place(P, f0, V((x, y, Z0)), facing((0.3 - x, -1.5 - y)))
@@ -349,7 +352,10 @@ for h, a in (("hipL", 70), ("hipR", 40)):
     kf(wren[h], "rotation_euler", fj, (0, 0, 0)); kf(wren[h], "rotation_euler", fj + 5, (DG(a), 0, 0))
     kf(wren[h], "rotation_euler", fl, (0, 0, 0))
 gesture(wren, "Right", fj - 4, euler=(150, -10), dur=5); gesture(wren, "Left", fj, euler=(80, 30), dur=5)
-mo_walk(wren, fl + 1, f1 + 30, [WV1.xy, (-2.5, -4.0), (-8, -12)], clip="run", z=Z0)
+gesture(wren, "Right", fl - 6, euler=(40, 0), dur=8); gesture(wren, "Left", fl - 4, euler=(30, 10), dur=8)   # arms down before the run
+QUIET += list(range(fj - 6, fl + 3))                                   # the vault itself is a deliberate quick action
+mo_walk(wren, fl + 1, f1 + 52, [WV1.xy, (-2.5, -4.0), (-8, -12), (-11.5, -17.5)], clip="run", z=Z0, blend=10, end_rest=False)
+QUIET += list(range(fl + 1, f1 + 53, 4))                              # run cycles are meant to be fast (as Part 3)
 expr(RG["wren"], f0, "determined" if "determined" in EX else "annoyed", ramp=0); mouth(RG["wren"], f0, "rest_flat")
 expr(RG["theo"], f0, "shocked", ramp=0); look(theo, fj, z=-25, x=10, dur=8)
 expr(RG["bramble"], fj, "shocked")
@@ -361,7 +367,7 @@ BOARD["07 vault"] = [fj - 8, fj + 6]
 t0, t1 = 22.9, win("wren_vault")[1]; f0, f1 = F(t0), F(t1) - 1
 say(line(23.02), RG["wren"], "rest_flat", style="excited", nod=5.0, P=wren)
 expr(RG["wren"], f0, "angry" if "angry" in EX else "annoyed", ramp=0)
-gesture(wren, "Left", f0 + 6, euler=(95, 40), dur=6)
+gesture(wren, "Left", f0 + 6, euler=(95, 40), dur=12)
 def wren_head(fr): s.frame_set(fr); return wren["head"].matrix_world.translation.copy()
 follow_keys = []
 for k in range(6):
@@ -379,7 +385,7 @@ stage(f0, (wren, RW, -160), keep=(theo,))
 place(theo, f0, V((24.5, 24.3, 9.0)), 0); standing(theo, f0)
 kf(theo["root"], "location", f0 + 30, V((24.5, 24.6, 12.0)))
 for k in range(0, f1 - f0, 12):
-    fr = f0 + k; gesture(theo, "Left" if (k // 12) % 2 else "Right", fr, euler=(150, 0), dur=8)
+    fr = f0 + k; gesture(theo, "Left" if (k // 12) % 2 else "Right", fr, euler=(140, 0), dur=11)
 pose_arm(wren, "Left", f0, euler=(100, 40)); look(wren, f0 + 10, z=-35, dur=14); look(wren, f0 + 50, z=25, dur=14)
 expr(RG["wren"], f0, "curious", ramp=0); expr(RG["theo"], f0, "effort" if "effort" in EX else "nervous", ramp=0)
 mouth(RG["theo"], f0, "small_o")
@@ -400,7 +406,7 @@ C("09 last bell", t0, t1, wren, rimc=(255, 220, 180), rime=800, u=V((0.3, -1, 0)
 target("09 last bell", wren)
 t0, t1 = 33.5, 36.4; f0 = F(t0)
 say(line(33.73), RG["theo"], "rest_smirk", style="calm", nod=3.0, P=theo); expr(RG["theo"], f0, "grin", ramp=0)
-gesture(theo, "Right", f0 + 8, euler=(40, -30), dur=8)
+gesture(theo, "Right", f0 + 8, euler=(40, -30), dur=11)
 C("09b like night", t0, t1, theo, rimc=(170, 200, 255), rime=800, u=V((-0.35, -1, 0)), size="MS", lens=40, tilt=2, sy=0.12, move="hold")
 target("09b like night", theo); live(theo, t0, 39.07, "calm")
 t0, t1 = 36.4, win("warning")[1]; f0 = F(t0)
@@ -412,11 +418,12 @@ eyes((RG["theo"], 33.5, 39.07))
 
 # ================================================================== 10 the chase till sunset; the lamps go out one by one
 t0, t1 = win("chase_sunset", b=41.6); f0, f1 = F(t0), F(t1) - 1
-P0, P1 = V((-1.5, -62, Z0)), V((-1.0, -96, Z0))
+P0, P1 = V((-1.5, -62, Z0)), V((-1.0, -82, Z0))
 stage(f0, keep=(theo, wren))
 place(wren, f0, P0, 180); place(theo, f0, P0 + V((2.6, 0.6, 0)), 180)
 mo_walk(wren, f0, f1, [P0.xy, P1.xy], clip="run", z=Z0)
 mo_walk(theo, f0, f1, [(P0 + V((2.6, 0.6, 0))).xy, (P1 + V((2.6, 0.6, 0))).xy], clip="run", z=Z0)
+QUIET += list(range(f0, f1 + 1, 4))
 expr(RG["wren"], f0, "annoyed", ramp=0); expr(RG["theo"], f0, "effort" if "effort" in EX else "nervous", ramp=0)
 tod(f0, "sunset"); posts(f0, 300.0); lights(f0, haze={2: 0.3})
 def chase_pt(fr):
@@ -485,7 +492,7 @@ apple_at(f0, V((0, 0, -60)))
 APS = V((0.9, 6.0, 4.4)); CATCH = V((0.75, 5.3, 3.4))
 for i in range(0, 9):
     u = i / 8; kf(APL, "location", f0 + 6 + i, APS.lerp(CATCH, u) - V((0, 0, 0.6 * u * u)))
-gesture(theo, "Right", fg - 5, euler=(80, -12), dur=5)
+gesture(theo, "Right", fg - 5, euler=(80, -12), dur=5); QUIET += list(range(fg - 6, fg + 4))   # the catch: quick on purpose
 expr(RG["theo"], f0, "determined" if "determined" in EX else "annoyed", ramp=0); expr(RG["bramble"], fg, "shocked")
 look(bramble, fg, x=-8, dur=6)
 def apple_in_hand(fr):
@@ -592,7 +599,7 @@ t0, t1 = win("grab"); f0, f1 = F(t0), F(t1) - 1
 G0, G1 = V((3.5, -6, Z0)), V((-1.6, 2.2, Z0))
 stage(f0, (wren, WS, -140), (bramble, BRAM, 180), *town(f0, idx=(1, 3, 5, 7, 9)), keep=(theo,))
 place(theo, f0, G0, facing((G1 - G0).xy)); mo_walk(theo, f0, f1 - 12, [G0.xy, G1.xy], clip="walk", z=Z0)
-gesture(theo, "Right", f1 - 10, euler=(62, -30), dur=5); gesture(wren, "Left", f1 - 8, euler=(55, 15), dur=6)
+gesture(theo, "Right", f1 - 10, euler=(62, -30), dur=5); QUIET += list(range(f1 - 11, f1 - 2))   # the grab; gesture(wren, "Left", f1 - 8, euler=(55, 15), dur=6)
 look(wren, f1 - 20, z=30, dur=10); expr(RG["wren"], f1 - 8, "shocked")
 expr(RG["theo"], f0, "determined" if "determined" in EX else "annoyed", ramp=0)
 C("17 grab", t0, t1, V((-1.4, 1.6, 3.4)), rimc=(255, 220, 190), rime=800, u=V((-0.3, -1, 0)), size=0.45, span=6.5, lens=35, tilt=6, sy=0.05,
@@ -783,4 +790,4 @@ def run_checks(allow=(), motion_chars=None, quiet=(), **kw):
 
 
 ALLOW = ("11c glove", "14 cellar", "11d black", "13c black", "14d black", "20c black", "04 server list", "14b the dark", "23 smile")
-finish_part(life=True, allow=ALLOW, motion_chars=None if not os.environ.get("MOTION") else {"theo": theo, "wren": wren})
+finish_part(life=True, allow=ALLOW, quiet=QUIET, motion_chars=None if not os.environ.get("MOTION") else {"theo": theo, "wren": wren})
