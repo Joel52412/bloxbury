@@ -57,7 +57,7 @@ RBD = "re-zero-return-by-death.mp3"; WITCH = "re-zero-kara-hajimeru-isekai-seika
 # beds first, so a silence() placed later zeroes them too
 alley0, freeze0 = k["Then the last bell"][0] - 2.2, k["Wren. Listen."][1]
 m.sfx("Market_ambience", 1, 0, None, -44, fi=0.4, fo=0.8, at=k["And the game"][0] - 0.6)          # arrival -> sunset
-m.sfx("Market_ambience", 2, 0, None, -44, fi=0.6, fo=1.0, at=k["Mind yourself"][0] - 0.3)          # respawn 2 -> freeze
+m.sfx("Market_ambience", 2, 0, freeze0 - (k["Mind yourself"][0] - 0.3), -44, fi=0.6, fo=0.03, at=k["Mind yourself"][0] - 0.3)  # respawn 2 -> freeze
 m.sfx("Alley_night_ambience", 1, 0, k["Mind yourself"][0] - alley0, -42, fi=1.0, fo=0.05, at=alley0)
 # hook: respawn sting on frame 0, apple drop, three more drops on the cuts
 raw(RBD, 0.0, -24)
@@ -82,7 +82,7 @@ c3 = k["Third time"][1]
 m.sfx("Candle_out_a_single", 1, 0, None, -32, at=c3 - 0.35)
 m.silence(c3 + 0.15, c3 + 0.7); raw(RBD, c3 + 0.7, -30, b=1.4, fo=0.3)
 # the freeze: all sound stops, the witch under the Hand, the heartbeat, black
-m.silence(freeze0, TOTAL)                                     # kills the market bed from here
+# (no silence() here: it would also zero every voice placed after the freeze; the market bed ends at freeze0 instead)
 m.sfx("Time_freeze_every_s", 1, 0, None, -30, fi=0.005, at=freeze0)
 raw(WITCH, k["Everything stopped"][0] - 0.6, -30, fi=0.6, fo=0.05, b=k["Not. Yours"][1] + 0.3 - (k["Everything stopped"][0] - 0.6))
 m.sfx("Heartbeat_slow_a_de", 1, 0, None, -30, fi=0.3, fo=0.05, at=k["Everything stopped"][1] + 0.2)
