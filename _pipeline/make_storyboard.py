@@ -6,20 +6,20 @@
 # Before partN.py exists, use make_animatic.py (dark frame) for the first pacing pass. Send in chat; don't store it.
 import json, os, subprocess, sys
 from PIL import Image, ImageDraw, ImageFont
-N = sys.argv[1]; T = os.environ.get("OUT_DIR", "/home/claude/talk/"); R = os.path.abspath(os.path.dirname(__file__) + "/..")
+N = sys.argv[1]; I, S = (f"p{N}", f"part{N}") if N.isdigit() else (N, N); T = os.environ.get("OUT_DIR", "/home/claude/talk/"); R = os.path.abspath(os.path.dirname(__file__) + "/..")
 SCR = os.environ.get("SCR", "/home/claude/bloxbury-blender/")
-out = sys.argv[2] if len(sys.argv) > 2 else f"/home/claude/Part{N}_storyboard.mp4"
+out = sys.argv[2] if len(sys.argv) > 2 else f"/home/claude/{S}_storyboard.mp4"
 W, H = 540, 960                                               # libass scales the 1080x1920 captions to this
-e = json.load(open(f"{T}env_p{N}.json")); shots = json.load(open(f"{T}shots_p{N}.json"))["shots"]
-AUDIO = next((f"{T}part{N}_audio.{x}" for x in ("wav", "flac") if os.path.exists(f"{T}part{N}_audio.{x}")), f"{T}part{N}_audio.flac")
+e = json.load(open(f"{T}env_{I}.json")); shots = json.load(open(f"{T}shots_{I}.json"))["shots"]
+AUDIO = next((f"{T}{S}_audio.{x}" for x in ("wav", "flac") if os.path.exists(f"{T}{S}_audio.{x}")), f"{T}{S}_audio.flac")
 NF = int(e.get("nf") or round(e["total"] * 24))
-ST = os.environ.get("STILLS", f"{T}preview_p{N}")
+ST = os.environ.get("STILLS", f"{T}preview_{I}")
 os.makedirs(ST, exist_ok=True)
 ends = [(max(f0, min(f1, f0 + 1)), max(f0, f1 - 1)) for _, f0, f1 in shots]      # skip the cut frame itself
 need = sorted({f for ab in ends for f in ab if not os.path.exists(f"{ST}/{f:04d}.png") or not os.path.getsize(f"{ST}/{f:04d}.png")})
 if need:
     print("rendering", len(need), "stills")
-    subprocess.run([sys.executable, SCR + f"part{N}.py"], cwd=SCR, check=True, stdout=subprocess.DEVNULL,
+    subprocess.run([sys.executable, SCR + (f"part{N}.py" if N.isdigit() else f"{N}.py")], cwd=SCR, check=True, stdout=subprocess.DEVNULL,
                    env=dict(os.environ, RENDER="1", OUT=ST, RX="216", RY="384", SAMPLES=os.environ.get("SAMPLES", "4"),
                             FRAMES=",".join(map(str, need))))
 font = ImageFont.truetype(R + "/assets/fonts/Poppins-Bold.ttf", 22)
@@ -29,7 +29,7 @@ def still(f):
     return img[f]
 dt = [f"drawtext=fontfile={R}/assets/fonts/Poppins-Bold.ttf:text='%{{pts\\:hms}}':x=(w-tw)/2:y=18:fontsize=26:fontcolor=white:box=1:boxcolor=black@0.5"]
 dt += [f"drawtext=fontfile={R}/assets/fonts/Poppins-Bold.ttf:text='music out':x=(w-tw)/2:y=96:fontsize=18:fontcolor=0xFF6666:enable='between(t,{a},{b})'" for a, b in e.get("mutes", [])]
-vf = ",".join(dt) + f",ass={T}captions_p{N}.ass:fontsdir={R}/assets/fonts,format=yuv420p"
+vf = ",".join(dt) + f",ass={T}captions_{I}.ass:fontsdir={R}/assets/fonts,format=yuv420p"
 ff = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", "24", "-i", "-",
                        "-i", AUDIO, "-vf", vf, "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
                        "-c:a", "aac", "-b:a", "160k", "-shortest", out], stdin=subprocess.PIPE)
