@@ -22,6 +22,6 @@ Inspired by the Re:Zero death-loop idea, with our own characters, world and plot
 ## Status (24 Nov)
 - Part 1 audio mix v3 APPROVED 24 Nov (114 s, `audio/prep_rs1.py`, data/rs1). Stair_crack SFX still missing (gap after "The stairs gave way").
 - Part 1 built: world `scripts/rs_world.py` (@world lanternfall: square, apple stall, alley, inn stairs, cellar, bedroom, respawn ring, the hand), cards `scripts/rs_cast.py` (Theo, Wren, Bramble, Ashby, Thief, `lf_extra`), scene `scripts/rs1.py` (52 cuts; FACE/LIPSYNC/SHOT/FRAMING OK). Ashby shows only gloves, shoes and a smile in Part 1.
-- Storyboard with sound sent 24 Nov 13:10 (`make_storyboard.py rs1`: held key panels per shot from `board` in shots json). Waiting on j's notes.
-- Respawn moment rendered once: `reuse` in shots_rs1.json = frames 1-38 copied to 1181 and 2681. TODO before final: pod side copies reused frames instead of rendering them.
-- Next: j's notes → `MOTION=1` check_motion → motion preview (`preview_local.py rs1.py`) → ask j before the paid final.
+- Storyboard approved 24 Nov; j skipped the free preview. Final rendered 24 Nov on 3× Secure 4090 split (pod_range, ~1 h, ~$3.10): `RESPAWN_Part1.mp4` + `_TikTok.mp4` in project files respawn/exports (laptop: stories\respawn\exports). Render cache accepted (master: project files respawn/render_cache/rs1_master.mp4 → laptop stories\respawn\render_cache).
+- Motion audit on the final: 5 pops (1026 lamps out, 2043-44 the hand, 2393-94 smile), 8 judder runs (ring 20-34 / 1200-1214 / 2700-2715, 55-69, 1255-1269, 2149-2163, 2418-2432, 2581-2595). Fix via render_cache patch if j wants. Stair_crack SFX still missing.
+- Next: j's notes on the final; Part 2 script.
