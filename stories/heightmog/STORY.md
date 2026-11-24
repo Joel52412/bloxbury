@@ -19,5 +19,6 @@ In this town, the taller you are, the more power you get. Kai (4 ft 1) notices t
 - SFX picks (trims/EQ/levels in `audio/prep_hm1.py`): Crowd_groan #2, Bus_leave #1, Pen_drop #3, Dog_sniff #1, Shoe_shuffle #4, Mic_tap #4, Coat_topple #1 (music drops on its thud), Crowd_gasp #1, Crowd_cheer #3.
 
 ## Status (24 Nov)
-- Script + audio approved 23 Nov. Asset sheet v3 approved 23 Nov 23:57 (props7 saved to the library). Branch `claude/project-thread-sn1fef` (built on wfyx4a; not merged, no PR).
-- Next: scene `scripts/hm1.py` on the scene kit over the 24 scenes in env_hm1.json (reuse hm1_assets.py set-up: boot("hm1", world="bloxbury", after_rig=(), lead="kai") + load props4/studio/lookdev/props7 + hm1_cast). Fix in the scene: the six-shoes insert framing (camera lower, see all 6) and the hook shot (mayor clear of the podium, frame 0 readable). Then storyboard (`make_storyboard.py`), motion clips, free motion preview.
+- Script + audio approved 23 Nov. Asset sheet v3 approved 23 Nov 23:57 (props7 saved to the library).
+- Scene `scripts/hm1.py` built 24 Nov (branch `claude/project-thread-uujwb2`, on sn1fef): 24 env scenes / 29 cuts (dog_sniff, backstage, sway, calendar split), all checks OK (faces, lip-sync, shots, motion, framing). Hook: mayor beside the podium (`MAYOR_STAGE`), six-shoes insert low at the hem. Ending: coat 2 (`Stack2`, Kai rides on top, eight shoes, Kai's top hat); stack 1 parked. Storyboard sent to j; free motion preview `preview_local.py hm1.py --all`.
+- Next: j's notes on storyboard + preview, then motion_audit fixes, then ask j before the paid final render.
