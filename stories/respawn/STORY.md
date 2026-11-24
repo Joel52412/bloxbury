@@ -20,4 +20,4 @@ Inspired by the Re:Zero death-loop idea, with our own characters, world and plot
 - **Part 4 "Sunrise"** (plan): two loopers can talk through the freeze. Theo stops running (the choice he always made) and talks Ashby round; Wren lights the lantern; dawn, day 4. Final: a red ring flickers under Wren: "That's the first time I've died today." 
 
 ## Status (24 Nov)
-- Concept approved. Part 1 script v1 is waiting for j's notes. Next: Part 1 voice blocks + SFX list, then audio.
+- Concept approved. Part 1 script v1 approved. Voice blocks + SFX list in `part1/voices_rs1.md`, waiting for j to record. Next: audio, then build Lanternfall in the production look.

@@ -51,10 +51,10 @@ Deaths are always implied: cut to black on the moment, then the respawn sound. N
 | 88.8 | | (heartbeat stops, cut to black) | Black, 1 s. |
 | 90.4 | THEO (VO) | I died before the sentence finished. | Black. |
 | 93.0 | THEO (VO) | But that's not the part that scared me. | Respawn ring, dim. Theo on his knees at the stall. |
-| 95.6 | THEO (VO) | This time... the apple didn't drop. | Insert: a white-gloved hand catches the apple before it falls. Camera tilts up: we see only a smile, face out of frame. |
+| 95.6 | THEO (VO) | This time... the apple didn't stop at my feet. | Insert: the apple rolls past Theo and stops at polished black shoes. A white-gloved hand picks it up. Camera tilts up: only a smile, face out of frame. |
 | 99.4 | VOICE (off) | Welcome back, Theo. | White caption (off-screen). Theo freezes: he never told anyone his name. |
 | 102.4 | THEO (VO) | Nobody here knows my name. | Hold on Theo's face. Music swells, then cuts. |
 | 105.2 | THEO (VO) | Would you have told her... or kept quiet and kept dying? | Wren across the square, looking back at him for one beat too long. |
-| 109.6 | THEO (VO) | Because that was the fifth time I died today. | Cut to the respawn ring flashing (loops into line 1). |
+| 109.6 | THEO (VO) | And that... was only the fourth time I died today. | Cut to the respawn ring flashing (loops into line 1). |
 
-Rewatch details: the white glove in the alley (43.6 s) and the white glove catching the apple (95.6 s) are the same; Ashby (Part 2) wears them. Wren's look back at 105 s hints she remembers something (pays off in Part 4).
+Rewatch details: the white glove in the alley (43.6 s) and the white glove catching the apple (95.6 s) are the same glove; Ashby (Part 2) wears them. Wren's look back at 105 s hints she remembers something (pays off in Part 4).
