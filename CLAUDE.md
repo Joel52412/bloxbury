@@ -40,6 +40,14 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 8. **TikTok:** `TIKTOK=1 prep_<id>.py`, copy `<stem>_tiktok.flac` to `data/<id>/` (pods make the cut via `tiktok_audio`), or by hand `make_tiktok.sh <part.mp4> <tiktok.flac> <out.mp4>` (94% picture with black borders).
 9. Audit assets used; push anything new to the library.
 
+## Quick finish: voice + captions (`_pipeline/voice_captions.py`)
+One command turns a story's rendered shots into a finished short (no Blender, no pod):
+`python _pipeline/voice_captions.py stories/<story> [--no-tts]` → `stories/<story>/output/<story>.mp4` (1080×1920, 24 fps).
+- Needs `stories/<story>/script.txt` (`speaker: line`, `*word*` = red caption, `#` comments) and `stories/<story>/shots/` (rendered shot videos, sorted by filename).
+- Shot N plays under line N from its first frame: it's trimmed if it's too long and holds its last frame if it's too short. `[shot: name]` or `[shot: a, b]` before a line overrides the order.
+- ElevenLabs voices: key and voice ids go in root `config.json` (gitignored; template `config.example.json`). Speaker names must match `voices` keys. Voices are cached in `.tts_cache/`. Fitted shots are cached in `<story>/.cache/`, so only changed shots re-encode.
+- `--no-tts` gives a free silent timing preview. `--random` falls back to random cuts from `assets/clips`. `--music <file>` adds music (none by default).
+
 ## Hard rules
 - **Library:** save only Joel-verified assets; ask before bulk saves; "full asset sheet" = show everything.
 - **Look:** R6 characters, classic head, Roblox-makeable only. No glitch clipping (feet through floor, mug through face); unavoidable contact is fine. Hats get under-hat hair.
@@ -69,4 +77,5 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 - Stories folder split (lean core + one folder per story) in review.
 - Re-render only changed frames (`render_cache.py` + `pod_patch.sh`): PR #14 in review. Parts 1-3 have no cache (frames deleted); it starts with the next full render (`accept`).
 - Previews free (23 Nov): `preview_local.py` + `make_storyboard.py`. Laptop folder is a git clone of main (set up 23 Nov).
+- Voice + captions quick finish (`voice_captions.py`, 24 Nov): tested with `--no-tts` on Bloxbury footage (in-order fit, last-frame hold, cache: 1 of 4 shots re-encoded after a line edit). Not yet run with a real ElevenLabs key; no story has `script.txt` + `shots/` yet. Uncommitted on the laptop.
 - TODO: GHCR render image private (use runpod/pytorch).

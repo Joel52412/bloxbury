@@ -14,3 +14,9 @@ __pycache__/
 _tmp/
 _to_delete/
 sort through/
+
+# voice_captions.py (ElevenLabs key + caches + outputs)
+config.json
+.tts_cache/
+stories/**/output/
+stories/**/.cache/
