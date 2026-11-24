@@ -51,8 +51,9 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 - **Detail bar:** nothing ships as a plain block: 3+ readable sub-details per new asset; pictures/screens use generated images; cheap only (bevelled boxes, shared mats, emission, no glass/volumes, ≤5% render cost).
 - **Sets:** dress what the camera sees (`props4.py`); max one practical light per room.
 - **QA:** check_faces, check_shots (deliberate cases in `allow=`), shot stills reviewed, black/blank frame check after GPU render.
+- **Voice sound (Joel 23 Nov):** viral TikTok style: every voice sped up ~1.075× (Joel's pick) and pitched up only slightly in the mix (~0.5 semitone; kids designed as adults, ElevenLabs blocks child voices, +1.5 max; more sounds weird, Joel 23 Nov), `voice_fx.py`, formants kept. Time scripts for the sped-up length.
 - **24 fps. Captions:** `captions.write_ass()`: bold yellow Poppins, ONE word at a time with a pop, y=66%; red = monster/fake, white = off-screen.
-- **Length (Joel 23 Nov):** every video ~1 minute, max 1:10.
+- **Length (Joel 23 Nov):** every video 1:01 to 1:10 (TikTok pays only over 1 minute); write scripts to ~1:04 for margin.
 - **Hook:** frame 0 lit and readable; voice by 0.3 s with a strange claim a new viewer gets; something visibly wrong by ~3.5 s; cuts every 1.5–2 s for the first 6 s; recaps after the hook.
 - **Story:** studio-grade first drafts; new open question every 8–10 s; pattern breaks; 1–2 rewatch details; last line loops to first; end on a choice question. (Horror: dread over loud stings, max one earned startle.)
 - **SFX:** never synthesise real-world sounds; request ElevenLabs SFX from Joel (key-first prompt, duration, influence); level by RMS (files arrive ~−48 dB).
@@ -66,7 +67,7 @@ stories/<story>/  STORY.md, scripts/ (<id>.py scenes, <id>_assets.py), audio/ (p
 
 ## Studio status (23 Nov)
 - Parts 1-3 of BLOXBURY delivered. On main: motion fixes, mocap layer (`mocap.py`: 7 gaits + 6 actions, Joel-approved 23 Nov), speech-driven lip-sync + `talk_face`, shared scene kit + audio kit, pod hardening (watchdog, x264 export, auto TikTok + motion audit, FLAC mixes).
-- Stories folder split (lean core + one folder per story) in review.
+- Stories: BLOXBURY (Parts 1-3), HEIGHT MOG one-off (audio approved, asset sheet next). New shared tools: `voice_fx.py` (TikTok speed/pitch), `make_animatic.py <id>`.
 - Re-render only changed frames (`render_cache.py` + `pod_patch.sh`): PR #14 in review. Parts 1-3 have no cache (frames deleted); it starts with the next full render (`accept`).
 - Previews free (23 Nov): `preview_local.py` + `make_storyboard.py`. Laptop folder is a git clone of main (set up 23 Nov).
 - TODO: GHCR render image private (use runpod/pytorch).

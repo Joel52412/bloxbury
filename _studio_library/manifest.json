@@ -179,7 +179,8 @@
   "MILOS_ROOM": "hollow house interior: floorboards, bed, closet with hinge + handle, wall clock texts 2:59/3:00, lowered windows (part1_v2 patch)",
   "MUMS_KITCHEN": "p3_kitchen_set(KO): sunny kitchen 26x18x11, window light, hob, toaster, table, fridge, clock (build at z=400)",
   "UPSTAIRS_HALLWAY": "p3_hallway_set(HO): night hallway 10x26x11, real wall mirror (left wall), red runner, end door, warm lamp + moon fill",
-  "MILOS_CLOSET_HOLLOW": "p3_hollow_closet(): swaps the solid ClosetBox for a hollow shell (someone can stand inside)"
+  "MILOS_CLOSET_HOLLOW": "p3_hollow_closet(): swaps the solid ClosetBox for a hollow shell (someone can stand inside)",
+  "TALLTON": "Bloxbury town map redressed by props7.hm_town_makeover(houses) + hm_plaza + hm_stage (daytime comedy town, Height Mog)"
  },
  "props_batch3": {
   "toaster": "p3_toaster(loc): chrome 2-slot",
@@ -256,5 +257,20 @@
   "approved": "Joel 22 Nov 2026 23:02",
   "cinematic_look": "AgX contrast, bloom on practicals, vignette, cool-shadow/warm-highlight split, slight lens fringe (+3%)",
   "playbook": "_pipeline/LIGHTING.md"
+ },
+ "props_batch7": {
+  "_approved": "Joel 23 Nov 23:57 (HeightMog_asset_sheet.jpg)",
+  "hm_coat": "hm_coat(stack, top): trenchcoat over a stack of rigs (collar, lapels, belt+buckle, buttons, pockets, sleeves+gloves on the top rig)",
+  "hm_shoe": "extra shoe + trouser stub under a hem",
+  "hm_mustache": "curled handlebar mustache (above the mouth)",
+  "hm_plaza": "paved square with kerbs, planters",
+  "hm_stage": "stage facing -X: deck, bunting, steps, back wall + 'must be this tall' banner, flags, podium",
+  "hm_podium": "lectern with seal + gooseneck mic",
+  "hm_curtain": "backstage wing: red curtain folds, rope, enclosed dark wing, ladder, sandbag, cable",
+  "hm_bus": "city bus with route LED, side ads, folding door",
+  "hm_dog": "blocky dog with head/tail/leg pivots, collar + tag",
+  "hm_banquet": "long town-dinner table with food, benches",
+  "hm_pen": "fountain pen",
+  "hm_town_makeover": "Bloxbury map -> TALLTON: pastel houses, shopfronts, town hall + clock tower, bunting, lamp baskets, zebra, welcome sign"
  }
 }
