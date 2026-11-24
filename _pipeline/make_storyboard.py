@@ -1,6 +1,7 @@
-# make_storyboard.py N [out.mp4] - STORYBOARD ANIMATIC (replaces the dark-frame animatic, 23 Nov): the real shot
-# stills on the real mix. Each shot shows its first frame and cross-fades to its last, so the planned camera move and
-# the pose change read; shot name, timecode, "music out" markers and the word-timed captions sit on top.
+# make_storyboard.py N [out.mp4] - STORYBOARD (replaces the dark-frame animatic, 23 Nov): the real shot stills on the
+# real mix, the way a storyboard artist cuts one (j 24 Nov): one KEY still per shot, held, hard cuts; big moments get
+# 2-3 panels (the scene lists them per shot in shots_<id>.json "board"). Without "board" each shot shows its first
+# frame cross-faded to its last. Shot name, timecode, "music out" markers and word-timed captions sit on top.
 # Needs shots_pN.json (written by every build of partN.py). Stills come from STILLS (default /home/claude/talk/
 # preview_pN if frames are there); missing ones are rendered here at 216x384 SAMPLES=4 (~15 s + ~1 s per still).
 # Before partN.py exists, use make_animatic.py (dark frame) for the first pacing pass. Send in chat; don't store it.
@@ -15,7 +16,9 @@ AUDIO = next((f"{T}{S}_audio.{x}" for x in ("wav", "flac") if os.path.exists(f"{
 NF = int(e.get("nf") or round(e["total"] * 24))
 ST = os.environ.get("STILLS", f"{T}preview_{I}")
 os.makedirs(ST, exist_ok=True)
-ends = [(max(f0, min(f1, f0 + 1)), max(f0, f1 - 1)) for _, f0, f1 in shots]      # skip the cut frame itself
+BOARD = json.load(open(f"{T}shots_{I}.json")).get("board")
+if BOARD: ends = [tuple(BOARD.get(n) or [(f0 + f1) // 2]) for n, f0, f1 in shots]          # key panels per shot
+else: ends = [(max(f0, min(f1, f0 + 1)), max(f0, f1 - 1)) for _, f0, f1 in shots]      # skip the cut frame itself
 need = sorted({f for ab in ends for f in ab if not os.path.exists(f"{ST}/{f:04d}.png") or not os.path.getsize(f"{ST}/{f:04d}.png")})
 if need:
     print("rendering", len(need), "stills")
@@ -34,10 +37,16 @@ ff = subprocess.Popen(["ffmpeg", "-v", "error", "-y", "-f", "rawvideo", "-pix_fm
                        "-i", AUDIO, "-vf", vf, "-c:v", "libx264", "-preset", "veryfast", "-crf", "26",
                        "-c:a", "aac", "-b:a", "160k", "-shortest", out], stdin=subprocess.PIPE)
 cur = 0
-for (name, f0, f1), (a, b) in zip(shots, ends):
-    A, B = still(a), still(b); n = max(1, f1 - f0 + 1)
+for (name, f0, f1), keys in zip(shots, ends):
+    n = max(1, f1 - f0 + 1)
     lab = Image.new("RGBA", (W, 40), (0, 0, 0, 120)); d = ImageDraw.Draw(lab)
     d.text((W // 2, 20), name[:44], font=font, fill=(235, 235, 235, 255), anchor="mm")
+    if BOARD:                                                   # held panels, hard cuts (a panel per slice of the shot)
+        for i in range(n):
+            fr = still(keys[min(len(keys) - 1, i * len(keys) // n)]).copy()
+            fr.paste(lab, (0, 54), lab); ff.stdin.write(fr.tobytes()); cur += 1
+        continue
+    a, b = keys; A, B = still(a), still(b)
     for i in range(n):
         x = i / max(1, n - 1); k = x * x * (3 - 2 * x)          # eased cross-fade first -> last frame
         fr = Image.blend(A, B, k) if a != b else A.copy()
