@@ -3,6 +3,8 @@
 # video-only segment (near-lossless intermediate); the segments are joined with audio + captions on the laptop (join_segments.sh).
 # Usage: sh pod_range.sh part3.py 1 613 a
 S=$1; FS=$2; FE=$3; TAG=$4; OUT=/workspace/frames; mkdir -p $OUT
+# the Render Monitor needs total + price (else it shows "N / ?" with no ETA or cost): write render_job.json unless Claude did
+[ -f /workspace/render_job.json ] || echo "{\"name\": \"${JOB_NAME:-$S $TAG}\", \"group\": \"${JOB_GROUP:-$S}\", \"total\": $((FE - FS + 1)), \"frame_start\": $FS, \"frame_end\": $FE, \"cost_per_hr\": ${COST_PER_HR:-0.89}, \"pod_started\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\", \"output\": \"workspace/seg_$TAG.mp4\"}" > /workspace/render_job.json
 echo "{\"stage\": \"rendering\", \"fs\": $FS, \"fe\": $FE}" > /workspace/render_output.json
 nohup sh $(dirname "$0")/pod_watchdog.sh $OUT $FS $FE > /workspace/watchdog.log 2>&1 &   # hang/crash -> pod stops
 CUDA_VISIBLE_DEVICES=0 ENGINE=GPU RENDER=1 RX=${RX:-1080} RY=${RY:-1920} SAMPLES=${SAMPLES:-32} OUT=$OUT FS=$FS FE=$FE \
