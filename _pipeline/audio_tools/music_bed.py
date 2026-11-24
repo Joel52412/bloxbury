@@ -37,12 +37,13 @@ def music_bed(repo, total, sr, n=None, part=2, vol=None, fade_in=None, fade_out=
     end = int(total * sr)
     if cfg.get("pause"):                                          # song pauses through mutes, resumes where it stopped
         song = loop[int(start * sr):] * vol; bed = np.zeros(n, np.float32); pos = 0; t = 0
-        for a, b in list(mutes) + [(total, total)]:
+        mfo = cfg.get("mute_fo", 0.04); mfo = list(mfo) if isinstance(mfo, (list, tuple)) else [mfo] * len(mutes)
+        for i, (a, b) in enumerate(list(mutes) + [(total, total)]):
             a, b = int(a * sr), int(b * sr); k = min(a - t, len(song) - pos)
             if k > 0:
                 seg = song[pos:pos + k].copy(); ki = min(int(0.6 * sr), k)
                 if t > 0: seg[:ki] *= np.linspace(0, 1, ki)
-                ko = min(int(0.04 * sr), k)
+                ko = min(int((mfo[i] if i < len(mfo) else 0.04) * sr), k)    # cfg mute_fo: fade into each mute (s)
                 if a < end: seg[-ko:] *= np.linspace(1, 0, ko)
                 bed[t:t + k] = seg; pos += k
             t = b

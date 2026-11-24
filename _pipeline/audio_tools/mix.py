@@ -194,9 +194,10 @@ class Mix:
         self.put(fade(s, fi, fo, self.sr), at)
         return s
 
-    def silence(self, a, b):
-        """Hard silence (cut to black): everything recorded so far is zeroed in [a, b)."""
-        self.events.append(("silence", None, a, b))
+    def silence(self, a, b, ramp=0.0):
+        """Silence (cut to black): everything recorded so far is zeroed in [a, b). ramp (s) fades out into it and back
+        in after it, so a deliberate cut doesn't click; 0 = the old instant cut."""
+        self.events.append(("silence", ramp, a, b))
 
     def music(self, part=None, mutes=(), duck=False, low_trim=False):
         """Music bed (music_bed.PART_MUSIC[part]) with dropouts; duck=True dips it under every voice placed so far."""
@@ -210,7 +211,11 @@ class Mix:
         for kind, a, b, c in self.events:
             if kind == "voice": put(mix, a, b, sr); put(vox, a, b, sr); put(spk[c], a, b, sr)
             elif kind == "sfx": put(mix, a, b, sr)
-            elif kind == "silence": mix[int(b * sr):int(c * sr)] = 0
+            elif kind == "silence":
+                i0, i1 = int(b * sr), int(c * sr); mix[i0:i1] = 0
+                if a:
+                    r = int(a * sr); j0 = max(0, i0 - r); mix[j0:i0] *= np.linspace(1, 0, i0 - j0)
+                    j1 = min(len(mix), i1 + r); mix[i1:j1] *= np.linspace(0, 1, j1 - i1)
             elif kind == "music":
                 duck, low_trim = c
                 bed = music_bed(self.repo, total, sr, len(mix), part=a or int(self.n), mutes=b)
