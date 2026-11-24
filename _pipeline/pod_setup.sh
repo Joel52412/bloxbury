@@ -27,7 +27,7 @@ cp $R/_studio_library/engine/*.py $H/studio_library/engine/
 cp $R/_pipeline/scripts/*.py $H/bloxbury-blender/
 for st in $R/stories/*/; do                                          # every story: scene scripts + env, captions, mix
   [ -d $st/scripts ] && cp $st/scripts/*.py $H/bloxbury-blender/
-  for d in $st/data/*; do [ -d $d ] && cp $d/env_*.json $d/captions_*.ass $d/*_audio.flac $d/*_tiktok.flac $H/talk/ 2>/dev/null; done
+  for d in $st/data/*; do [ -d $d ] && cp $d/env_*.json $d/captions_*.ass $d/*_audio.flac $d/*_tiktok.flac $H/talk/ 2>/dev/null || true; done   # a story with no TikTok mix must not stop setup (set -e)
 done
 ./blender/blender -v | head -1
 echo SETUP_OK
