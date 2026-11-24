@@ -1,6 +1,6 @@
 # RESPAWN Part 1 (rs1) voices + SFX
 Save voices as `stories/respawn/part1/voice/<who>_rs1.mp3` (theo, wren, bramble, ashby, hand). SFX go to `assets/sfx/` with ElevenLabs names.
-Mix: every voice sped up 1.1× and pitched up (rubberband, formants kept); Theo +2 semitones total, others +1, the Hand pitched DOWN 3. Record at normal speed.
+No speed-up or pitch shift in the mix (j 24 Nov): pace and pitch come from the voice prompt. Recorded 24 Nov.
 Paste only the Prompt into the Prompt box and the Preview text into the Preview Text box. Guidance ~35%.
 
 ## New voices (ElevenLabs Voice Design)
@@ -85,19 +85,21 @@ Test line: "Not. Yours. To tell."
 ## SFX requests (ElevenLabs Sound Effects, prompt influence 0.65 unless noted; download all variants)
 | Key | Prompt | Dur |
 |---|---|---|
-| `Respawn_chime` | Respawn chime, a short magical rising shimmer of bright bells with a soft airy whoosh at the end, clean and game-like, no music, no voices | 2 s |
-| `Apple_drop` | Apple drop, a single apple falls onto wet cobblestones and rolls a short way, close-up, outdoor market, no music, no voices | 2 s |
-| `Market_ambience` | Market ambience, busy medieval town square at noon, distant chatter, cart wheels on cobbles, a chicken, a hammer on an anvil far away, no music, no clear words | 20 s |
-| `Mouse_click` | Mouse click, one computer mouse click in a silent dark bedroom at night, close-up, no music, no voices | 1 s |
-| `Pulled_in_whoosh` | Pulled in whoosh, a deep rushing suction of air that rises into a bright sharp burst, then silence, no music, no voices | 2 s |
-| `Rooftop_run` | Rooftop run, two people running across loose clay roof tiles, tiles clinking and shifting, outdoors, no music, no voices | 4 s |
-| `Bell_toll` | Bell toll, one single heavy church bell strike from a stone tower, distant across a quiet town at dusk, long ringing decay, no music, no voices | 6 s |
-| `Alley_night` | Alley night ambience, cold narrow stone alley at night, light wind, slow water dripping, a far dog bark once, very quiet, no music, no voices | 20 s |
-| `Cloth_rustle` | Cloth rustle, heavy wool coat moving very close behind the listener's ear in a silent alley, slow and deliberate, no music, no voices | 2 s |
-| `Stair_crack` | Stair crack, old wooden stairs creak under a step then one board cracks sharply, indoor inn, no music, no voices | 3 s |
-| `Candle_out` | Candle out, a single candle flame snuffing out in a silent stone cellar, tiny hiss and a breath of air, no music, no voices | 2 s |
-| `Time_freeze` | Time freeze, every sound is sucked away in a quick reverse inhale, leaving a low, cold, steady hum, no music, no voices (influence 0.5) | 3 s |
-| `Heartbeat_slow` | Heartbeat slow, a deep close human heartbeat that slows down, beat by beat, then stops, silence at the end, no music, no voices | 6 s |
-| `Glove_pickup` | Glove pickup, a leather-gloved hand picks up an apple from cobblestones, soft leather creak and a light tap, close-up, no music, no voices | 1 s |
+| `Apple_drop` | Apple drop, a single apple falls onto wet cobblestones and rolls a short way, close-up, outdoor market | 2 s |
+| `Market_ambience` | Market ambience, busy medieval town square at noon, distant chatter, cart wheels on cobbles, a chicken, a hammer on an anvil far away | 20 s |
+| `Mouse_click` | Mouse click, one computer mouse click in a silent dark bedroom at night, close-up | 1 s |
+| `Pulled_in_whoosh` | Pulled in whoosh, a deep rushing suction of air that rises into a bright sharp burst, then silence | 2 s |
+| `Rooftop_run` | Rooftop run, two people running across loose clay roof tiles, tiles clinking and shifting, outdoors | 4 s |
+| `Bell_toll` | Bell toll, one single heavy church bell strike from a stone tower, distant across a quiet town at dusk, long ringing decay | 6 s |
+| `Alley_night` | Alley night ambience, cold narrow stone alley at night, light wind, slow water dripping, a far dog bark once, very quiet | 20 s |
+| `Cloth_rustle` | Cloth rustle, heavy wool coat moving very close behind the listener's ear in a silent alley, slow and deliberate | 2 s |
+| `Stair_crack` | Stair crack, old wooden stairs creak under a step then one board cracks sharply, indoor inn | 3 s |
+| `Candle_out` | Candle out, a single candle flame snuffing out in a silent stone cellar, tiny hiss and a breath of air | 2 s |
+| `Time_freeze` | Time freeze, every sound is sucked away in a quick reverse inhale, leaving a low, cold, steady hum (influence 0.5) | 3 s |
+| `Heartbeat_slow` | Heartbeat slow, a deep close human heartbeat that slows down, beat by beat, then stops, silence at the end | 6 s |
+| `Glove_pickup` | Glove pickup, a leather-gloved hand picks up an apple from cobblestones, soft leather creak and a light tap, close-up | 1 s |
 
-Music: a dark music-box / soft strings track, ~2 min, from your library (send it with the voices, or tell me to pick from `assets/music`).
+Supplied by j (24 Nov): `re-zero-return-by-death.mp3` (2.7 s) = every respawn; `re-zero-kara-hajimeru-isekai-seikatsu-ost-03_ORAmAM1.mp3` (14.8 s) = the witch sound under the Hand (time freeze → black). Both copyrighted: YouTube Content ID may claim them; keep their first-to-last span inside the TikTok 55 s rule.
+
+## Music prompt (j generates it)
+Dark fantasy anime underscore, instrumental, 2:00, 72 BPM, D minor. 0:00 a fragile, slightly out-of-tune music box melody over soft sustained strings and a low cello drone. 0:20 a light, curious pizzicato pulse joins (a busy medieval market). 0:40 cold and sparse: ticking clock percussion, hushed wordless choir, distant bell. 1:00 the music box theme returns, warmer, with solo violin. 1:15 tension rises with tremolo violins and a slow heartbeat-like timpani. 1:28 sudden cut to near silence, one low sustained note. 1:40 to 2:00 sad solo piano plays the music box theme, slow and lonely, ending unresolved. Melancholic, haunting, mysterious, cinematic, sparse mid-range so it sits under dialogue, no vocals, no lyrics.

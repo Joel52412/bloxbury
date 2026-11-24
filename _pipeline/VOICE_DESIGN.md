@@ -7,7 +7,8 @@ Every new speaking character gets a Voice Design prompt, preview text and settin
 3. Quality: "Studio-quality recording." (drop it for very niche/monster voices).
 4. Persona in 2-5 words, then 2-3 emotion adjectives.
 5. 1-2 sentences on timbre (warm, airy, gravelly...), pacing and delivery. Keep timbre and emotion separate.
-6. Never write effects words (reverb, echo, phone, tape). Effects (doubles, distortion) are added in our mix instead.
+6. Pace + pitch live in the prompt (j 24 Nov): ask for quick, energetic, slightly higher delivery there. The mix never speeds up or pitch-shifts voices.
+7. Never write effects words (reverb, echo, phone, tape). Effects (doubles, distortion) are added in our mix instead.
 - Preview text must MATCH the description, and be a full sentence or short paragraph (longer = steadier voice).
 - Guidance: ~30-40%. Higher = stricter accent/tone, lower = better audio and acting.
 - Generate, pick the best of the previews, save the voice, then test the hardest line from the script (e.g. the whisper).
@@ -23,7 +24,7 @@ Fake Mum = same voice, made "slightly too perfect" in our mix (tiny timing tweak
 
 
 ## SFX requests
-Real-world sounds always come from Joel's ElevenLabs Sound Effects (synth only for abstract thuds/swells). Request: prompt starting with the file key, then source, distance, room, texture, "no music, no voices"; duration; prompt influence 0.6–0.7. Files arrive as `Key_words_N-<id>.mp3` in `assets/sfx/`; cue sheets match the key prefix + `[_#]N-` and set the level by RMS.
+Real-world sounds always come from Joel's ElevenLabs Sound Effects (synth only for abstract thuds/swells). Request: prompt starting with the file key, then source, distance, room, texture, duration (no "no music, no voices" tail, j 24 Nov); prompt influence 0.6–0.7. Files arrive as `Key_words_N-<id>.mp3` in `assets/sfx/`; cue sheets match the key prefix + `[_#]N-` and set the level by RMS.
 
 | Key | Used | Prompt | Dur | Infl |
 |---|---|---|---|---|

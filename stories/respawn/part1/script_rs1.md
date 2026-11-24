@@ -1,6 +1,6 @@
-# RESPAWN Part 1 "Checkpoint" (rs1) script v1: ~115 s raw speech, ~1:45 after the 1.1× speed-up
+# RESPAWN Part 1 "Checkpoint" (rs1) script v1: ~1:50 (no speed-up)
 Voices: THEO (narrator, voiceover; mouth moves only on in-scene lines), WREN, BRAMBLE, THE HAND (whisper, red captions).
-Deaths are always implied: cut to black on the moment, then the respawn sound. Nothing graphic. Times are raw, before the speed-up.
+Deaths are always implied: cut to black on the moment, then the respawn sound. Nothing graphic. 
 
 ## Beat sheet
 | Time | Beat | Open question |
