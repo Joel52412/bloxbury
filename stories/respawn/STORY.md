@@ -8,7 +8,7 @@ Inspired by the Re:Zero death-loop idea, with our own characters, world and plot
 - **Cards (new):** THEO (lead/narrator, teen, hoodie, out of place in a medieval world), WREN (lamplighter's apprentice: satchel, lighting pole, braid), ASHBY (butler: white gloves, grey hair, kind face), BRAMBLE (apple merchant, apron). LILY (Ashby's daughter, Part 3-4, mostly heard). THE HAND (black, smoke-edged arm, only in time-freeze).
 - **World:** new `@world("lanternfall")`. Sets: market square + apple stall (checkpoint), back alley, rooftops, Vale Manor (gate, servant bedroom, hall, locked room). Palette: warm lantern amber by day; cold blue night; time-freeze = desaturated + pure black hand.
 - **Signature:** red Roblox respawn ring + respawn sound + apple drop. Rendered once, reused every loop.
-- **Music:** TBD (j picks; dark music-box/strings).
+- **Music:** `assets/music/Numbers_piano.mp3` (j 24 Nov), quieter than usual: ~24 dB under voices, ducked under speech; cuts out with all sound at the time freeze. Re:Zero stings: return-by-death on every respawn, the witch OST under the Hand.
 
 ## Files
 `scripts/rsN.py`, `audio/prep_rsN.py`, `data/rsN/`, `partN/` (script, voice), `exports/` (laptop). Id tag: `rs`. 
@@ -20,4 +20,4 @@ Inspired by the Re:Zero death-loop idea, with our own characters, world and plot
 - **Part 4 "Sunrise"** (plan): two loopers can talk through the freeze. Theo stops running (the choice he always made) and talks Ashby round; Wren lights the lantern; dawn, day 4. Final: a red ring flickers under Wren: "That's the first time I've died today." 
 
 ## Status (24 Nov)
-- Concept approved. Part 1 script v1 approved. Voices recorded (part1/voice). Re:Zero stings from j in assets/sfx. Waiting on j: 13 SFX + music from the prompts in `part1/voices_rs1.md`. Next: audio, then build Lanternfall in the production look.
+- Concept approved. Part 1 script v1 approved. Voices recorded (part1/voice). Re:Zero stings from j in assets/sfx. Voices aligned + split (data/rs1, no clicks). SFX in: glove, heartbeat, time freeze, candle, cloth (Close-mic_heavy_wool), alley. Waiting on j: Apple_drop, Market_ambience, Mouse_click, Pulled_in_whoosh, Rooftop_run, Bell_toll, Stair_crack. Next: audio, then build Lanternfall in the production look.
